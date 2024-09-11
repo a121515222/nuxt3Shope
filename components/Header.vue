@@ -15,7 +15,6 @@ const getHeight = (ref, height) => {
 
 onMounted(() => {
   window.addEventListener("scroll", () => {
-    console.log("scrollY", scrollY.value);
     scrollY.value = window.scrollY;
   });
   getHeight(headerRef, headerHeight);

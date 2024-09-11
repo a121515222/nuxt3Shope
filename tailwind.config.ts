@@ -23,6 +23,9 @@ module.exports = {
         third: {
           DEFAULT: "#89c534"
         }
+      },
+      spacing: {
+        "7/10": "70%"
       }
     }
   },
