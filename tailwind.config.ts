@@ -1,4 +1,5 @@
 // @type {import('tailwindcss').Config}
+const plugin = require("tailwindcss/plugin");
 module.exports = {
   darkMode: "selector",
   content: [
@@ -9,6 +10,7 @@ module.exports = {
     "./nuxt.config.{js,ts}",
     "./node_modules/flowbite/**/*.{js,ts}"
   ],
+  safelist: ["opacity-0", "opacity-100"],
   theme: {
     extend: {
       colors: {
@@ -26,8 +28,38 @@ module.exports = {
       },
       spacing: {
         "7/10": "70%"
+      },
+      height: {
+        "7/10": "70%"
+      },
+      width: {
+        "9/10": "90%"
+      },
+      textShadow: {
+        DEFAULT: "0 2px 2px var(--tw-shadow-color)"
+      },
+      keyframes: {
+        scrollDown: {
+          "0%": { transform: "translateY(5px)" },
+          "100%": { transform: "translateY(16px)" }
+        }
+      },
+      animation: {
+        scrollDown: "scrollDown 1s ease-in-out infinite"
       }
     }
   },
-  plugins: [require("flowbite/plugin")]
+  plugins: [
+    require("flowbite/plugin"),
+    plugin(function ({ matchUtilities, theme }) {
+      matchUtilities(
+        {
+          "text-shadow": (value) => ({
+            textShadow: value
+          })
+        },
+        { values: theme("textShadow") }
+      );
+    })
+  ]
 };
