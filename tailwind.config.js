@@ -38,6 +38,12 @@ module.exports = {
       textShadow: {
         DEFAULT: "0 2px 2px var(--tw-shadow-color)"
       },
+      objectPosition: {
+        "center-bottom": "center bottom"
+      },
+      backgroundPosition: {
+        "center-bottom": "center 70%"
+      },
       keyframes: {
         scrollDown: {
           "0%": { transform: "translateY(5px)" },
