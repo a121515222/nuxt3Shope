@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 const headerRef = ref(null);
 const indexStore = useIndexStore();
 const {
@@ -7,7 +7,7 @@ const {
   shouldShowDarkModeBackground
 } = useIndexStore();
 const { headerHeight, scrollY } = storeToRefs(indexStore);
-const getHeight = (ref, height) => {
+const getHeight = (ref: Ref<HTMLElement | null>, height: Ref<number>) => {
   if (ref.value) {
     height.value = ref.value.clientHeight;
   }

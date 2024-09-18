@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 const indexStore = useIndexStore();
 const { shouldShowDarkModeText } = useIndexStore();
 const { isDarkMode, scrollY } = storeToRefs(indexStore);

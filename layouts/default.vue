@@ -14,6 +14,7 @@ const headerHeightComputed = computed(() => {
 </script>
 <template>
   <div
+    class="bg-gray-300 dark:bg-gray-800"
     :class="{ dark: isDarkMode }"
     :style="{ paddingTop: headerHeightComputed + 'px' }"
   >
