@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import Index from "~/pages/index.vue";
-
 const indexStore = useIndexStore();
 const { scrollY, headerHeight } = storeToRefs(indexStore);
 

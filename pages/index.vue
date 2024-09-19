@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { type Product } from "@/types/productTypes";
+import { type Article } from "@/types/articleTypes";
 const bannerConfig = {
   duration: 6000,
   imagesPath: [
@@ -16,6 +17,17 @@ const subBannerConfig = {
   isMainBanner: false,
   bannerHeight: "30vh",
   style: ["bg-center-bottom"]
+};
+const buttonBannerConfig = {
+  imagesPath: [
+    "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1652260363517.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=E%2FkEzKyp%2BtIyg6DGjzDAXAlAwrImtalmqjoH8DvwudNk49puvmRmAdtQTS1SL%2FvHhARiw%2FuhiHG0ICkOlHpft6NRk0hgKaHEVi1TyApl62rGJPXDJpOHwZRkiVPzoIqO8R2SY7YIusJBsyZmf8cI7Hr4S5BXBGupValaxIz2p%2FtZv4jj3a2DUZMuyPK8yHZF00V7UxooszeX6OiBQhFMxnIYjvgXHkQuV6OHJq3%2BUjdXW0ubLIq7TI%2FuXzd3bOieFLiTwu8QyI8%2BLeQjXIdywEqkUycavR2zWaNZwlxHiJArhQHvmfuO%2Fot5P%2BnQJeX5uz09m%2FuL1JDZz2KFk56IBQ%3D%3D"
+  ],
+  isMainBanner: false,
+  bannerHeight: "30vh",
+  style: ["bg-center-bottom"]
+};
+const articleDataConfig = {
+  isMainArticle: true
 };
 const productDataList: Product[] = [
   {
@@ -268,6 +280,93 @@ const productDataList: Product[] = [
     unit: "台斤"
   }
 ];
+const articalsDataList: Article[] = [
+  {
+    author: "CHUN-CHIA",
+    create_at: 1647820800,
+    description:
+      "當部分植物開花時，分為雄蕊與雌蕊，當雄蕊成熟時需要將花藥散佈至雌蕊柱頭上，這個過程成為授粉，如果是以昆蟲進行受分的花則稱為蟲媒花。",
+    id: "-MyPj7FrkdRXLGfiToWX",
+    image:
+      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980684441.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=HRO0w6rJYhMF5SA8XNVGmIQtJhJG1omlP2mi%2BGPOkFJ1jFU7t64wJ%2Bz2sU799rbES5oLibf9hwygqFqgzawbE6oYanBGUUnGiXbtft%2FHXNrDI79IFoaCfHjM%2Fn%2BcjaIDc224vAzw%2B26Ti5BHf55%2BjeTpuDCIeDgFrIeBkjmwSTccS0iHFtv7ZlCmKUEMj18TjDWN%2BgfSCnxK6Yc4LprGQ%2BOPWDXsxOzjz5gL9SqMFAdbgBygMKmN8%2BvpABLxuKIP5MuAyiSVIUPtTjm7%2BN0ijeF2OcMHJZjL1hcjl0aZV3Q2WKBJz%2F83X2btbYMMzPSWV%2FA9wnIrQDMCal7WIP7hjA%3D%3D",
+    isPublic: true,
+    tag: ["蜜蜂授粉", "蜂箱"],
+    title: "蜜蜂授粉",
+    num: 1
+  },
+  {
+    author: "CHUN-CHIA",
+    create_at: 1647734400,
+    description:
+      '由茶樹枝葉經高溫蒸氣冷凝提煉，其中的茶樹並非為飲品的"茶"，而是在澳洲發現的生常綠喬木，又因為當地原住民稱其發音像"tea"，故得茶樹的名稱。',
+    id: "-MyPfz7u3rNGspRL27oC",
+    image:
+      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980004174.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=cJal%2BTpeZK%2F9i5eZM6bszyXHrfG7bwx4THetJDWw25ZyQyp0CtT4znMQGFmsvbkLiUVbA1e9Tu91vxRCtLtucPpdP5PXup7JuVPCP3mdArsDRcq3El5064WyqAYWrn3MD6qk9OJwLC3GQGL%2FXmPEHIzO1G3TLFuLfUEw8VR%2Fvy16s%2FTxeaxTcarlNMnKf8wAEwXUUZnj7TaMDiUV4%2F7FyribTv1FinnsruckxiEqEkNdn6dQovaHRZSc8KIvEt390k0pcPq2Ep3%2Be%2FZLZIMHGzzaomJiTuAnbbip4S3VG4SFBBtLydQqetxflSTxC06aEUB6j85bQwBGT5Mc9oqsLw%3D%3D",
+    isPublic: true,
+    tag: ["茶樹", "茶樹精油"],
+    title: "茶樹精油",
+    num: 2
+  },
+  {
+    author: "CHUN-CHIA",
+    create_at: 1647734400,
+    description:
+      "醜豆為四季豆的一種，因外觀較扭曲不美觀而又稱醜豆，營養素包括蛋白質、醣類、膳食纖維、鈣、鎂、磷、鐵以及維生素Ａ、維生素Ｂ群、維生素Ｃ。",
+    id: "-MyPRXlHzltmqPEs0yBp",
+    image:
+      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980508405.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=VuNXv3H4pvpMFlWQrm7IuxmvXH9XX2S9kXkwinl3nzzc3e8J51ygRV4mpbJR0Xf3BX%2B35rMCtBBiYBnYiWUYWnJ8i8JnogWrVC3de1JzSvFB4k1RA8LqHS3%2BxayzuIOjXxyQvFET2XfTwHxQTUjNmFlX6uQG3a0HJqz937frDhgYu26dT%2FaJk8Qae4eWo8lfkyfkORCbQU%2Bc1z10QfVgOAYtGkaWEtOtdkxXFXMB58OcKUZO5Ij%2FUrTHAvcpWVa4O%2FxdUdetQMhHrK%2BAgsVHCOF16Rkc%2FqpjnBOahvO3iJEYoQbxIbLj14GPWHuQtPsSu8eORUXPhLPUj6dJ9md6Kg%3D%3D",
+    isPublic: true,
+    tag: ["醜豆"],
+    title: "醜豆",
+    num: 3
+  },
+  {
+    author: "CHUN-CHIA",
+    create_at: 1647734400,
+    description:
+      "台農1號是由紫色種與黃色種百香果雜交育成，從開花至落果平均只要73天，其他品種則需要80至90天。台農1號較其他百香果品種例如：滿天星、黃金；來說口味較酸，比較適合做成其他加工產品或作為調味料例如：果醬、百香果茶類飲品。",
+    id: "-MyPDB3yW1Izt0D9vd7k",
+    image:
+      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980563316.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=aU%2FksgAQzpfKum95ojGSBdGL5%2B6AuTVjgmnz3VT6U8b13yhohs6dYPWkthkwcNvV6Y7GmA0pevMhxhXhunn6rjDiHEs%2FQxxMw%2FU2nfh6teNT5QUS805La4ZShcHFxPaT5LDZIy49G3Ufn7rKrDm1rOXIH%2Fr7%2FoBanaUhABlY2dr7q8Ph4P%2F6usfxgcAvCrI9KRDVDQW7eHpDQu0u6Ikpgc4cZWtKPsEsuDWc0OXl7qMYn5WmzxtDDs5sXdu8r0GzMirTsWGvg6w6sgG7dXT%2FJDwuPSlflvW0l3cwkHrFGFptcFq9OjugpcgyRCBzJ%2FIrVN2c0%2F55JASHo1z9syVweA%3D%3D",
+    isPublic: true,
+    tag: ["百香果", "台農1號"],
+    title: "百香果-台農1號",
+    num: 4
+  },
+  {
+    author: "CHUN-CHIA",
+    create_at: 1647561600,
+    description:
+      "網室種植是一種種植方式，主要是將農作物絕蟲害，並增加收種植在網室內，以阻穫量。台灣位處亞熱帶地區，病蟲害盛行，執行網室種植不僅可以改善作物生長條件更可以減少種植種植成本、作物罹病率、防疫成本，提高作物品質，預防寒害。",
+    id: "-MyP80lpRoUS61u6JBER",
+    image:
+      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980793088.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=CkOQYoUAnGuKGCHBWWQHUuy6qctEnFYk4ZWJhjEQSEzJGnDw5JrAep9HSoyx2qvgtJ8hvGeY%2B%2BoQM5%2Fzx7m3VjQ%2FgOtB9rxmK3NUUWM2%2F5Tp5Lomfwz9Zai6Rt36SPa1LXmK2T08kUyde%2B5sYo2AVJalUBZNMfOvRWoZW6pwyCAAycVsZGDrIyhjc4T7KEEMMbrA28Su5jZBywSG8aOFnhRkWoNK7sZjD2TBa6aswL%2FngCEc1xTax5cjRqAhIh5x1q4n6U2otTA1cEG7nngylkD0khtMejWVRVAGKkrg8FghgQCE003XRffR8b%2FcVaVvzyFJU%2F%2BKe%2FAkMuM3ciAVng%3D%3D",
+    isPublic: true,
+    tag: ["網室種植", "百香果", "粉豆"],
+    title: "網室種植",
+    num: 5
+  }
+];
+const specialProductDataList: Product[] = [
+  {
+    category: "精油",
+    content: "澳洲茶樹精油-單瓶裝5ml",
+    description:
+      "被當地原住民視為『自然界最萬能的治療者』— 澳洲茶樹，數百年來在天然療法中佔有一席之地。有防蚊、舒緩、消炎、殺菌等作用。 純粹無添加多餘物質的天然精油，小瓶裝5ml方便隨身攜帶。",
+    id: "-MyQOc_ZlhDQDBJDIEG1",
+    imageUrl:
+      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980175616.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=fZoOoMuXsdEZw4rVAG1rNM2XTpOnTvqY65FzF%2BvWL6v2Xau%2FG%2BfifaetqEX84VIAnvuFdkDKf0KnrxHkdPEBPe2DmaK7aLgGZnB%2BwVe8QO8%2FZ1TWkBTb%2F%2FC39bdyinaa9T9oWJYO68te9SEnb6KVv9YU2HRYeeyLqIc%2B4Dtgig70xNsOtQD9KKcJ7mleMnW0aCYre7afOikzmhZiWKlRE9hlAQMh94FUC9WCafR1Oh0SgEnMxNqoWL5a0MRsvAYSZXDYOIl7MmSIvfpDa5myNMCE2VdmZ0zEWLgzGnnHefgdy4jU673QCcCqVA61ucKJUZVXR%2Fus28AJJTGyCMknOg%3D%3D",
+    imagesUrl: [
+      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980230759.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=qG%2B5r7xTv5XDozEHc6wBFaEwVOYghM%2BIviUt0PS%2BCktLnONArXWcjI1c7ZSFFgZ1qM%2FTbM1kge%2BydBMK8Wpot%2FExSUBffgtkPeVnS9rBHbeEcGVIBLsz2BeNXtJCAfTBwQrcwQ1CrlHB75llUHK5I91fu34%2BYGFE9cAf9i2IvsAxb9XFaJN9Cxna7N8mPRsqqB%2BwTy8eWrKN8ojVoToi4WzbEe%2Fk6uTrSlMALuIf3QWFJcMEMxsSptK%2BCFlKCLbHfr90WkWgFtTuu15A%2BM%2BdqjZNIekIpvLXBuG9aXBwY11jWhgqsxM2Z5USXOo0%2FGuYb4Ab3YMnwp2qw5fS0rDw6w%3D%3D",
+      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980245544.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=aufcZ33IL4RB5BSE5kgvHRJeYFBd4hvQMbRR9OYv92itFIjHz%2B%2BctwqqsM4WXoX84YUh6%2FdhLhyzn2kha6%2FWwFF%2Bai59wq5sAVHhJsP8LHDQ4CFUcLUafF2u98hnzYqqzoYzapaAe%2FGT%2FTuW6N%2BUNaows%2BpHfDVFdoNbUbDeyW%2Bm8%2BbiEailHe0nelqRSUKf0bvJry9uUpvIsppKdFQZGEolDQCBL11i7NcuUvwKBCdyVOHWbS7uDt4ULhXlwIzGztux9O%2Fng9eV2JPzGzeX1tT3L%2FcTcwKu%2BUthuRyhkx4CJEe%2BO1dyNX3FSoUBiRQt0BNtLnbuhofwDHJZ%2F0WTvA%3D%3D"
+    ],
+    is_enabled: 1,
+    origin_price: 200,
+    price: 200,
+    title: "澳洲茶樹精油-5ml",
+    unit: "瓶"
+  }
+];
 onMounted(() => {
   // 每隔設定的時間切換一次圖片
 });
@@ -306,7 +405,7 @@ onUnmounted(() => {});
       </p>
     </template>
     <template #bannerBtn>
-      <div class="flex flex-row justify-center pb-6">
+      <div class="flex flex-row justify-center pb-8">
         <NuxtLink
           to="/articals"
           class="text-sm md:text-2xl text-primary bg-secondary hover:bg-white hover:text-orange-500 rounded-lg px-4 py-2 mt-4"
@@ -316,15 +415,24 @@ onUnmounted(() => {});
       </div>
     </template>
   </Banner>
-  <div class="container mx-auto h-screen">
-    <p>test content</p>
-    <p>test content</p>
-    <p>test content</p>
-    <p>test content</p>
-    <p>test content</p>
-    <p>test content</p>
-    <p>test content</p>
+  <div class="container mx-auto">
+    <ArticleCard
+      class="pt-4"
+      :articleDataProps="articalsDataList"
+      :articleDataConfig="articleDataConfig"
+    ></ArticleCard>
   </div>
-  <div class="container mx-auto h-screen"></div>
+  <Banner :bannerConfigProp="buttonBannerConfig">
+    <template #bannerSlogan>
+      <p
+        class="text-3xl md:text-5xl text-secondary font-bold text-shadow shadow-black whitespace-nowrap"
+      >
+        還有更特別的
+      </p>
+    </template>
+  </Banner>
+  <div class="container mx-auto">
+    <CrossCard :cardProductsDataProps="specialProductDataList"> </CrossCard>
+  </div>
 </template>
 <style></style>
