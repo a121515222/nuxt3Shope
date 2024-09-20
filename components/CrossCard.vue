@@ -6,7 +6,7 @@ const props = defineProps<{
 </script>
 <template>
   <template
-    v-for="(item, index) in cardProductsDataProps"
+    v-for="(item, index) in props.cardProductsDataProps"
     :key="item.title + index"
   >
     <div

@@ -1,11 +1,8 @@
 <script lang="ts" setup>
 const headerRef = ref(null);
 const indexStore = useIndexStore();
-const {
-  shouldShowDarkMode,
-  shouldShowDarkModeText,
-  shouldShowDarkModeBackground
-} = useIndexStore();
+const { shouldShowDarkMode, shouldShowDarkModeText, shouldShowDarkModeBackground } =
+  useIndexStore();
 const { headerHeight, scrollY } = storeToRefs(indexStore);
 const getHeight = (ref: Ref<HTMLElement | null>, height: Ref<number>) => {
   if (ref.value) {
@@ -25,7 +22,7 @@ onMounted(() => {
 const navConfig = [
   {
     name: "產品列表",
-    path: "/products"
+    path: "/productList"
   }
 ];
 onUnmounted(() => {
@@ -43,9 +40,7 @@ onUnmounted(() => {
     :class="shouldShowDarkModeBackground()"
     ref="headerRef"
   >
-    <div
-      class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
-    >
+    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
       <NuxtLink
         class="text-2xl font-bold hover:text-white transition-colors duration-300"
         to="/"

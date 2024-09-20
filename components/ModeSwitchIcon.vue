@@ -2,7 +2,7 @@
 const indexStore = useIndexStore();
 const { shouldShowDarkModeText } = useIndexStore();
 const { isDarkMode, scrollY } = storeToRefs(indexStore);
-const toggleDarkMode = () => {
+const toggleDarkMode = (): void => {
   isDarkMode.value = !isDarkMode.value;
 };
 </script>

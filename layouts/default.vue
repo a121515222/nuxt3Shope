@@ -8,7 +8,6 @@ onMounted(() => {
   });
 });
 const headerHeightComputed = computed(() => {
-  console.log("headerHeight.value", headerHeight.value);
   return headerHeight.value;
 });
 </script>

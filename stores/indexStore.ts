@@ -5,7 +5,7 @@ export const useIndexStore = defineStore("index", () => {
   const headerHeight = ref(0);
   const scrollY = ref(0);
   const isDarkMode = ref(false);
-  const shouldShowDarkMode = () => {
+  const shouldShowDarkMode = (): string => {
     return isDarkMode
       ? scrollY.value >= 50
         ? "bg-secondary-dark text-primary-dark"
@@ -14,7 +14,7 @@ export const useIndexStore = defineStore("index", () => {
       ? "bg-secondary text-primary"
       : "bg-primary text-secondary";
   };
-  const shouldShowDarkModeText = () => {
+  const shouldShowDarkModeText = (): string => {
     return isDarkMode
       ? scrollY.value >= 50
         ? "text-primary-dark"
@@ -23,7 +23,7 @@ export const useIndexStore = defineStore("index", () => {
       ? "text-primary"
       : "text-secondary";
   };
-  const shouldShowDarkModeBackground = () => {
+  const shouldShowDarkModeBackground = (): string => {
     return isDarkMode
       ? scrollY.value >= 50
         ? "bg-secondary-dark"
