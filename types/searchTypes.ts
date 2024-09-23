@@ -1,13 +1,12 @@
 export interface SearchButtonConfig {
-  priceHightToLow?: boolean;
-  priceLowToHight?: boolean;
+  priceHighToLow?: boolean;
+  priceLowToHigh?: boolean;
   dateOldToNew?: boolean;
-  dateNewToNew?: boolean;
+  dateNewToOld?: boolean;
   search?: boolean;
   clearSearch?: boolean;
   favorites?: boolean;
 }
-export interface AutoCompleteProps {
-  autoCompleteListProp?: string[];
-  isShowAutoCompleteProp?: boolean;
+export interface AutoComplete {
+  autoCompleteList?: string[] | [];
 }

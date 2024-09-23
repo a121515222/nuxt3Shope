@@ -10,21 +10,21 @@ interface SearchRefs {
 }
 
 export function useSearchRefs(config: SearchButtonConfig): SearchRefs {
-  const refs: SearchRefs = {};
+  const searchRefs: SearchRefs = {};
 
   if (config.search) {
-    refs.searchInfo = ref("");
+    searchRefs.searchInfo = ref("");
   }
 
-  if (config.priceHightToLow || config.priceLowToHight) {
-    refs.minPrice = ref("");
-    refs.maxPrice = ref("");
+  if (config.priceHighToLow || config.priceLowToHigh) {
+    searchRefs.minPrice = ref("");
+    searchRefs.maxPrice = ref("");
   }
   if (config.favorites) {
-    refs.favorites = ref([]);
+    searchRefs.favorites = ref([]);
   }
 
-  return refs;
+  return searchRefs;
 }
 
 // // Usage in your component

@@ -251,8 +251,19 @@ const productDataList: Product[] = [
     unit: "台斤"
   }
 ];
+
+const searchButtonConfig = {
+  priceHighToLow: true,
+  priceLowToHigh: true,
+  search: true,
+  clearSearch: true
+};
 </script>
 <template>
-  <SearchBar></SearchBar>
+  <SearchBar
+    :autoCompleteListProp="productDataList.map((product) => product.title)"
+    :searchButtonConfigProp="searchButtonConfig"
+  ></SearchBar>
+  <div class="container h-screen"></div>
 </template>
 <style></style>
