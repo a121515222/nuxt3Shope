@@ -260,10 +260,10 @@ const searchButtonConfig = {
 };
 </script>
 <template>
-  <SearchBar
+  <SearchSearchbar
     :autoCompleteListProp="productDataList.map((product) => product.title)"
     :searchButtonConfigProp="searchButtonConfig"
-  ></SearchBar>
+  ></SearchSearchbar>
   <div class="container h-screen"></div>
 </template>
 <style></style>

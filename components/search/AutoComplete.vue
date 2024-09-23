@@ -18,7 +18,6 @@ watch(searchInfo, (value) => {
     autoCompleteList.value = props.autoCompleteListProp
       .map((list) => {
         if (list.includes(value)) {
-          console.log("list", list);
           return list;
         }
       })

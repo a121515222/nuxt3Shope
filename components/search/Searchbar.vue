@@ -1,10 +1,15 @@
 <script lang="ts" setup>
-import { type SearchButtonConfig, type AutoComplete } from "@/types/searchTypes";
-
+import { type SearchButtonConfig } from "@/types/searchTypes";
+import { useSearchbar } from "./useSearchbar";
+import AutoComplete from "./AutoComplete.vue";
 interface SearchBarProps {
   autoCompleteListProp: string[];
   searchButtonConfigProp: SearchButtonConfig;
 }
+const { searchInfo, minPrice, maxPrice, favorites, isShowAutoComplete, handleCompleteListEmit } =
+  useSearchbar();
+
+// 定義 props 並設置預設值
 const props = withDefaults(defineProps<SearchBarProps>(), {
   autoCompleteListProp: (): string[] => [],
   searchButtonConfigProp: () => ({
@@ -16,24 +21,7 @@ const props = withDefaults(defineProps<SearchBarProps>(), {
     clearSearch: true
   })
 });
-// const searchRefs =
-//   useSearchRefs(props.searchButtonConfigProp) ??
-//   reactive({
-//     searchInfo: ref(""),
-//     minPrice: ref(""),
-//     maxPrice: ref(""),
-//     favorites: ref([])
-//   });
-
-// const { searchInfo, minPrice, maxPrice } = toRefs(searchRefs);
-const searchInfo = ref("");
-const minPrice = ref("");
-const maxPrice = ref("");
-const favorites = ref([]);
-const oldDate = ref("");
-const newDate = ref("");
-const isShowAutoComplete = ref(false);
-const emit = defineEmits([
+const emits = defineEmits([
   "priceHightToLow",
   "priceLowToHight",
   "dateOldToNew",
@@ -41,12 +29,7 @@ const emit = defineEmits([
   "search",
   "clearSearch"
 ]);
-const handleCompleteListEmit = (value: string) => {
-  isShowAutoComplete.value = false;
-  searchInfo.value = value;
-  console.log("handleCompleteListEmit", value);
-};
-watch(searchInfo as unknown as Ref<string>, (value) => {
+watch(searchInfo, (value) => {
   if (value) {
     isShowAutoComplete.value = true;
     // 如果搜尋關鍵字在自動完成列表中，則不顯示自動完成列表
