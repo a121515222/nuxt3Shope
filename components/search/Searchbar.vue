@@ -2,6 +2,7 @@
 import { type SearchButtonConfig } from "@/types/searchTypes";
 import { useSearchbar } from "./useSearchbar";
 import AutoComplete from "./AutoComplete.vue";
+import { priceValidatePattern } from "@/utils/validatePattern";
 interface SearchBarProps {
   autoCompleteListProp: string[];
   searchButtonConfigProp: SearchButtonConfig;
@@ -29,6 +30,39 @@ const emits = defineEmits([
   "search",
   "clearSearch"
 ]);
+
+const minPriceInputRef = ref<HTMLInputElement | null>(null);
+const maxPriceInputRef = ref<HTMLInputElement | null>(null);
+const minPriceInputErrorMessageRef = ref<HTMLParagraphElement | null>(null);
+const maxPriceInputErrorMessageRef = ref<HTMLParagraphElement | null>(null);
+const validateInput = (
+  rule: (data: string | number) => boolean,
+  data: string,
+  errorMessageToDisplays: string,
+  errorMessageRef: HTMLParagraphElement
+) => {
+  if (!rule(data)) {
+    errorMessageRef.textContent = errorMessageToDisplays;
+    addValidationStyle(errorMessageRef);
+    return false;
+  } else {
+    resetValidationStyle(errorMessageRef);
+    return true;
+  }
+};
+
+const addValidationStyle = (ref: HTMLElement) => {
+  ref.classList.remove("opacity-0");
+};
+
+const resetValidationStyle = (ref: HTMLElement) => {
+  ref.classList.add("opacity-0");
+};
+
+const productPriceRule = (data: string | number): boolean => {
+  const strData = String(data);
+  return priceValidatePattern.test(strData);
+};
 watch(searchInfo, (value) => {
   if (value) {
     isShowAutoComplete.value = true;
@@ -43,7 +77,7 @@ watch(searchInfo, (value) => {
 </script>
 <template>
   <div class="flex flex-col md:flex-row md:items-center justify-center gap-4 py-2">
-    <div class="relative md:w-1/4">
+    <div class="relative md:w-1/4 px-4">
       <input
         class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
         ref="searchInput"
@@ -58,28 +92,64 @@ watch(searchInfo, (value) => {
         :searchInfoProp="searchInfo"
         @autoCompleteListEmit="handleCompleteListEmit"
       />
+      <p
+        class="mt-2 w-full pl-2 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-0"
+      >
+        {{}}
+      </p>
     </div>
-
-    <input
-      v-if="
-        props.searchButtonConfigProp?.priceHighToLow || props.searchButtonConfigProp?.priceLowToHigh
-      "
-      class="md:w-1/4 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
-      type="number"
-      placeholder="請輸入最低價格"
-      v-model="minPrice"
-      min="0"
-    />
-    <input
-      v-if="
-        props.searchButtonConfigProp?.priceHighToLow || props.searchButtonConfigProp?.priceLowToHigh
-      "
-      class="md:w-1/4 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
-      type="number"
-      placeholder="請輸入最高價格"
-      v-model="maxPrice"
-      min="0"
-    />
+    <div class="relative">
+      <input
+        v-if="
+          props.searchButtonConfigProp?.priceHighToLow ||
+          props.searchButtonConfigProp?.priceLowToHigh
+        "
+        ref="minPriceInputRef"
+        :pattern="priceValidatePattern.source"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 focus:invalid:ring-red-500"
+        placeholder="請輸入最低價格"
+        v-model="minPrice"
+        min="0"
+        @blur="
+          validateInput(
+            productPriceRule,
+            minPrice,
+            '請輸入大於0的數字',
+            minPriceInputErrorMessageRef as HTMLParagraphElement
+          )
+        "
+      />
+      <p
+        ref="minPriceInputErrorMessageRef"
+        class="w-full h-full mt-2 pl-2 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-40px]"
+      ></p>
+    </div>
+    <div class="relative">
+      <input
+        v-if="
+          props.searchButtonConfigProp?.priceHighToLow ||
+          props.searchButtonConfigProp?.priceLowToHigh
+        "
+        :pattern="priceValidatePattern.source"
+        ref="maxPriceInputRef"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 focus:invalid:ring-red-500"
+        placeholder="請輸入最高價格"
+        v-model="maxPrice"
+        min="0"
+        @blur="
+          validateInput(
+            productPriceRule,
+            maxPrice,
+            '請輸入大於0的數字',
+            maxPriceInputErrorMessageRef as HTMLParagraphElement
+          )
+        "
+      />
+      <p
+        ref="maxPriceInputErrorMessageRef"
+        class="w-full h-full mt-2 pl-2 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-40px]"
+      ></p>
+    </div>
   </div>
   <div class="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3 pb-2">
     <button
