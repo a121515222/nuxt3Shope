@@ -15,13 +15,7 @@ const searchInfo = computed(() => props.searchInfoProp);
 
 watch(searchInfo, (value) => {
   if (value) {
-    autoCompleteList.value = props.autoCompleteListProp
-      .map((list) => {
-        if (list.includes(value)) {
-          return list;
-        }
-      })
-      .filter((list) => list !== undefined);
+    autoCompleteList.value = props.autoCompleteListProp;
   }
 });
 const emit = defineEmits(["autoCompleteListEmit"]);

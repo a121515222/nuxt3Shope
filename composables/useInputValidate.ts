@@ -1,14 +1,29 @@
 export function useInputValidate() {
-  const inputValidate = ref(false);
-  const validateInput = (value: string) => {
-    if (value.length > 0) {
-      inputValidate.value = true;
+  const validateInput = (
+    rule: (data: string | number) => boolean,
+    data: string,
+    errorMessageToDisplays: string,
+    errorMessageRef: HTMLParagraphElement
+  ) => {
+    if (!rule(data)) {
+      errorMessageRef.textContent = errorMessageToDisplays;
+      addValidationStyle(errorMessageRef);
+      return false;
     } else {
-      inputValidate.value = false;
+      resetValidationStyle(errorMessageRef);
+      return true;
     }
   };
+  const addValidationStyle = (ref: HTMLElement) => {
+    ref.classList.remove("opacity-0");
+  };
+
+  const resetValidationStyle = (ref: HTMLElement) => {
+    ref.classList.add("opacity-0");
+  };
   return {
-    inputValidate,
-    validateInput
+    validateInput,
+    addValidationStyle,
+    resetValidationStyle
   };
 }
