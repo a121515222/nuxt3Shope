@@ -305,6 +305,9 @@ const handleSearch = (searchData: SearchData) => {
     @priceLowToHigh="handlePriceLowToHigh"
     @search="handleSearch"
   ></SearchSearchbar>
+  <div class="container mx-auto">
+    <ProductCardList :productListProp="showProductList" productIdProp=""> </ProductCardList>
+  </div>
   <ul>
     <li v-for="item in showProductList" :key="item.id">
       {{ `產品：${item.title}` }}
