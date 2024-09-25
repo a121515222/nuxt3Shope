@@ -3,27 +3,42 @@ export function useInputValidate() {
     rule: (data: string | number) => boolean,
     data: string,
     errorMessageToDisplays: string,
-    errorMessageRef: HTMLParagraphElement
-  ) => {
-    if (!rule(data)) {
-      errorMessageRef.textContent = errorMessageToDisplays;
-      addValidationStyle(errorMessageRef);
-      return false;
-    } else {
-      resetValidationStyle(errorMessageRef);
-      return true;
-    }
+    errorMessageRef: HTMLParagraphElement,
+    inputRef?: HTMLInputElement
+  ): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+      if (!rule(data)) {
+        errorMessageRef.textContent = errorMessageToDisplays;
+        addValidationMessage(errorMessageRef);
+        if (inputRef) {
+          addValidationInputStyle(inputRef);
+        }
+        reject(false);
+      } else {
+        resetValidationMessage(errorMessageRef);
+        if (inputRef) {
+          resetValidationInputStyle(inputRef);
+        }
+        resolve(true);
+      }
+    });
   };
-  const addValidationStyle = (ref: HTMLElement) => {
+  const addValidationMessage = (ref: HTMLElement) => {
     ref.classList.remove("opacity-0");
   };
 
-  const resetValidationStyle = (ref: HTMLElement) => {
+  const resetValidationMessage = (ref: HTMLElement) => {
     ref.classList.add("opacity-0");
+  };
+  const addValidationInputStyle = (ref: HTMLElement) => {
+    ref.classList.add("border-red-500", "bg-red-50", "focus:ring-red-500");
+  };
+  const resetValidationInputStyle = (ref: HTMLElement) => {
+    ref.classList.remove("border-red-500", "bg-red-50", "focus:ring-red-500");
   };
   return {
     validateInput,
-    addValidationStyle,
-    resetValidationStyle
+    addValidationMessage,
+    resetValidationMessage
   };
 }

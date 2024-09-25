@@ -31,7 +31,8 @@ const emits = defineEmits([
   "dateNewToNew",
   "search",
   "clearSearch",
-  "showFavorites"
+  "showFavorites",
+  "validateResult"
 ]);
 const emitPriceHighToLow = (): void => {
   emits("priceHighToLow");
@@ -59,7 +60,9 @@ const emitClearSearch = (): void => {
 const emitShowFavorites = (): void => {
   emits("showFavorites");
 };
-
+const emitValidateResult = (result: boolean): void => {
+  emits("validateResult", result);
+};
 const minPriceInputRef = ref<HTMLInputElement | null>(null);
 const maxPriceInputRef = ref<HTMLInputElement | null>(null);
 const minPriceInputErrorMessageRef = ref<HTMLParagraphElement | null>(null);
@@ -68,6 +71,33 @@ const maxPriceInputErrorMessageRef = ref<HTMLParagraphElement | null>(null);
 const productPriceRule = (data: string | number): boolean => {
   const strData = String(data);
   return priceValidatePattern.test(strData);
+};
+
+const maxPriceRule = (data: string | number): boolean => {
+  if (minPrice.value === "") {
+    return true;
+  }
+  if (maxPrice.value === "") {
+    return true;
+  }
+  if (maxPrice.value < minPrice.value) {
+    return false;
+  } else {
+    return true;
+  }
+};
+const minPriceRule = (data: string | number): boolean => {
+  if (maxPrice.value === "") {
+    return true;
+  }
+  if (minPrice.value === "") {
+    return true;
+  }
+  if (minPrice.value > maxPrice.value) {
+    return false;
+  } else {
+    return true;
+  }
 };
 
 const filterAutoCompleteList = (list: Product[]): string[] => {
@@ -82,6 +112,70 @@ const filterAutoCompleteList = (list: Product[]): string[] => {
     })
     .map((product) => product.title);
 };
+
+const validateAllInputs = async function (validations: Array<() => Promise<boolean>>) {
+  // 使用 Promise.all 動態執行 validations 陣列中的所有驗證函數
+  const results = await Promise.all(validations.map((validation) => validation()));
+
+  // 檢查結果是否全部為 true
+  const allValid = results.every((result) => result === true);
+
+  return allValid;
+};
+
+const handleMinPriceBlurValidation = async () => {
+  try {
+    const result = await validateAllInputs([
+      () =>
+        validateInput(
+          productPriceRule,
+          minPrice.value,
+          "請輸入大於0的數字",
+          minPriceInputErrorMessageRef.value as HTMLParagraphElement
+        ),
+      () =>
+        validateInput(
+          minPriceRule,
+          minPrice.value,
+          "請輸入小於最高價格的數字",
+          minPriceInputErrorMessageRef.value as HTMLParagraphElement,
+          minPriceInputRef.value as HTMLInputElement
+        )
+    ]);
+    emitValidateResult(result);
+  } catch (error) {
+    console.log("minPrice驗證失敗", error);
+    emitValidateResult(false);
+  }
+};
+
+const handleMaxPriceBlurValidation = async () => {
+  try {
+    const result = await validateAllInputs([
+      () =>
+        validateInput(
+          productPriceRule,
+          minPrice.value,
+          "請輸入大於0的數字",
+          minPriceInputErrorMessageRef.value as HTMLParagraphElement
+        ),
+      () =>
+        validateInput(
+          maxPriceRule,
+          maxPrice.value,
+          "請輸入小於最高價格的數字",
+          maxPriceInputErrorMessageRef.value as HTMLParagraphElement,
+          maxPriceInputRef.value as HTMLInputElement
+        )
+    ]);
+    emitValidateResult(result);
+    return result;
+  } catch (error) {
+    console.log("maxPrice驗證失敗", error);
+    emitValidateResult(false);
+  }
+};
+
 const autoCompleteList = computed(() => {
   return filterAutoCompleteList(props.autoCompleteListProp);
 });
@@ -132,14 +226,7 @@ watch(searchInfo, (value) => {
         placeholder="請輸入最低價格"
         v-model="minPrice"
         min="0"
-        @blur="
-          validateInput(
-            productPriceRule,
-            minPrice,
-            '請輸入大於0的數字',
-            minPriceInputErrorMessageRef as HTMLParagraphElement
-          )
-        "
+        @blur="handleMinPriceBlurValidation"
       />
       <p
         ref="minPriceInputErrorMessageRef"
@@ -158,14 +245,7 @@ watch(searchInfo, (value) => {
         placeholder="請輸入最高價格"
         v-model="maxPrice"
         min="0"
-        @blur="
-          validateInput(
-            productPriceRule,
-            maxPrice,
-            '請輸入大於0的數字',
-            maxPriceInputErrorMessageRef as HTMLParagraphElement
-          )
-        "
+        @blur="handleMaxPriceBlurValidation"
       />
       <p
         ref="maxPriceInputErrorMessageRef"
