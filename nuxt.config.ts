@@ -2,29 +2,35 @@
 import { defineNuxtConfig } from "nuxt/config";
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
+  runtimeConfig: {
+    public: {
+      baseApiUrl: "",
+      baseApiPath: ""
+    }
+  },
   devtools: { enabled: true },
   imports: {
-    dirs: ["stores"],
+    dirs: ["stores"]
   },
   typescript: {
-    strict: true,
+    strict: true
   },
   modules: [
     [
       "@pinia/nuxt",
       {
-        autoImports: ["defineStore", "acceptHMRUpdate"],
-      },
+        autoImports: ["defineStore", "acceptHMRUpdate"]
+      }
     ],
-    "@nuxtjs/tailwindcss",
+    "@nuxtjs/tailwindcss"
   ],
   vite: {
     define: {
-      "process.env": process.env,
+      "process.env": process.env
     },
     plugins: [],
     server: {
-      proxy: {},
-    },
-  },
+      proxy: {}
+    }
+  }
 });

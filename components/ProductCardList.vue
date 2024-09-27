@@ -45,7 +45,6 @@ const guestAddCart = (id: string, title: string): void => {
 };
 onMounted(() => {
   if (process.client) {
-    console.log("process", process.client);
     favorites.value = JSON.parse(localStorage.getItem("favorites") || "[]");
   }
 });
