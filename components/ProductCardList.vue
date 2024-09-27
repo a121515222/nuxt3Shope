@@ -7,6 +7,10 @@ interface ProductCardListProps {
   productListProp: Product[];
   productIdProp: string;
 }
+interface favoritesProduct {
+  id: string;
+  title: string;
+}
 const props = withDefaults(defineProps<ProductCardListProps>(), {
   productListProp: (): Product[] => [],
   productIdProp: ""
@@ -15,16 +19,20 @@ const isPageLoading = ref(false);
 const shouldShowLoading = (id: string) => {
   return id === props.productIdProp;
 };
-const favorites = ref<string[]>([]);
+const favorites = ref<favoritesProduct[]>([]);
 const emits = defineEmits(["inspectId"]);
 const emitsInspectId = (id: string): void => {
   emits("inspectId", id);
 };
 const addFavorites = (id: string, title: string): void => {
-  console.log(id, title);
+  favorites.value.push({ id, title });
+  localStorage.setItem("favorites", JSON.stringify(favorites.value));
 };
 const deleteFavorites = (id: string, title: string): void => {
-  console.log(id, title);
+  const removeIndex = favorites.value.findIndex((fav) => fav.id === id && fav.title === title);
+  if (removeIndex !== -1) {
+    favorites.value.splice(removeIndex, 1);
+  }
 };
 const guestProductDetail = (id: string): void => {
   console.log(id);
@@ -32,6 +40,12 @@ const guestProductDetail = (id: string): void => {
 const guestAddCart = (id: string, title: string): void => {
   console.log(id, title);
 };
+onMounted(() => {
+  if (process.client) {
+    console.log("process", process.client);
+    favorites.value = JSON.parse(localStorage.getItem("favorites") || "[]");
+  }
+});
 </script>
 <template>
   <div class="pt-3">
@@ -63,8 +77,8 @@ const guestAddCart = (id: string, title: string): void => {
                 <div
                   class="absolute top-0 right-0 bg-third flex justify-center items-center rounded-md h-8 w-8"
                 >
-                  <a
-                    v-if="favorites.indexOf(item.id) === -1"
+                  <button
+                    v-if="!favorites.some((fav) => fav.id === item.id)"
                     class="text-red-500 text-xl"
                     title="加入我的最愛"
                     href="#"
@@ -87,12 +101,12 @@ const guestAddCart = (id: string, title: string): void => {
                         d="M12.01 6.001C6.5 1 1 8 5.782 13.001L12.011 20l6.23-7C23 8 17.5 1 12.01 6.002Z"
                       />
                     </svg>
-                  </a>
-                  <a
+                  </button>
+                  <button
                     class="text-red-500 text-xl"
                     title="移除我的最愛"
                     href="#"
-                    v-else-if="favorites.indexOf(item.id) > -1"
+                    v-else-if="favorites.some((fav) => fav.id === item.id)"
                     @click.stop.prevent="deleteFavorites(item.id, item.title)"
                   >
                     <svg
@@ -108,7 +122,7 @@ const guestAddCart = (id: string, title: string): void => {
                         d="m12.75 20.66 6.184-7.098c2.677-2.884 2.559-6.506.754-8.705-.898-1.095-2.206-1.816-3.72-1.855-1.293-.034-2.652.43-3.963 1.442-1.315-1.012-2.678-1.476-3.973-1.442-1.515.04-2.825.76-3.724 1.855-1.806 2.201-1.915 5.823.772 8.706l6.183 7.097c.19.216.46.34.743.34a.985.985 0 0 0 .743-.34Z"
                       />
                     </svg>
-                  </a>
+                  </button>
                 </div>
                 <div class="p-3">
                   <h3 class="text-lg font-bold">{{ item.title }}</h3>
@@ -131,29 +145,8 @@ const guestAddCart = (id: string, title: string): void => {
                     :disabled="shouldShowLoading(item.id)"
                     :class="{ 'cursor-not-allowed': shouldShowLoading(item.id) }"
                   >
-                    <span
-                      class="spinner-border spinner-border-sm"
-                      role="status"
-                      aria-hidden="true"
-                      v-show="shouldShowLoading(item.id)"
-                    ></span>
                     快速商品資訊
                   </button>
-                  <NuxtLink
-                    class="btn btn-outline-secondary bg-secondary text-primary text-center w-full mb-1 block rounded-md hover:bg-third hover:text-primary"
-                    :to="`/product/${item.id}`"
-                    @click="emitsInspectId(item.id)"
-                    :disabled="shouldShowLoading(item.id)"
-                    :class="{ 'cursor-not-allowed': shouldShowLoading(item.id) }"
-                  >
-                    <span
-                      class="spinner-border spinner-border-sm"
-                      role="status"
-                      aria-hidden="true"
-                      v-show="shouldShowLoading(item.id)"
-                    ></span>
-                    商品詳細資訊
-                  </NuxtLink>
                   <button
                     class="btn btn-primary w-full bg-primary text-secondary rounded-md hover:bg-third hover:text-primary mb-1"
                     type="button"
@@ -161,12 +154,6 @@ const guestAddCart = (id: string, title: string): void => {
                     :disabled="shouldShowLoading(item.id)"
                     :class="{ 'cursor-not-allowed': shouldShowLoading(item.id) }"
                   >
-                    <span
-                      class="spinner-border spinner-border-sm"
-                      role="status"
-                      aria-hidden="true"
-                      v-show="shouldShowLoading(item.id)"
-                    ></span>
                     加到購物車
                   </button>
                 </div>
