@@ -260,10 +260,10 @@ const searchButtonConfig = {
 };
 const showProductList = ref(productDataList);
 const handlePriceHighToLow = () => {
-  console.log("priceHighToLow");
+  showProductList.value = showProductList.value.sort((a, b) => b.price - a.price);
 };
 const handlePriceLowToHigh = () => {
-  console.log("priceLowToHigh");
+  showProductList.value = showProductList.value.sort((a, b) => a.price - b.price);
 };
 interface SearchData {
   searchInfo: string;
@@ -306,7 +306,8 @@ const handleSearch = (searchData: SearchData) => {
     @search="handleSearch"
   ></SearchSearchbar>
   <div class="container mx-auto">
-    <ProductCardList :productListProp="showProductList" productIdProp=""> </ProductCardList>
+    <ProductCardList class="px-2 md:px-0" :productListProp="showProductList" productIdProp="">
+    </ProductCardList>
   </div>
   <ul>
     <li v-for="item in showProductList" :key="item.id">

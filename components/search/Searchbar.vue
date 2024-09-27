@@ -214,7 +214,7 @@ watch(searchInfo, (value) => {
         {{}}
       </p>
     </div>
-    <div class="relative">
+    <div class="relative md:w-1/4 px-4">
       <input
         v-if="
           props.searchButtonConfigProp?.priceHighToLow ||
@@ -233,7 +233,7 @@ watch(searchInfo, (value) => {
         class="w-full h-1/2 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-20px]"
       ></p>
     </div>
-    <div class="relative">
+    <div class="relative md:w-1/4 px-4">
       <input
         v-if="
           props.searchButtonConfigProp?.priceHighToLow ||
@@ -253,11 +253,11 @@ watch(searchInfo, (value) => {
       ></p>
     </div>
   </div>
-  <div class="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3 pb-2">
+  <div class="flex flex-row flex-wrap items-center justify-center gap-2 pt-3 pb-2">
     <button
       v-if="(favorites.length ?? 0) !== 0"
       type="button"
-      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded"
+      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded block"
       @click="emitShowFavorites"
     >
       顯示我的最愛
@@ -265,7 +265,7 @@ watch(searchInfo, (value) => {
     <button
       v-if="props.searchButtonConfigProp?.priceHighToLow"
       type="button"
-      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded"
+      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded block"
       @click="emitPriceHighToLow"
     >
       價格由大至小排列
@@ -273,7 +273,7 @@ watch(searchInfo, (value) => {
     <button
       v-if="props.searchButtonConfigProp?.priceLowToHigh"
       type="button"
-      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded"
+      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded block"
       @click="emitPriceLowToHight"
     >
       價格由小至大排列
@@ -281,7 +281,7 @@ watch(searchInfo, (value) => {
     <button
       v-if="props.searchButtonConfigProp?.clearSearch"
       type="button"
-      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded"
+      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded block"
       @click="emitClearSearch"
     >
       清除搜尋
