@@ -11,3 +11,8 @@ export interface Product {
   title: string;
   unit: string;
 }
+
+export interface FetchProductData {
+  products: Product[];
+  success: boolean;
+}

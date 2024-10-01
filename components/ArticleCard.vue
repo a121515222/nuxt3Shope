@@ -1,11 +1,17 @@
 <script lang="ts" setup>
 import { type Article } from "@/types/articleTypes";
-const props = defineProps<{
+interface ArticleCardProps {
   articleDataProps: Article[];
   articleDataConfig: {
     isMainArticle: boolean;
   };
-}>();
+}
+const props = withDefaults(defineProps<ArticleCardProps>(), {
+  articleDataProps: (): Article[] => [],
+  articleDataConfig: () => ({
+    isMainArticle: false
+  })
+});
 </script>
 <template>
   <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">

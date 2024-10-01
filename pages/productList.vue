@@ -1,15 +1,13 @@
 <script lang="ts" setup>
-import { type Product } from "@/types/productTypes";
+import { type FetchProductData } from "@/types/productTypes";
 import { getProducts } from "@/apis/products";
-interface FetchProductData {
-  products: Product[];
-  success: boolean;
-}
 const productStore = useProductStore();
 const { productDataList } = storeToRefs(productStore);
 const { data } = await useAsyncData("getProducts", async () => {
-  const res = await getProducts();
-  return (res as FetchProductData).products;
+  if (productDataList.value.length === 0) {
+    const res = await getProducts();
+    return (res as FetchProductData).products;
+  }
 });
 if (data.value) {
   productDataList.value = data.value;

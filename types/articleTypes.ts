@@ -9,3 +9,8 @@ export interface Article {
   tag?: string[];
   num: number;
 }
+
+export interface FetchArticleData {
+  articles: Article[];
+  success: boolean;
+}

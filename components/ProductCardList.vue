@@ -34,9 +34,7 @@ const deleteFavorites = (id: string, title: string): void => {
     favorites.value.splice(removeIndex, 1);
   }
 };
-const removePTag = (description: string): string => {
-  return description.replace(/<[^>]+>/g, "");
-};
+
 const guestProductDetail = (id: string): void => {
   console.log(id);
 };
