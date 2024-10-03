@@ -58,23 +58,25 @@ const handleSearch = (searchData: SearchData) => {
 };
 </script>
 <template>
-  <SearchSearchbar
-    :autoCompleteListProp="productDataList"
-    :searchButtonConfigProp="searchButtonConfig"
-    @priceHighToLow="handlePriceHighToLow"
-    @priceLowToHigh="handlePriceLowToHigh"
-    @search="handleSearch"
-  ></SearchSearchbar>
-  <div class="container mx-auto">
-    <ProductCardList class="px-2 md:px-0" :productListProp="showProductList" productIdProp="">
-    </ProductCardList>
+  <div class="relative">
+    <SearchSearchbar
+      :autoCompleteListProp="productDataList"
+      :searchButtonConfigProp="searchButtonConfig"
+      @priceHighToLow="handlePriceHighToLow"
+      @priceLowToHigh="handlePriceLowToHigh"
+      @search="handleSearch"
+    ></SearchSearchbar>
+    <div class="container mx-auto">
+      <ProductCardList class="px-2 md:px-0" :productListProp="showProductList" productIdProp="">
+      </ProductCardList>
+    </div>
+    <ul>
+      <li v-for="item in showProductList" :key="item.id">
+        {{ `產品：${item.title}` }}
+        {{ `價格： ${item.price}` }}
+      </li>
+    </ul>
+    <Cart></Cart>
   </div>
-  <ul>
-    <li v-for="item in showProductList" :key="item.id">
-      {{ `產品：${item.title}` }}
-      {{ `價格： ${item.price}` }}
-    </li>
-  </ul>
-  <div class="container h-screen"></div>
 </template>
 <style></style>
