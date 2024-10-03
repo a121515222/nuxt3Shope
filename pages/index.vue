@@ -9,7 +9,7 @@ const productStore = useProductStore();
 const articleStore = useArticleStore();
 const { productDataList } = storeToRefs(productStore);
 const { articleDataList } = storeToRefs(articleStore);
-
+const { isIntersecting, interSectionObserver } = useInterSectionObserver();
 try {
   await Promise.all([
     fetchData<Product, FetchProductData>("getProducts", getProducts, productDataList, "products"),
@@ -67,9 +67,7 @@ const specialProductDataList: Product[] = [
     unit: "瓶"
   }
 ];
-onMounted(() => {
-  // 每隔設定的時間切換一次圖片
-});
+onMounted(() => {});
 
 onUnmounted(() => {});
 </script>

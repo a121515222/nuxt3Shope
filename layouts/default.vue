@@ -13,13 +13,14 @@ const headerHeightComputed = computed(() => {
 </script>
 <template>
   <div
-    class="bg-gray-300 dark:bg-gray-800"
+    class="bg-gray-300 dark:bg-gray-800 relative"
     :class="{ dark: isDarkMode }"
     :style="{ paddingTop: headerHeightComputed + 'px' }"
   >
     <Header></Header>
     <slot />
     <Footer></Footer>
+    <Cart></Cart>
   </div>
 </template>
 <style></style>

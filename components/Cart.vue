@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const indexStore = useIndexStore();
+const { isMainBannerIntersection } = storeToRefs(indexStore);
 const cartRef = ref<HTMLElement | null>(null);
 const cartWidth = ref(0);
 const getCartWidth = () => {
@@ -9,15 +11,32 @@ const getCartWidth = () => {
 };
 const isShowCart = ref(false);
 const toggleCart = () => {
-  console.log("cartWidth", cartWidth.value);
   isShowCart.value = !isShowCart.value;
 };
+const isShowCartButton = ref(false);
+const route = useRoute();
+const shouldShowCartButton = () => {
+  if (route.name === "index") {
+    isShowCartButton.value = !isMainBannerIntersection.value;
+  } else if (route.path.includes("productList")) {
+    isShowCartButton.value = true;
+  } else {
+    isShowCartButton.value = false;
+  }
+};
+watch(
+  [isMainBannerIntersection, () => route.path], // 監聽多個來源
+  () => {
+    shouldShowCartButton(); // 在任一來源變化時調用相同的函數
+  }
+);
 onMounted(() => {
   cartWidth.value = getCartWidth();
+  shouldShowCartButton();
 });
 </script>
 <template>
-  <div class="text-center fixed bottom-0 right-0">
+  <div class="text-center fixed bottom-0 right-0" v-show="isShowCartButton">
     <button
       class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
       type="button"
@@ -31,7 +50,7 @@ onMounted(() => {
     class="fixed top-0 right-0 z-40 w-64 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out translate-x-full bg-white dark:bg-gray-800"
     tabindex="-1"
     ref="cartRef"
-    :class="{ [`right-[${cartWidth}px]`]: isShowCart }"
+    :style="{ transform: isShowCart ? 'translateX(0)' : `translateX(${cartWidth}px)` }"
   >
     <h5 class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5>
     <button

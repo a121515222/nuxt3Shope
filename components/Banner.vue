@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const indexStore = useIndexStore();
-const { scrollY, headerHeight } = storeToRefs(indexStore);
+const { scrollY, headerHeight, isMainBannerIntersection } = storeToRefs(indexStore);
 
 interface BannerConfig {
   bannerConfigProp: {
@@ -37,8 +37,7 @@ const switchImages = () => {
         images[index].classList.add("opacity-0");
       }
     });
-    currentImageIndex.value =
-      (currentImageIndex.value + 1) % bannerConfigProp.imagesPath.length;
+    currentImageIndex.value = (currentImageIndex.value + 1) % bannerConfigProp.imagesPath.length;
   }
 };
 const getBannerHeight = (banner: Element) => {
@@ -57,12 +56,27 @@ const shouldHeight = () => {
     return `min-height:${bannerConfigProp.bannerHeight}`;
   }
 };
+const { isIntersecting, interSectionObserver } = useInterSectionObserver();
+const bannerRef = ref<HTMLElement | null>(null);
+// 主banner監聽是否進入畫面
+watch(isIntersecting, (value) => {
+  if (bannerConfigProp.isMainBanner) {
+    isMainBannerIntersection.value = value;
+  }
+});
 onMounted(() => {
   // 每隔設定的時間切換一次圖片
   intervalId = setInterval(switchImages, bannerConfigProp.duration);
   updateScreenHeight();
   // 當視窗大小改變時重新計算高度
   window.addEventListener("resize", updateScreenHeight);
+  // 監聽是否進入畫面
+
+  nextTick(() => {
+    if (bannerRef.value && bannerConfigProp.isMainBanner) {
+      interSectionObserver(bannerRef.value); // 直接傳 DOM 元素
+    }
+  });
 });
 
 onUnmounted(() => {
@@ -76,6 +90,7 @@ onUnmounted(() => {
   <ClientOnly>
     <div
       class="flex justify-center items-center w-full relative"
+      ref="bannerRef"
       :style="shouldHeight()"
     >
       <ul
