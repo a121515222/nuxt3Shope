@@ -4,7 +4,15 @@ const { shouldShowDarkModeText } = useIndexStore();
 const { isDarkMode, scrollY } = storeToRefs(indexStore);
 const toggleDarkMode = (): void => {
   isDarkMode.value = !isDarkMode.value;
+  if (process.client) {
+    localStorage.setItem("isDarkMode", JSON.stringify(isDarkMode.value));
+  }
 };
+onMounted(() => {
+  if (process.client) {
+    isDarkMode.value = JSON.parse(localStorage.getItem("isDarkMode") || "false");
+  }
+});
 </script>
 <template>
   <button @click="toggleDarkMode">
