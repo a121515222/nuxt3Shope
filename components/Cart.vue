@@ -18,7 +18,7 @@ const route = useRoute();
 const shouldShowCartButton = () => {
   if (route.name === "index") {
     isShowCartButton.value = !isMainBannerIntersection.value;
-  } else if (route.path.includes("productList")) {
+  } else if (/product(List)?/.test(route.path)) {
     isShowCartButton.value = true;
   } else {
     isShowCartButton.value = false;
@@ -34,6 +34,7 @@ onMounted(() => {
   cartWidth.value = getCartWidth();
   shouldShowCartButton();
 });
+// :style="{ transform: isShowCart ? 'translateX(0)' : `translateX(${cartWidth}px)` }"
 </script>
 <template>
   <div class="text-center fixed bottom-0 right-0" v-show="isShowCartButton">
@@ -47,10 +48,10 @@ onMounted(() => {
   </div>
 
   <div
-    class="fixed top-0 right-0 z-40 w-64 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out translate-x-full bg-white dark:bg-gray-800"
+    class="fixed top-0 right-0 z-40 w-64 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out bg-white dark:bg-gray-800"
     tabindex="-1"
     ref="cartRef"
-    :style="{ transform: isShowCart ? 'translateX(0)' : `translateX(${cartWidth}px)` }"
+    :class="{ [`right-[${cartWidth}px]`]: isShowCart, 'translate-x-full': !isShowCart }"
   >
     <h5 class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5>
     <button

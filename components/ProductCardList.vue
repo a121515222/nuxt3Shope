@@ -84,7 +84,7 @@ onMounted(() => {
                   @click.stop.prevent="addFavorites(item.id, item.title)"
                 >
                   <svg
-                    class="w-6 h-6 text-gray-800 dark:text-white"
+                    class="w-6 h-6 text-secondary"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -109,7 +109,7 @@ onMounted(() => {
                   @click.stop.prevent="deleteFavorites(item.id, item.title)"
                 >
                   <svg
-                    class="w-6 h-6 text-gray-800 dark:text-white"
+                    class="w-6 h-6 text-secondary"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"

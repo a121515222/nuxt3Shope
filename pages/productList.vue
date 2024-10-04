@@ -69,11 +69,5 @@ const handleSearch = (searchData: SearchData) => {
     <ProductCardList class="px-2 md:px-0" :productListProp="showProductList" productIdProp="">
     </ProductCardList>
   </div>
-  <ul>
-    <li v-for="item in showProductList" :key="item.id">
-      {{ `產品：${item.title}` }}
-      {{ `價格： ${item.price}` }}
-    </li>
-  </ul>
 </template>
 <style></style>

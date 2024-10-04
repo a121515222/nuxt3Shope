@@ -1,19 +1,18 @@
 <script lang="ts" setup>
 import { type Product } from "@/types/productTypes";
 import { type Article } from "@/types/articleTypes";
-import { type FetchProductData } from "@/types/productTypes";
-import { type FetchArticleData } from "@/types/articleTypes";
+import { type FetchProductsData } from "@/types/productTypes";
+import { type FetchArticlesData } from "@/types/articleTypes";
 import { getProducts } from "@/apis/products";
 import { getArticle } from "@/apis/articles";
 const productStore = useProductStore();
 const articleStore = useArticleStore();
 const { productDataList } = storeToRefs(productStore);
 const { articleDataList } = storeToRefs(articleStore);
-const { isIntersecting, interSectionObserver } = useInterSectionObserver();
 try {
   await Promise.all([
-    fetchData<Product, FetchProductData>("getProducts", getProducts, productDataList, "products"),
-    fetchData<Article, FetchArticleData>("getArticle", getArticle, articleDataList, "articles")
+    fetchData<Product, FetchProductsData>("getProducts", getProducts, productDataList, "products"),
+    fetchData<Article, FetchArticlesData>("getArticle", getArticle, articleDataList, "articles")
   ]);
 } catch (error) {
   console.error("Error fetching data:", error);

@@ -12,7 +12,11 @@ export interface Product {
   unit: string;
 }
 
-export interface FetchProductData {
+export interface FetchProductsData {
   products: Product[];
+  success: boolean;
+}
+export interface FetchProductData {
+  product: Product;
   success: boolean;
 }

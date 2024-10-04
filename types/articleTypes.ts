@@ -10,7 +10,7 @@ export interface Article {
   num: number;
 }
 
-export interface FetchArticleData {
+export interface FetchArticlesData {
   articles: Article[];
   success: boolean;
 }

@@ -2,7 +2,6 @@ export function useBaseFetch<T>(url: string, options = {}) {
   const config = useRuntimeConfig();
   const baseUrl = config.public.baseApiUrl;
   const basePath = config.public.baseApiPath;
-
   return $fetch<T>(`${baseUrl}/api/${basePath}/${url}`, {
     ...options,
     timeout: 10000,
@@ -10,6 +9,9 @@ export function useBaseFetch<T>(url: string, options = {}) {
     onResponseError: (error) => {
       console.error("$fetch error", error.response._data.message);
     }
+  }).catch((error) => {
+    console.log("useBaseFetch error", error);
+    return Promise.reject(error); // 明確返回 Promise
   });
 }
 export async function fetchData<T, R>(
