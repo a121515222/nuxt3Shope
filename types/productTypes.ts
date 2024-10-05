@@ -10,6 +10,8 @@ export interface Product {
   price: number;
   title: string;
   unit: string;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 export interface FetchProductsData {

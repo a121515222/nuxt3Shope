@@ -1,6 +1,6 @@
 import { useBaseFetch } from "@/utils/fetch";
 import { type FetchArticlesData } from "~/types/articleTypes";
-export function getArticle() {
+export function getArticles() {
   return useBaseFetch<FetchArticlesData>("articles", {
     method: "GET",
     headers: {

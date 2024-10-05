@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import path from "path";
+
 const headerRef = ref(null);
 const indexStore = useIndexStore();
 const { shouldShowDarkMode, shouldShowDarkModeText, shouldShowDarkModeBackground } =
@@ -23,6 +25,10 @@ const navConfig = [
   {
     name: "產品列表",
     path: "/productList"
+  },
+  {
+    name: "文章列表",
+    path: "/articleList"
   }
 ];
 onUnmounted(() => {

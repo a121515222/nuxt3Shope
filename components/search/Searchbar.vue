@@ -4,8 +4,9 @@ import { useSearchbar } from "./useSearchbar";
 import AutoComplete from "./AutoComplete.vue";
 import { priceValidatePattern } from "@/utils/validatePattern";
 import { type Product } from "@/types/productTypes";
-interface SearchBarProps {
-  autoCompleteListProp: Product[];
+import { type Article } from "@/types/articleTypes";
+interface SearchBarProps<T> {
+  autoCompleteListProp: T[];
   searchButtonConfigProp: SearchButtonConfig;
 }
 const { validateInput } = useInputValidate();
@@ -13,8 +14,8 @@ const { searchInfo, minPrice, maxPrice, favorites, isShowAutoComplete, handleCom
   useSearchbar();
 
 // 定義 props 並設置預設值
-const props = withDefaults(defineProps<SearchBarProps>(), {
-  autoCompleteListProp: (): Product[] => [],
+const props = withDefaults(defineProps<SearchBarProps<Product | Article>>(), {
+  autoCompleteListProp: (): (Product | Article)[] => [],
   searchButtonConfigProp: () => ({
     priceHighToLow: false,
     priceLowToHigh: false,
@@ -28,7 +29,7 @@ const emits = defineEmits([
   "priceHighToLow",
   "priceLowToHigh",
   "dateOldToNew",
-  "dateNewToNew",
+  "dateNewToOld",
   "search",
   "clearSearch",
   "showFavorites",
@@ -43,8 +44,8 @@ const emitPriceLowToHight = (): void => {
 const emitDateOldToNew = (): void => {
   emits("dateOldToNew");
 };
-const emitDateNewToNew = (): void => {
-  emits("dateNewToNew");
+const emitDateNewToOld = (): void => {
+  emits("dateNewToOld");
 };
 const emitSearch = (): void => {
   emits("search", {
@@ -100,17 +101,19 @@ const minPriceRule = (data: string | number): boolean => {
   }
 };
 
-const filterAutoCompleteList = (list: Product[]): string[] => {
+const filterAutoCompleteList = (list: (Product | Article)[]): string[] => {
   return list
-    .filter((product) => {
+    .filter((list) => {
       const matchInfo =
-        product.title.includes(searchInfo.value) ||
-        product.category.includes(searchInfo.value) ||
-        product.content.includes(searchInfo.value) ||
-        product.description.includes(searchInfo.value);
+        list.title.includes(searchInfo.value) ||
+        ("category" in list && list.category.includes(searchInfo.value)) ||
+        ("content" in list && list.content.includes(searchInfo.value)) ||
+        list.description.includes(searchInfo.value) ||
+        ("author" in list && list.author?.includes(searchInfo.value)) ||
+        ("tag" in list && list.tag?.includes(searchInfo.value));
       return matchInfo;
     })
-    .map((product) => product.title);
+    .map((list) => list.title);
 };
 
 const validateAllInputs = async function (validations: Array<() => Promise<boolean>>) {
@@ -214,12 +217,13 @@ watch(searchInfo, (value) => {
         {{}}
       </p>
     </div>
-    <div class="relative md:w-1/4 px-4">
+    <div
+      class="relative md:w-1/4 px-4"
+      v-if="
+        props.searchButtonConfigProp?.priceHighToLow || props.searchButtonConfigProp?.priceLowToHigh
+      "
+    >
       <input
-        v-if="
-          props.searchButtonConfigProp?.priceHighToLow ||
-          props.searchButtonConfigProp?.priceLowToHigh
-        "
         ref="minPriceInputRef"
         :pattern="priceValidatePattern.source"
         class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 focus:invalid:ring-red-500"
@@ -233,12 +237,13 @@ watch(searchInfo, (value) => {
         class="w-full h-1/2 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-20px]"
       ></p>
     </div>
-    <div class="relative md:w-1/4 px-4">
+    <div
+      class="relative md:w-1/4 px-4"
+      v-if="
+        props.searchButtonConfigProp?.priceHighToLow || props.searchButtonConfigProp?.priceLowToHigh
+      "
+    >
       <input
-        v-if="
-          props.searchButtonConfigProp?.priceHighToLow ||
-          props.searchButtonConfigProp?.priceLowToHigh
-        "
         :pattern="priceValidatePattern.source"
         ref="maxPriceInputRef"
         class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 focus:invalid:ring-red-500"
@@ -278,6 +283,25 @@ watch(searchInfo, (value) => {
     >
       價格由小至大排列
     </button>
+
+    <button
+      v-if="props.searchButtonConfigProp?.dateOldToNew"
+      type="button"
+      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded block"
+      @click="emitDateOldToNew"
+    >
+      日期由舊至新排列
+    </button>
+
+    <button
+      v-if="props.searchButtonConfigProp?.dateNewToOld"
+      type="button"
+      class="btn bg-primary text-secondary hover:text-primary hover:bg-secondary py-2 px-4 rounded block"
+      @click="emitDateNewToOld"
+    >
+      日期由新至舊排列
+    </button>
+
     <button
       v-if="props.searchButtonConfigProp?.clearSearch"
       type="button"

@@ -1,11 +1,8 @@
 <script lang="ts" setup>
 import { type Product } from "@/types/productTypes";
-interface ProductCardList {
-  productListProp: Product[];
-}
 interface ProductCardListProps {
   productListProp: Product[];
-  productIdProp: string;
+  productIdProp?: string;
 }
 interface favoritesProduct {
   id: string;

@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import { type FetchProductData } from "@/types/productTypes";
+import { type FetchProductsData } from "@/types/productTypes";
+import { type SearchBarEmitInfo } from "@/types/searchBarTypes";
 import { getProducts } from "@/apis/products";
 const productStore = useProductStore();
 const { productDataList } = storeToRefs(productStore);
 const { data } = await useAsyncData("getProducts", async () => {
   if (productDataList.value.length === 0) {
     const res = await getProducts();
-    return (res as FetchProductData).products;
+    return (res as FetchProductsData).products;
   }
 });
 if (data.value) {
@@ -25,12 +26,8 @@ const handlePriceHighToLow = () => {
 const handlePriceLowToHigh = () => {
   showProductList.value = showProductList.value.sort((a, b) => a.price - b.price);
 };
-interface SearchData {
-  searchInfo: string;
-  minPrice: string;
-  maxPrice: string;
-}
-const handleSearch = (searchData: SearchData) => {
+
+const handleSearch = (searchData: SearchBarEmitInfo) => {
   const { searchInfo, minPrice, maxPrice } = searchData;
   // 篩選商品列表
   showProductList.value = productDataList.value.filter((product) => {
@@ -66,8 +63,7 @@ const handleSearch = (searchData: SearchData) => {
     @search="handleSearch"
   ></SearchSearchbar>
   <div class="container mx-auto">
-    <ProductCardList class="px-2 md:px-0" :productListProp="showProductList" productIdProp="">
-    </ProductCardList>
+    <ProductCardList class="px-2 md:px-0" :productListProp="showProductList"> </ProductCardList>
   </div>
 </template>
 <style></style>

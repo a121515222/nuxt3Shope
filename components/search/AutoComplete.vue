@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { type Product } from "@/types/productTypes";
+import { type Article } from "@/types/articleTypes";
 interface AutoCompleteProps {
   autoCompleteListProp: string[];
   isShowAutoCompleteProp: boolean;
@@ -39,7 +41,7 @@ const listHoverStyle = (index: number) => {
   >
     <li
       v-for="(list, index) in autoCompleteList"
-      :key="index + list"
+      :key="list + index"
       class="hover:bg-gray-100 text-color-800 p-2 cursor-pointer text-sm lg:text-base"
       :class="listHoverStyle(index)"
       @click="emitList(list)"

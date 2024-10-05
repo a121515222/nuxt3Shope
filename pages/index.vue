@@ -4,7 +4,7 @@ import { type Article } from "@/types/articleTypes";
 import { type FetchProductsData } from "@/types/productTypes";
 import { type FetchArticlesData } from "@/types/articleTypes";
 import { getProducts } from "@/apis/products";
-import { getArticle } from "@/apis/articles";
+import { getArticles } from "@/apis/articles";
 const productStore = useProductStore();
 const articleStore = useArticleStore();
 const { productDataList } = storeToRefs(productStore);
@@ -12,7 +12,7 @@ const { articleDataList } = storeToRefs(articleStore);
 try {
   await Promise.all([
     fetchData<Product, FetchProductsData>("getProducts", getProducts, productDataList, "products"),
-    fetchData<Article, FetchArticlesData>("getArticle", getArticle, articleDataList, "articles")
+    fetchData<Article, FetchArticlesData>("getArticle", getArticles, articleDataList, "articles")
   ]);
 } catch (error) {
   console.error("Error fetching data:", error);
