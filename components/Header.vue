@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import path from "path";
-
 const headerRef = ref(null);
 const indexStore = useIndexStore();
 const { shouldShowDarkMode, shouldShowDarkModeText, shouldShowDarkModeBackground } =
@@ -11,16 +9,6 @@ const getHeight = (ref: Ref<HTMLElement | null>, height: Ref<number>) => {
     height.value = ref.value.clientHeight;
   }
 };
-
-onMounted(() => {
-  window.addEventListener("scroll", () => {
-    scrollY.value = window.scrollY;
-  });
-  getHeight(headerRef, headerHeight);
-  window.addEventListener("resize", () => {
-    getHeight(headerRef, headerHeight);
-  });
-});
 const navConfig = [
   {
     name: "產品列表",
@@ -31,6 +19,16 @@ const navConfig = [
     path: "/articleList"
   }
 ];
+onMounted(() => {
+  window.addEventListener("scroll", () => {
+    scrollY.value = window.scrollY;
+  });
+  getHeight(headerRef, headerHeight);
+  window.addEventListener("resize", () => {
+    getHeight(headerRef, headerHeight);
+  });
+});
+
 onUnmounted(() => {
   window.removeEventListener("scroll", () => {
     scrollY.value = window.scrollY;

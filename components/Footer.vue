@@ -1,6 +1,26 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const indexStore = useIndexStore();
+const { footerHeight } = storeToRefs(indexStore);
+const footerRef = ref<HTMLElement | null>(null);
+const getHeight = (ref: Ref<HTMLElement | null>, height: Ref<number>) => {
+  if (ref.value) {
+    height.value = ref.value.clientHeight;
+  }
+};
+onMounted(() => {
+  getHeight(footerRef, footerHeight);
+  window.addEventListener("resize", () => {
+    getHeight(footerRef, footerHeight);
+  });
+});
+onUnmounted(() => {
+  window.removeEventListener("resize", () => {
+    getHeight(footerRef, footerHeight);
+  });
+});
+</script>
 <template>
-  <div class="stick bottom-0">
+  <div class="stick bottom-0" ref="footerRef">
     <div class="mx-auto bg-third flex justify-center items-center gap-3 p-4">
       <a
         class="text-white text-lg sm:text-base no-underline hover:underline"
@@ -30,11 +50,7 @@
           />
         </svg>
       </a>
-      <a
-        class="text-white text-2xl hover:text-gray-300 transition-colors"
-        href="#"
-        aria-label="X"
-      >
+      <a class="text-white text-2xl hover:text-gray-300 transition-colors" href="#" aria-label="X">
         <svg
           class="w-6 h-6"
           aria-hidden="true"

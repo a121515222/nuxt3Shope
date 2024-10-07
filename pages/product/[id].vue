@@ -27,31 +27,31 @@ const addCart = (id: string, qty: number) => {
   console.log(id, qty);
 };
 onMounted(async () => {
-  console.log(route.fullPath);
-  console.log(route.params.id);
-  if (!route.params.id) return;
-  const res = await getProduct(route.params.id as string);
-  product.value = res?.product || {
-    id: "",
-    title: "",
-    category: "",
-    content: "",
-    description: "",
-    imageUrl: "",
-    imagesUrl: [],
-    origin_price: 0,
-    price: 0,
-    unit: "",
-    is_enabled: 0,
-    createdAt: "",
-    updatedAt: ""
-  };
-  images.value = res?.product.imagesUrl || [];
-  console.log("product", product.value);
+  if (!route.params.id) {
+    return;
+  } else {
+    const res = await getProduct(route.params.id as string);
+    product.value = res?.product || {
+      id: "",
+      title: "",
+      category: "",
+      content: "",
+      description: "",
+      imageUrl: "",
+      imagesUrl: [],
+      origin_price: 0,
+      price: 0,
+      unit: "",
+      is_enabled: 0,
+      createdAt: "",
+      updatedAt: ""
+    };
+    images.value = res?.product.imagesUrl || [];
+  }
 });
 </script>
 <template>
-  <div class="container mx-auto py-8 min-h-screen">
+  <div class="container mx-auto py-8">
     <div
       class="flex flex-col md:flex-row mx-0 card bg-gray-200 dark:bg-gray-700 rounded-lg dark:text-white"
     >
@@ -68,7 +68,7 @@ onMounted(async () => {
         <template v-else-if="images.length <= 2">
           <div class="h-[360px] overflow-hidden">
             <img
-              class="object-cover w-full h-full"
+              class="object-cover w-full h-full rounded-lg"
               :src="product.imageUrl"
               :alt="`${product.title} picture`"
             />

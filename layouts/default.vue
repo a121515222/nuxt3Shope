@@ -1,14 +1,19 @@
 <script setup>
-import { useFlowbite } from "~/composables/useFlowbite";
+import { useFlowbite } from "@/composables/useFlowbite";
 const indexStore = useIndexStore();
-const { testData, isDarkMode, headerHeight } = storeToRefs(indexStore);
+const { windowHeightListener, removeWindowHeightListener } = indexStore;
+const { footerHeight, windowHeight, isDarkMode, headerHeight } = storeToRefs(indexStore);
 onMounted(() => {
   useFlowbite(() => {
     initFlowbite();
   });
+  windowHeightListener();
 });
 const headerHeightComputed = computed(() => {
   return headerHeight.value;
+});
+onUnmounted(() => {
+  removeWindowHeightListener();
 });
 </script>
 <template>
@@ -18,7 +23,9 @@ const headerHeightComputed = computed(() => {
     :style="{ paddingTop: headerHeightComputed + 'px' }"
   >
     <Header></Header>
-    <slot />
+    <div :style="`min-height: ${windowHeight - footerHeight * 2}px`">
+      <slot />
+    </div>
     <Footer></Footer>
     <Cart></Cart>
   </div>
