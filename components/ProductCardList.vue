@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 import { type Product } from "@/types/productTypes";
+import { postCart, getCart } from "@/apis/cart";
+const cartStore = useCartStore();
+const { handleAddCart } = cartStore;
 interface ProductCardListProps {
   productListProp: Product[];
   productIdProp?: string;
@@ -35,9 +38,6 @@ const deleteFavorites = (id: string, title: string): void => {
 const guestProductDetail = (id: string): void => {
   console.log(id);
 };
-const guestAddCart = (id: string, title: string): void => {
-  console.log(id, title);
-};
 onMounted(() => {
   if (process.client) {
     favorites.value = JSON.parse(localStorage.getItem("favorites") || "[]");
@@ -51,7 +51,6 @@ onMounted(() => {
         <div v-for="item in props.productListProp" :key="item.id">
           <NuxtLink
             class="text-black no-underline rounded-md overflow-hidden block hover:opacity-80"
-            href="#"
             @click.prevent="emitsInspectId(item.id)"
             :to="`/product/${item.id}`"
           >
@@ -148,7 +147,7 @@ onMounted(() => {
                 <button
                   class="btn btn-primary w-full bg-primary text-secondary rounded-md hover:bg-third hover:text-primary mb-1"
                   type="button"
-                  @click.stop.prevent="guestAddCart(item.id, item.title)"
+                  @click.stop.prevent="handleAddCart(item.id)"
                   :disabled="shouldShowLoading(item.id)"
                   :class="{ 'cursor-not-allowed': shouldShowLoading(item.id) }"
                 >

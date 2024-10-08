@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 const headerRef = ref(null);
 const indexStore = useIndexStore();
+const ariaExpanded = ref(false);
+const closeNavbar = () => {
+  ariaExpanded.value = false;
+};
 const { shouldShowDarkMode, shouldShowDarkModeText, shouldShowDarkModeBackground } =
   useIndexStore();
 const { headerHeight, scrollY } = storeToRefs(indexStore);
@@ -58,8 +62,7 @@ onUnmounted(() => {
           type="button"
           class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm rounded-lg md:hidden focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors duration-300"
           :class="shouldShowDarkMode()"
-          aria-controls="navbar-default"
-          aria-expanded="false"
+          @click="ariaExpanded = !ariaExpanded"
         >
           <span class="sr-only">Open main menu</span>
           <svg
@@ -81,13 +84,18 @@ onUnmounted(() => {
         <ModeSwitchIcon class="md:hidden items-center" />
       </div>
 
-      <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+      <div
+        class="w-full md:block md:w-auto"
+        id="navbar-default"
+        :class="ariaExpanded ? 'block' : 'hidden'"
+      >
         <ul
           class="font-medium flex flex-col p-4 md:p-0 mt-2 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 transition-colors duration-300"
           :class="shouldShowDarkModeBackground()"
         >
           <li v-for="list in navConfig">
             <NuxtLink
+              @click="closeNavbar()"
               :to="list.path"
               class="block py-2 px-3 text-center rounded md:bg-transparent md:p-0"
               :class="shouldShowDarkModeText()"

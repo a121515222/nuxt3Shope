@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getCart, putCart, deleteAllCart, deleteCart } from "@/apis/cart";
 const indexStore = useIndexStore();
 const { isMainBannerIntersection } = storeToRefs(indexStore);
 const cartRef = ref<HTMLElement | null>(null);
@@ -13,6 +14,9 @@ const isShowCart = ref(false);
 const toggleCart = () => {
   isShowCart.value = !isShowCart.value;
 };
+const cartClose = () => {
+  isShowCart.value = false;
+};
 const isShowCartButton = ref(false);
 const route = useRoute();
 const shouldShowCartButton = () => {
@@ -24,36 +28,112 @@ const shouldShowCartButton = () => {
     isShowCartButton.value = false;
   }
 };
+
+const isChangeNum = ref(false);
+const isCartLoading = ref(false);
+const toPayProcess = () => {
+  console.log("toPayProcess");
+};
 watch(
   [isMainBannerIntersection, () => route.path], // 監聽多個來源
   () => {
     shouldShowCartButton(); // 在任一來源變化時調用相同的函數
   }
 );
-onMounted(() => {
+const cartStore = useCartStore();
+const { cartDataList, finalTotal } = storeToRefs(cartStore);
+const cartId = ref("");
+const changeNum = ref(1);
+const handleEditCart = async (itemId: string, index: number) => {
+  cartId.value = itemId;
+  changeNum.value = cartDataList.value[index].qty;
+
+  isChangeNum.value = true;
+};
+const handlePutCart = async (itemId: string, productId: string, index: number) => {
+  isChangeNum.value = false;
+  cartId.value = "";
+  isCartLoading.value = true;
+  cartDataList.value[index].qty = changeNum.value;
+  const res = await putCart(itemId, productId, changeNum.value);
+  console.log("putCart", res);
+  if (res?.success) {
+    isCartLoading.value = false;
+    isChangeNum.value = false;
+  }
+};
+const handleDeleteCart = async (id: string) => {
+  console.log("deleteCart", id);
+  isCartLoading.value = true;
+  const res = await deleteCart(id);
+  console.log("deleteCart", res);
+  if (res?.success) {
+    isCartLoading.value = false;
+    await handleGetCart();
+  }
+};
+const handleDeleteAllCarts = async () => {
+  isCartLoading.value = true;
+  const res = await deleteAllCart();
+  console.log("deleteAllCarts", res);
+  if (res?.success) {
+    isCartLoading.value = false;
+  }
+};
+const handleGetCart = async () => {
+  const res = await getCart();
+  cartDataList.value = res.data?.carts || [];
+  finalTotal.value = res.data?.final_total || 0;
+};
+onMounted(async () => {
   cartWidth.value = getCartWidth();
   shouldShowCartButton();
+  await handleGetCart();
 });
 // :style="{ transform: isShowCart ? 'translateX(0)' : `translateX(${cartWidth}px)` }"
 </script>
 <template>
-  <div class="text-center fixed bottom-0 right-0" v-show="isShowCartButton">
+  <div
+    class="text-center fixed bottom-0 right-0 transform -translate-x-4 -translate-y-4 md:-translate-x-1/2 md:-translate-y-12"
+    v-show="isShowCartButton"
+  >
     <button
-      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+      class="relative group text-white bg-primary focus:ring-4 focus:ring-primary rounded-lg text-sm px-5 py-2.5"
       type="button"
       @click="toggleCart"
     >
-      Show navigation
+      <svg
+        class="w-12 h-12 text-secondary group-hover:text-red-500"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
+        />
+      </svg>
     </button>
+    <span
+      v-show="cartDataList.length !== 0"
+      class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full bg-red-900 text-red-300"
+      >{{ cartDataList.length }}</span
+    >
   </div>
 
   <div
-    class="fixed top-0 right-0 z-40 w-64 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out bg-white dark:bg-gray-800"
+    class="fixed top-0 right-0 z-40 w-full md:w-1/2 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out bg-white dark:bg-gray-800"
     tabindex="-1"
     ref="cartRef"
     :class="{ [`right-[${cartWidth}px]`]: isShowCart, 'translate-x-full': !isShowCart }"
   >
-    <h5 class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5>
+    <h5 class="text-base font-semibold text-gray-500 uppercase dark:text-white">購物車清單</h5>
     <button
       type="button"
       class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 end-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
@@ -75,160 +155,140 @@ onMounted(() => {
       <span class="sr-only">Close menu</span>
     </button>
     <div class="py-4 overflow-y-auto">
-      <ul class="space-y-2 font-medium">
-        <li>
-          <a
-            href="#"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+      <div class="flex flex-col px-3 w-full">
+        <div class="self-end">
+          <button
+            class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white disabled:opacity-50"
+            type="button"
+            @click="handleDeleteAllCarts()"
+            :disabled="cartDataList.length === 0"
+            :class="{ 'cursor-not-allowed': cartDataList.length === 0 }"
           >
-            <svg
-              class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 22 21"
-            >
-              <path
-                d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"
-              />
-              <path
-                d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"
-              />
-            </svg>
-            <span class="ms-3">Dashboard</span>
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            刪除所有
+          </button>
+        </div>
+
+        <table class="table-auto w-full text-left dark:text-white">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th class="hidden sm:table-cell" scope="col"></th>
+              <th scope="col">商品名稱</th>
+              <th class="hidden sm:table-cell" scope="col">總價格</th>
+              <th scope="col text-center">數量</th>
+              <th scope="col text-center">單價</th>
+              <th scope="col"></th>
+              <th class="hidden sm:table-cell" scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-if="cartDataList.length > 0">
+              <tr
+                v-for="(item, index) in cartDataList"
+                :key="item.product.title + index"
+                class="border-b"
+              >
+                <th scope="row">{{ index + 1 }}</th>
+                <td class="hidden sm:table-cell">
+                  <img
+                    class="w-[50px] h-[30px] object-cover"
+                    :src="item.product.imageUrl"
+                    :alt="item.product.title"
+                  />
+                </td>
+                <td>{{ item.product.title }}</td>
+                <td class="hidden sm:table-cell text-center">{{ Math.floor(item.final_total) }}</td>
+                <td class="text-center" v-if="!isChangeNum || item.id !== cartId">
+                  {{ item.qty }}
+                </td>
+                <td v-if="isChangeNum && item.id === cartId" class="min-w-[48px]">
+                  <input
+                    class="form-control specialWidth text-black"
+                    type="number"
+                    min="1"
+                    max="100"
+                    v-model="changeNum"
+                  />
+                </td>
+                <td class="text-center">
+                  {{
+                    item.product.origin_price > item.product.price === false
+                      ? item.product.origin_price
+                      : item.product.price
+                  }}
+                </td>
+                <td class="flex flex-col gap-1">
+                  <button
+                    v-show="!isChangeNum || item.id !== cartId"
+                    type="button"
+                    class="btn border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white disabled:opacity-50"
+                    :disabled="isCartLoading"
+                    :class="{ 'cursor-not-allowed': isCartLoading }"
+                    @click="handleEditCart(item.id, index)"
+                  >
+                    {{ "編輯" }}
+                  </button>
+                  <button
+                    v-show="isChangeNum && item.id === cartId"
+                    type="button"
+                    class="btn border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white disabled:opacity-50"
+                    :disabled="isCartLoading"
+                    :class="{ 'cursor-not-allowed': isCartLoading }"
+                    @click="handlePutCart(item.id, item.product_id, index)"
+                  >
+                    {{ "完成" }}
+                  </button>
+                  <button
+                    class="btn border border-gray-700 text-gray-700 hover:bg-gray-700 hover:text-white disabled:opacity-50"
+                    type="button"
+                    @click="handleDeleteCart(item.id)"
+                    :disabled="isCartLoading"
+                    :class="{ 'cursor-not-allowed': isCartLoading }"
+                  >
+                    刪除
+                  </button>
+                </td>
+                <!-- <td class="hidden sm:table-cell">
+                  <button
+                    type="button"
+                    class="btn border border-gray-700 text-gray-700 hover:bg-gray-700 hover:text-white disabled:opacity-50"
+                    @click="handleDeleteCart(item.id, item.product.title)"
+                    :disabled="isCartLoading"
+                    :class="{ 'cursor-not-allowed': isCartLoading }"
+                  >
+                    刪除
+                  </button>
+                </td> -->
+              </tr>
+            </template>
+            <template v-else>
+              <tr>
+                <td colspan="8" class="text-center">目前購物車沒有東西</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+
+        <div class="self-end flex gap-5 px-3">
+          <p class="text-center font-bold">小計</p>
+          <p class="text-center">{{ Math.floor(0) }}元</p>
+        </div>
+
+        <div class="self-end pb-1">
+          <button
+            type="button"
+            class="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
+            @click="
+              toPayProcess();
+              cartClose();
+            "
+            :disabled="cartDataList.length === 0 || isCartLoading"
+            :class="{ 'cursor-not-allowed': cartDataList.length === 0 || isCartLoading }"
           >
-            <svg
-              class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 18 18"
-            >
-              <path
-                d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"
-              />
-            </svg>
-            <span class="flex-1 ms-3 whitespace-nowrap">Kanban</span>
-            <span
-              class="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300"
-              >Pro</span
-            >
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-          >
-            <svg
-              class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                d="m17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z"
-              />
-            </svg>
-            <span class="flex-1 ms-3 whitespace-nowrap">Inbox</span>
-            <span
-              class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300"
-              >3</span
-            >
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-          >
-            <svg
-              class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 18"
-            >
-              <path
-                d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"
-              />
-            </svg>
-            <span class="flex-1 ms-3 whitespace-nowrap">Users</span>
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-          >
-            <svg
-              class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 18 20"
-            >
-              <path
-                d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 9a1 1 0 0 1-2 0V7h2v2Zm0-5a2 2 0 1 1 4 0v1H7V4Zm6 5a1 1 0 1 1-2 0V7h2v2Z"
-              />
-            </svg>
-            <span class="flex-1 ms-3 whitespace-nowrap">Products</span>
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-          >
-            <svg
-              class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 18 16"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"
-              />
-            </svg>
-            <span class="flex-1 ms-3 whitespace-nowrap">Sign In</span>
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-          >
-            <svg
-              class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z" />
-              <path
-                d="M6.737 11.061a2.961 2.961 0 0 1 .81-1.515l6.117-6.116A4.839 4.839 0 0 1 16 2.141V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H0v11a1.969 1.969 0 0 0 1.933 2h12.134A1.97 1.97 0 0 0 16 18v-3.093l-1.546 1.546c-.413.413-.94.695-1.513.81l-3.4.679a2.947 2.947 0 0 1-1.85-.227 2.96 2.96 0 0 1-1.635-3.257l.681-3.397Z"
-              />
-              <path
-                d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z"
-              />
-            </svg>
-            <span class="flex-1 ms-3 whitespace-nowrap">Sign Up</span>
-          </a>
-        </li>
-      </ul>
+            確認
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

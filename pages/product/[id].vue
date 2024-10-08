@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { getProduct } from "@/apis/products";
+import { postCart } from "@/apis/cart";
 import { type Product } from "@/types/productTypes";
+const cartStore = useCartStore();
+const { handleAddCart } = cartStore;
 const route = useRoute();
 const product = ref<Product>({
   id: "",
@@ -23,8 +26,14 @@ const pictureShowIndex = ref(0);
 const changePicture = (index: number) => {
   pictureShowIndex.value = index;
 };
-const addCart = (id: string, qty: number) => {
-  console.log(id, qty);
+const addCart = async (id: string, q: number) => {
+  const res = await handleAddCart(id, q);
+  if (res?.success) {
+    alert("加入購物車成功");
+    qty.value = 1;
+  } else {
+    alert("加入購物車失敗");
+  }
 };
 onMounted(async () => {
   if (!route.params.id) {

@@ -1,5 +1,5 @@
 import { useBaseFetch } from "@/utils/fetch";
-import { type FetchArticleData, type FetchArticlesData } from "~/types/articleTypes";
+import { type FetchArticleData, type FetchArticlesData } from "@/types/articleTypes";
 export function getArticles() {
   return useBaseFetch<FetchArticlesData>("articles", {
     method: "GET",
