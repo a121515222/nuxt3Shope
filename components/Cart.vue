@@ -4,6 +4,7 @@ const indexStore = useIndexStore();
 const { isMainBannerIntersection } = storeToRefs(indexStore);
 const cartRef = ref<HTMLElement | null>(null);
 const cartWidth = ref(0);
+const trRef = ref<HTMLElement[]>([]);
 const getCartWidth = () => {
   if (cartRef.value) {
     return cartRef.value.offsetWidth;
@@ -63,10 +64,8 @@ const handlePutCart = async (itemId: string, productId: string, index: number) =
   }
 };
 const handleDeleteCart = async (id: string) => {
-  console.log("deleteCart", id);
   isCartLoading.value = true;
   const res = await deleteCart(id);
-  console.log("deleteCart", res);
   if (res?.success) {
     isCartLoading.value = false;
     await handleGetCart();
@@ -75,7 +74,6 @@ const handleDeleteCart = async (id: string) => {
 const handleDeleteAllCarts = async () => {
   isCartLoading.value = true;
   const res = await deleteAllCart();
-  console.log("deleteAllCarts", res);
   if (res?.success) {
     isCartLoading.value = false;
   }
@@ -84,6 +82,12 @@ const handleGetCart = async () => {
   const res = await getCart();
   cartDataList.value = res.data?.carts || [];
   finalTotal.value = res.data?.final_total || 0;
+};
+const handleMouseEnter = (index: number) => {
+  trRef.value[index].classList.remove("hover:bg-gray-300", "dark:hover:bg-gray-600");
+};
+const handleMouseLeave = (index: number) => {
+  trRef.value[index].classList.add("hover:bg-gray-300", "dark:hover:bg-gray-600");
 };
 onMounted(async () => {
   cartWidth.value = getCartWidth();
@@ -98,7 +102,7 @@ onMounted(async () => {
     v-show="isShowCartButton"
   >
     <button
-      class="relative group text-white bg-primary focus:ring-4 focus:ring-primary rounded-lg text-sm px-5 py-2.5"
+      class="relative group text-white bg-third focus:ring-4 focus:ring-third rounded-lg text-sm px-5 py-2.5"
       type="button"
       @click="toggleCart"
     >
@@ -128,7 +132,7 @@ onMounted(async () => {
   </div>
 
   <div
-    class="fixed top-0 right-0 z-40 w-full md:w-1/2 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out bg-white dark:bg-gray-800"
+    class="fixed top-0 right-0 z-40 w-full md:w-1/2 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out bg-gray-200 dark:bg-gray-700"
     tabindex="-1"
     ref="cartRef"
     :class="{ [`right-[${cartWidth}px]`]: isShowCart, 'translate-x-full': !isShowCart }"
@@ -158,7 +162,7 @@ onMounted(async () => {
       <div class="flex flex-col px-3 w-full">
         <div class="self-end">
           <button
-            class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white disabled:opacity-50"
+            class="border border-red-500 rounded-lg text-red-500 bg-red-500 px-2 hover:opacity-80 text-white disabled:opacity-50"
             type="button"
             @click="handleDeleteAllCarts()"
             :disabled="cartDataList.length === 0"
@@ -178,7 +182,6 @@ onMounted(async () => {
               <th scope="col text-center">數量</th>
               <th scope="col text-center">單價</th>
               <th scope="col"></th>
-              <th class="hidden sm:table-cell" scope="col"></th>
             </tr>
           </thead>
           <tbody>
@@ -186,7 +189,12 @@ onMounted(async () => {
               <tr
                 v-for="(item, index) in cartDataList"
                 :key="item.product.title + index"
-                class="border-b"
+                class="border-b hover:bg-gray-300 dark:hover:bg-gray-600"
+                :ref="
+                  (el) => {
+                    if (el) trRef[index] = el as HTMLElement;
+                  }
+                "
               >
                 <th scope="row">{{ index + 1 }}</th>
                 <td class="hidden sm:table-cell">
@@ -219,46 +227,32 @@ onMounted(async () => {
                 </td>
                 <td class="flex flex-col gap-1">
                   <button
-                    v-show="!isChangeNum || item.id !== cartId"
                     type="button"
-                    class="btn border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white disabled:opacity-50"
+                    class="border border-primary bg-primary rounded-lg text-secondary hover:opacity-80 disabled:opacity-50"
                     :disabled="isCartLoading"
                     :class="{ 'cursor-not-allowed': isCartLoading }"
-                    @click="handleEditCart(item.id, index)"
+                    @click="
+                      isChangeNum && item.id === cartId
+                        ? handlePutCart(item.id, item.product_id, index)
+                        : handleEditCart(item.id, index)
+                    "
+                    @mouseenter="handleMouseEnter(index)"
+                    @mouseleave="handleMouseLeave(index)"
                   >
-                    {{ "編輯" }}
+                    {{ isChangeNum && item.id === cartId ? "完成" : "編輯" }}
                   </button>
                   <button
-                    v-show="isChangeNum && item.id === cartId"
-                    type="button"
-                    class="btn border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white disabled:opacity-50"
-                    :disabled="isCartLoading"
-                    :class="{ 'cursor-not-allowed': isCartLoading }"
-                    @click="handlePutCart(item.id, item.product_id, index)"
-                  >
-                    {{ "完成" }}
-                  </button>
-                  <button
-                    class="btn border border-gray-700 text-gray-700 hover:bg-gray-700 hover:text-white disabled:opacity-50"
+                    class="border border-red-500 rounded-lg text-red-500 px-2 hover:opacity-80 disabled:opacity-50"
                     type="button"
                     @click="handleDeleteCart(item.id)"
                     :disabled="isCartLoading"
                     :class="{ 'cursor-not-allowed': isCartLoading }"
+                    @mouseenter="handleMouseEnter(index)"
+                    @mouseleave="handleMouseLeave(index)"
                   >
                     刪除
                   </button>
                 </td>
-                <!-- <td class="hidden sm:table-cell">
-                  <button
-                    type="button"
-                    class="btn border border-gray-700 text-gray-700 hover:bg-gray-700 hover:text-white disabled:opacity-50"
-                    @click="handleDeleteCart(item.id, item.product.title)"
-                    :disabled="isCartLoading"
-                    :class="{ 'cursor-not-allowed': isCartLoading }"
-                  >
-                    刪除
-                  </button>
-                </td> -->
               </tr>
             </template>
             <template v-else>
@@ -269,7 +263,7 @@ onMounted(async () => {
           </tbody>
         </table>
 
-        <div class="self-end flex gap-5 px-3">
+        <div class="self-end dark:text-white flex gap-5 px-3">
           <p class="text-center font-bold">小計</p>
           <p class="text-center">{{ Math.floor(0) }}元</p>
         </div>
@@ -277,7 +271,7 @@ onMounted(async () => {
         <div class="self-end pb-1">
           <button
             type="button"
-            class="btn bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
+            class="bg-third text-white border border-third px-4 rounded-lg hover:opacity-80 disabled:opacity-50"
             @click="
               toPayProcess();
               cartClose();
