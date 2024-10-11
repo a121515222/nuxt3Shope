@@ -2,6 +2,8 @@
 import { getCart, putCart, deleteAllCart, deleteCart } from "@/apis/cart";
 const indexStore = useIndexStore();
 const { isMainBannerIntersection } = storeToRefs(indexStore);
+const { validateInput, validateAllInputs } = useInputValidate();
+import { couponValidatePattern } from "@/utils/validatePattern";
 const cartRef = ref<HTMLElement | null>(null);
 const cartWidth = ref(0);
 const trRef = ref<HTMLElement[]>([]);
@@ -88,6 +90,30 @@ const handleMouseEnter = (index: number) => {
 };
 const handleMouseLeave = (index: number) => {
   trRef.value[index].classList.add("hover:bg-gray-300", "dark:hover:bg-gray-600");
+};
+
+const couponInputRef = ref<HTMLInputElement | null>(null);
+const couponInputErrorMessageRef = ref<HTMLParagraphElement | null>(null);
+const coupon = ref("");
+const couponRule = (data: string | number): boolean => {
+  data = data.toString();
+  return couponValidatePattern.test(data);
+};
+const handleCouponInputValidation = async () => {
+  try {
+    const result = await validateAllInputs([
+      () =>
+        validateInput(
+          couponRule,
+          coupon.value,
+          "優惠券只有英文與數字",
+          couponInputErrorMessageRef.value as HTMLParagraphElement
+        )
+    ]);
+    return result;
+  } catch (error) {
+    console.log("coupon驗證失敗", error);
+  }
 };
 onMounted(async () => {
   cartWidth.value = getCartWidth();
@@ -283,6 +309,28 @@ onMounted(async () => {
           </button>
         </div>
       </div>
+    </div>
+    <div class="flex justify-between px-3">
+      <div class="relative grow pr-3">
+        <input
+          ref="couponInputRef"
+          :pattern="couponValidatePattern.source"
+          class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 focus:invalid:ring-red-500 dark:invalid:bg-red-800"
+          placeholder="請輸入優惠券"
+          v-model="coupon"
+          @blur="handleCouponInputValidation"
+        />
+        <p
+          ref="couponInputErrorMessageRef"
+          class="w-full h-1/2 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-20px]"
+        ></p>
+      </div>
+      <button
+        class="bg-primary text-white border border-primary px-4 py-2 rounded-md hover:opacity-80"
+        type="button"
+      >
+        送出
+      </button>
     </div>
   </div>
 </template>

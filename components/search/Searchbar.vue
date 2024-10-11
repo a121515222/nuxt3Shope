@@ -74,7 +74,7 @@ const productPriceRule = (data: string | number): boolean => {
   return priceValidatePattern.test(strData);
 };
 
-const maxPriceRule = (data: string | number): boolean => {
+const maxPriceRule = (): boolean => {
   if (minPrice.value === "") {
     return true;
   }
@@ -82,12 +82,13 @@ const maxPriceRule = (data: string | number): boolean => {
     return true;
   }
   if (maxPrice.value < minPrice.value) {
+    console.log("maxPriceRule", maxPrice.value < minPrice.value);
     return false;
   } else {
     return true;
   }
 };
-const minPriceRule = (data: string | number): boolean => {
+const minPriceRule = (): boolean => {
   if (maxPrice.value === "") {
     return true;
   }
@@ -116,36 +117,31 @@ const filterAutoCompleteList = (list: (Product | Article)[]): string[] => {
     .map((list) => list.title);
 };
 
-const validateAllInputs = async function (validations: Array<() => Promise<boolean>>) {
-  // 使用 Promise.all 動態執行 validations 陣列中的所有驗證函數
-  const results = await Promise.all(validations.map((validation) => validation()));
-
-  // 檢查結果是否全部為 true
-  const allValid = results.every((result) => result === true);
-
-  return allValid;
-};
-
 const handleMinPriceBlurValidation = async () => {
   try {
-    const result = await validateAllInputs([
-      () =>
-        validateInput(
-          productPriceRule,
-          minPrice.value,
-          "請輸入大於0的數字",
-          minPriceInputErrorMessageRef.value as HTMLParagraphElement
-        ),
-      () =>
-        validateInput(
-          minPriceRule,
-          minPrice.value,
-          "請輸入小於最高價格的數字",
-          minPriceInputErrorMessageRef.value as HTMLParagraphElement,
-          minPriceInputRef.value as HTMLInputElement
-        )
-    ]);
-    emitValidateResult(result);
+    const firstValidationResult = await validateInput(
+      productPriceRule,
+      minPrice.value,
+      "請輸入大於0的數字",
+      minPriceInputErrorMessageRef.value as HTMLParagraphElement
+    );
+
+    // 如果第一個驗證失敗，直接返回
+    if (!firstValidationResult) {
+      emitValidateResult(false);
+      return;
+    }
+
+    // 只有在第一個驗證通過的情況下才執行第二個驗證
+    const secondValidationResult = await validateInput(
+      minPriceRule,
+      minPrice.value,
+      "請輸入小於最高價格的數字",
+      minPriceInputErrorMessageRef.value as HTMLParagraphElement,
+      minPriceInputRef.value as HTMLInputElement
+    );
+
+    emitValidateResult(secondValidationResult);
   } catch (error) {
     console.log("minPrice驗證失敗", error);
     emitValidateResult(false);
@@ -154,25 +150,29 @@ const handleMinPriceBlurValidation = async () => {
 
 const handleMaxPriceBlurValidation = async () => {
   try {
-    const result = await validateAllInputs([
-      () =>
-        validateInput(
-          productPriceRule,
-          minPrice.value,
-          "請輸入大於0的數字",
-          minPriceInputErrorMessageRef.value as HTMLParagraphElement
-        ),
-      () =>
-        validateInput(
-          maxPriceRule,
-          maxPrice.value,
-          "請輸入小於最高價格的數字",
-          maxPriceInputErrorMessageRef.value as HTMLParagraphElement,
-          maxPriceInputRef.value as HTMLInputElement
-        )
-    ]);
-    emitValidateResult(result);
-    return result;
+    const firstValidationResult = await validateInput(
+      productPriceRule,
+      maxPrice.value,
+      "請輸入大於0的數字",
+      maxPriceInputErrorMessageRef.value as HTMLParagraphElement
+    );
+
+    // 如果第一個驗證失敗，直接返回
+    if (!firstValidationResult) {
+      emitValidateResult(false);
+      return;
+    }
+
+    // 只有在第一個驗證通過的情況下才執行第二個驗證
+    const secondValidationResult = await validateInput(
+      maxPriceRule,
+      maxPrice.value,
+      "請輸入大於最低價格的數字",
+      maxPriceInputErrorMessageRef.value as HTMLParagraphElement,
+      maxPriceInputRef.value as HTMLInputElement
+    );
+
+    emitValidateResult(secondValidationResult);
   } catch (error) {
     console.log("maxPrice驗證失敗", error);
     emitValidateResult(false);
@@ -226,15 +226,15 @@ watch(searchInfo, (value) => {
       <input
         ref="minPriceInputRef"
         :pattern="priceValidatePattern.source"
-        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 focus:invalid:ring-red-500"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
         placeholder="請輸入最低價格"
         v-model="minPrice"
         min="0"
-        @blur="handleMinPriceBlurValidation"
+        @input="handleMinPriceBlurValidation"
       />
       <p
         ref="minPriceInputErrorMessageRef"
-        class="w-full h-1/2 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-20px]"
+        class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-20px]"
       ></p>
     </div>
     <div
@@ -246,15 +246,15 @@ watch(searchInfo, (value) => {
       <input
         :pattern="priceValidatePattern.source"
         ref="maxPriceInputRef"
-        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 focus:invalid:ring-red-500"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
         placeholder="請輸入最高價格"
         v-model="maxPrice"
         min="0"
-        @blur="handleMaxPriceBlurValidation"
+        @input="handleMaxPriceBlurValidation"
       />
       <p
         ref="maxPriceInputErrorMessageRef"
-        class="w-full h-1/2 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-20px]"
+        class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-20px]"
       ></p>
     </div>
   </div>
