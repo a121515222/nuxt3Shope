@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 interface ToastData {
-  duration: number;
+  duration?: number;
   type: "success" | "danger" | "warning";
   message: string;
 }

@@ -28,12 +28,6 @@ const changePicture = (index: number) => {
 };
 const addCart = async (id: string, q: number) => {
   const res = await handleAddCart(id, q);
-  if (res?.success) {
-    alert("加入購物車成功");
-    qty.value = 1;
-  } else {
-    alert("加入購物車失敗");
-  }
 };
 onMounted(async () => {
   if (!route.params.id) {

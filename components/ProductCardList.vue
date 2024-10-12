@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { type Product } from "@/types/productTypes";
-import { postCart, getCart } from "@/apis/cart";
 const cartStore = useCartStore();
 const { handleAddCart } = cartStore;
 interface ProductCardListProps {

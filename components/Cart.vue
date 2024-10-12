@@ -5,8 +5,8 @@ const indexStore = useIndexStore();
 const { isMainBannerIntersection } = storeToRefs(indexStore);
 const { validateInput } = useInputValidate();
 const messageBoxStore = useMessageBoxStore();
-const { showConfirm, showAlert } = messageBoxStore;
-
+const { showConfirm } = messageBoxStore;
+const { addToast } = useToastStore();
 const cartRef = ref<HTMLElement | null>(null);
 const cartWidth = ref(0);
 const trRef = ref<HTMLElement[]>([]);
@@ -51,6 +51,11 @@ const cartStore = useCartStore();
 const { cartDataList, finalTotal } = storeToRefs(cartStore);
 const cartId = ref("");
 const changeNum = ref(1);
+const handleGetCart = async () => {
+  const res = await getCart();
+  cartDataList.value = res.data?.carts || [];
+  finalTotal.value = res.data?.final_total || 0;
+};
 const handleEditCart = async (itemId: string, index: number) => {
   cartId.value = itemId;
   changeNum.value = cartDataList.value[index].qty;
@@ -66,6 +71,9 @@ const handlePutCart = async (itemId: string, productId: string, index: number) =
   if (res?.success) {
     isCartLoading.value = false;
     isChangeNum.value = false;
+    addToast({ type: "success", message: "編輯成功" });
+  } else {
+    addToast({ type: "danger", message: "編輯失敗" });
   }
 };
 const handleDeleteCart = async (id: string) => {
@@ -73,8 +81,10 @@ const handleDeleteCart = async (id: string) => {
   const res = await deleteCart(id);
   if (res?.success) {
     isCartLoading.value = false;
+    addToast({ type: "success", message: "刪除成功" });
     await handleGetCart();
-  }
+  } else {
+    addToast({ type: "danger", message: "刪除失敗" });
 };
 const handleDeleteAllCarts = async () => {
   const result = await showConfirm("確定要刪除所有商品嗎?", "刪除所有商品");
@@ -89,11 +99,7 @@ const handleDeleteAllCarts = async () => {
     }
   }
 };
-const handleGetCart = async () => {
-  const res = await getCart();
-  cartDataList.value = res.data?.carts || [];
-  finalTotal.value = res.data?.final_total || 0;
-};
+
 const handleMouseEnter = (index: number) => {
   trRef.value[index].classList.remove("hover:bg-gray-300", "dark:hover:bg-gray-600");
 };
