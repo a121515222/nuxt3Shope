@@ -1,12 +1,16 @@
 <script lang="ts" setup>
 import { getCart, putCart, deleteAllCart, deleteCart } from "@/apis/cart";
+import { couponValidatePattern } from "@/utils/validatePattern";
 const indexStore = useIndexStore();
 const { isMainBannerIntersection } = storeToRefs(indexStore);
-const { validateInput, validateAllInputs } = useInputValidate();
-import { couponValidatePattern } from "@/utils/validatePattern";
+const { validateInput } = useInputValidate();
+const messageBoxStore = useMessageBoxStore();
+const { showConfirm, showAlert } = messageBoxStore;
+
 const cartRef = ref<HTMLElement | null>(null);
 const cartWidth = ref(0);
 const trRef = ref<HTMLElement[]>([]);
+
 const getCartWidth = () => {
   if (cartRef.value) {
     return cartRef.value.offsetWidth;
@@ -59,7 +63,6 @@ const handlePutCart = async (itemId: string, productId: string, index: number) =
   isCartLoading.value = true;
   cartDataList.value[index].qty = changeNum.value;
   const res = await putCart(itemId, productId, changeNum.value);
-  console.log("putCart", res);
   if (res?.success) {
     isCartLoading.value = false;
     isChangeNum.value = false;
@@ -74,10 +77,16 @@ const handleDeleteCart = async (id: string) => {
   }
 };
 const handleDeleteAllCarts = async () => {
-  isCartLoading.value = true;
-  const res = await deleteAllCart();
-  if (res?.success) {
-    isCartLoading.value = false;
+  const result = await showConfirm("確定要刪除所有商品嗎?", "刪除所有商品");
+  if (!result) {
+    return;
+  } else {
+    isCartLoading.value = true;
+    const res = await deleteAllCart();
+    if (res?.success) {
+      isCartLoading.value = false;
+      await handleGetCart();
+    }
   }
 };
 const handleGetCart = async () => {
@@ -101,15 +110,12 @@ const couponRule = (data: string | number): boolean => {
 };
 const handleCouponInputValidation = async () => {
   try {
-    const result = await validateAllInputs([
-      () =>
-        validateInput(
-          couponRule,
-          coupon.value,
-          "優惠券只有英文與數字",
-          couponInputErrorMessageRef.value as HTMLParagraphElement
-        )
-    ]);
+    const result = await validateInput(
+      couponRule,
+      coupon.value,
+      "優惠券只有英文與數字",
+      couponInputErrorMessageRef.value as HTMLParagraphElement
+    );
     return result;
   } catch (error) {
     console.log("coupon驗證失敗", error);

@@ -1,6 +1,7 @@
 <script setup>
 import { useFlowbite } from "@/composables/useFlowbite";
 import Toast from "@/components/Toast.vue";
+import MessageBox from "~/components/MessageBox.vue";
 const indexStore = useIndexStore();
 const { windowHeightListener, removeWindowHeightListener } = indexStore;
 const { footerHeight, windowHeight, isDarkMode, headerHeight } = storeToRefs(indexStore);
@@ -25,6 +26,7 @@ onUnmounted(() => {
   >
     <Header></Header>
     <Toast></Toast>
+    <MessageBox></MessageBox>
     <div :style="`min-height: ${windowHeight - footerHeight * 2}px`">
       <slot />
     </div>

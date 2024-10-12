@@ -6,6 +6,7 @@ export const useIndexStore = defineStore("index", () => {
   const footerHeight = ref(0);
   const scrollY = ref(0);
   const isDarkMode = ref(false);
+  const isShowAlert = ref(false);
   const isMainBannerIntersection = ref(false);
   const windowHeight = ref(0);
   const shouldShowDarkMode = (): string => {
@@ -54,6 +55,7 @@ export const useIndexStore = defineStore("index", () => {
     windowHeight,
     scrollY,
     isMainBannerIntersection,
+    isShowAlert,
     shouldShowDarkMode,
     shouldShowDarkModeText,
     shouldShowDarkModeBackground,
