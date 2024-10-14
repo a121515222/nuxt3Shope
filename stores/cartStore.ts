@@ -3,7 +3,7 @@ import { getCart, postCart } from "@/apis/cart";
 import { type Cart } from "@/types/cartTypes";
 export const useCartStore = defineStore("cartStore", () => {
   const cartDataList = ref<Cart[]>([]);
-  const finalTotal = ref<number>(0);
+  const finalTotal = ref<number | string>(0);
   const toastStore = useToastStore();
   const { addToast } = toastStore;
   const handleGetCart = async () => {

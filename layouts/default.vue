@@ -24,13 +24,13 @@ onUnmounted(() => {
     :class="{ dark: isDarkMode }"
     :style="{ paddingTop: headerHeightComputed + 'px' }"
   >
-    <Header></Header>
+    <LayoutHeader></LayoutHeader>
     <Toast></Toast>
     <MessageBox></MessageBox>
     <div :style="`min-height: ${windowHeight - footerHeight * 2}px`">
       <slot />
     </div>
-    <Footer></Footer>
+    <LayoutFooter></LayoutFooter>
     <Cart></Cart>
   </div>
 </template>

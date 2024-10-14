@@ -2,12 +2,18 @@ export function useBaseFetch<T>(url: string, options = {}) {
   const config = useRuntimeConfig();
   const baseUrl = config.public.baseApiUrl;
   const basePath = config.public.baseApiPath;
+  const { addToast } = useToastStore();
   return $fetch<T>(`${baseUrl}/api/${basePath}/${url}`, {
     ...options,
     timeout: 10000,
     credentials: "include",
     onResponseError: (error) => {
       console.error("$fetch error", error.response._data.message);
+      addToast({
+        duration: 3000,
+        type: "danger",
+        message: error.response._data.message
+      });
     }
   }).catch((error) => {
     console.log("useBaseFetch error", error);

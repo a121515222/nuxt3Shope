@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { getCart, putCart, deleteAllCart, deleteCart } from "@/apis/cart";
 import { couponValidatePattern } from "@/utils/validatePattern";
+import { postCoupon } from "~/apis/coupon";
 const indexStore = useIndexStore();
 const { isMainBannerIntersection } = storeToRefs(indexStore);
 const { validateInput } = useInputValidate();
@@ -54,7 +55,7 @@ const changeNum = ref(1);
 const handleGetCart = async () => {
   const res = await getCart();
   cartDataList.value = res.data?.carts || [];
-  finalTotal.value = res.data?.final_total || 0;
+  finalTotal.value = res.data?.final_total || "金額異常";
 };
 const handleEditCart = async (itemId: string, index: number) => {
   cartId.value = itemId;
@@ -83,8 +84,11 @@ const handleDeleteCart = async (id: string) => {
     isCartLoading.value = false;
     addToast({ type: "success", message: "刪除成功" });
     await handleGetCart();
-  } else {
+  }
+  // 考慮移除因為在fetch.ts中已經有處理錯誤訊息，除非後端不回傳404 status code
+  else {
     addToast({ type: "danger", message: "刪除失敗" });
+  }
 };
 const handleDeleteAllCarts = async () => {
   const result = await showConfirm("確定要刪除所有商品嗎?", "刪除所有商品");
@@ -125,6 +129,28 @@ const handleCouponInputValidation = async () => {
     return result;
   } catch (error) {
     console.log("coupon驗證失敗", error);
+  }
+};
+const handleCoupon = async () => {
+  const result = await handleCouponInputValidation();
+  if (result) {
+    if (coupon.value === "") {
+      return;
+    } else {
+      const res = await postCoupon({ code: coupon.value });
+      console.log("coupon", res);
+
+      const { final_total } = res.data;
+      const { message } = res;
+      finalTotal.value = final_total || "金額異常";
+      if (res?.success) {
+        addToast({ type: "success", message });
+        console.log("coupon", coupon.value);
+      } else {
+        addToast({ type: "danger", message: "優惠券驗證失敗" });
+        console.log("coupon", coupon.value);
+      }
+    }
   }
 };
 onMounted(async () => {
@@ -200,7 +226,7 @@ onMounted(async () => {
       <div class="flex flex-col px-3 w-full">
         <div class="self-end">
           <button
-            class="border border-red-500 rounded-lg text-red-500 bg-red-500 px-2 hover:opacity-80 text-white disabled:opacity-50"
+            class="border border-red-500 rounded-lg text-red-500 bg-red-500 px-4 py-2 hover:opacity-80 text-white disabled:opacity-50"
             type="button"
             @click="handleDeleteAllCarts()"
             :disabled="cartDataList.length === 0"
@@ -266,7 +292,7 @@ onMounted(async () => {
                 <td class="flex flex-col gap-1">
                   <button
                     type="button"
-                    class="border border-primary bg-primary rounded-lg text-secondary hover:opacity-80 disabled:opacity-50"
+                    class="border border-primary bg-primary rounded-lg px-2 py-2 text-nowrap text-secondary hover:opacity-80 disabled:opacity-50"
                     :disabled="isCartLoading"
                     :class="{ 'cursor-not-allowed': isCartLoading }"
                     @click="
@@ -280,7 +306,7 @@ onMounted(async () => {
                     {{ isChangeNum && item.id === cartId ? "完成" : "編輯" }}
                   </button>
                   <button
-                    class="border border-red-500 rounded-lg text-red-500 px-2 hover:opacity-80 disabled:opacity-50"
+                    class="border border-red-500 rounded-lg text-red-500 px-2 py-2 text-nowrap hover:opacity-80 disabled:opacity-50"
                     type="button"
                     @click="handleDeleteCart(item.id)"
                     :disabled="isCartLoading"
@@ -303,7 +329,7 @@ onMounted(async () => {
 
         <div class="self-end dark:text-white flex gap-5 px-3">
           <p class="text-center font-bold">小計</p>
-          <p class="text-center">{{ Math.floor(0) }}元</p>
+          <p class="text-center">{{ finalTotal }}元</p>
         </div>
 
         <div class="self-end pb-1">
@@ -338,8 +364,10 @@ onMounted(async () => {
         ></p>
       </div>
       <button
-        class="bg-primary text-white border border-primary px-4 py-2 rounded-md hover:opacity-80"
+        class="btn bg-primary text-white border border-primary px-4 py-2 rounded-md hover:opacity-80"
         type="button"
+        :disabled="coupon === ''"
+        @click="handleCoupon"
       >
         送出
       </button>

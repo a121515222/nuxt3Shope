@@ -71,7 +71,7 @@ onMounted(() => {});
 onUnmounted(() => {});
 </script>
 <template>
-  <Banner :bannerConfigProp="bannerConfig">
+  <LayoutBanner :bannerConfigProp="bannerConfig">
     <template #bannerSlogan>
       <p
         class="text-3xl md:text-5xl text-secondary font-bold text-shadow shadow-black whitespace-nowrap"
@@ -89,11 +89,11 @@ onUnmounted(() => {});
         </NuxtLink>
       </div>
     </template>
-  </Banner>
+  </LayoutBanner>
   <div class="container mx-auto">
-    <CrossCard :cardProductsDataProps="productDataList"> </CrossCard>
+    <LayoutCrossCard :cardProductsDataProps="productDataList"> </LayoutCrossCard>
   </div>
-  <Banner :bannerConfigProp="subBannerConfig">
+  <LayoutBanner :bannerConfigProp="subBannerConfig">
     <template #bannerSlogan>
       <p
         class="text-3xl md:text-5xl text-secondary font-bold text-shadow shadow-black whitespace-nowrap"
@@ -111,15 +111,15 @@ onUnmounted(() => {});
         </NuxtLink>
       </div>
     </template>
-  </Banner>
+  </LayoutBanner>
   <div class="container mx-auto">
-    <ArticleCard
+    <LayoutArticleCard
       class="pt-4"
       :articleDataProps="articleDataList"
       :articleDataConfig="articleDataConfig"
-    ></ArticleCard>
+    ></LayoutArticleCard>
   </div>
-  <Banner :bannerConfigProp="buttonBannerConfig">
+  <LayoutBanner :bannerConfigProp="buttonBannerConfig">
     <template #bannerSlogan>
       <p
         class="text-3xl md:text-5xl text-secondary font-bold text-shadow shadow-black whitespace-nowrap"
@@ -127,9 +127,9 @@ onUnmounted(() => {});
         還有更特別的
       </p>
     </template>
-  </Banner>
+  </LayoutBanner>
   <div class="container mx-auto">
-    <CrossCard :cardProductsDataProps="specialProductDataList"> </CrossCard>
+    <LayoutCrossCard :cardProductsDataProps="specialProductDataList"> </LayoutCrossCard>
   </div>
 </template>
 <style></style>
