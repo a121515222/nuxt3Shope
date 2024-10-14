@@ -160,6 +160,7 @@ onUnmounted(() => {
               if (el) closeRef[index] = el as HTMLElement;
             }
           "
+          @click="deleteToast(index)"
           aria-label="Close"
         >
           <span class="sr-only">Close</span>
@@ -220,6 +221,7 @@ onUnmounted(() => {
               if (el) closeRef[index] = el as HTMLElement;
             }
           "
+          @click="deleteToast(index)"
           aria-label="Close"
         >
           <span class="sr-only">Close</span>

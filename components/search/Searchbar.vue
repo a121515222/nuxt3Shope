@@ -193,12 +193,15 @@ watch(searchInfo, (value) => {
     isShowAutoComplete.value = false;
   }
 });
+
+const test = "https://vue3-course-api.hexschool.io/v2/api/chun-chia/admin/signin";
+const test2 = "https://vue3-course-api.hexschool.io/v2/admin/signin";
 </script>
 <template>
   <div class="flex flex-col md:flex-row md:items-center justify-center gap-4 py-2">
     <div class="relative md:w-1/4 px-4">
       <input
-        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
         ref="searchInput"
         type="text"
         v-model="searchInfo"
@@ -226,7 +229,7 @@ watch(searchInfo, (value) => {
       <input
         ref="minPriceInputRef"
         :pattern="priceValidatePattern.source"
-        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
         placeholder="請輸入最低價格"
         v-model="minPrice"
         min="0"
@@ -246,7 +249,7 @@ watch(searchInfo, (value) => {
       <input
         :pattern="priceValidatePattern.source"
         ref="maxPriceInputRef"
-        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
+        class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
         placeholder="請輸入最高價格"
         v-model="maxPrice"
         min="0"

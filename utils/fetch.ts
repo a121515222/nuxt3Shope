@@ -1,9 +1,22 @@
-export function useBaseFetch<T>(url: string, options = {}) {
+export function useBaseFetch<T>(
+  url: string,
+  options = {},
+  urlType: "client" | "admin" | "check" = "client"
+) {
   const config = useRuntimeConfig();
   const baseUrl = config.public.baseApiUrl;
   const basePath = config.public.baseApiPath;
   const { addToast } = useToastStore();
-  return $fetch<T>(`${baseUrl}/api/${basePath}/${url}`, {
+  const clientUrl = `${baseUrl}/api/${basePath}/${url}`;
+  const adminUrl = `${baseUrl}/${url}`;
+  const checkUrl = `${baseUrl}/api/user/${url}`;
+  const router = useRouter();
+  const urlMap = {
+    client: clientUrl,
+    admin: adminUrl,
+    check: checkUrl
+  };
+  return $fetch<T>(urlMap[urlType], {
     ...options,
     timeout: 10000,
     credentials: "include",
@@ -14,6 +27,10 @@ export function useBaseFetch<T>(url: string, options = {}) {
         type: "danger",
         message: error.response._data.message
       });
+      // #todo 想想那邊還可以在優化
+      if (error.response._data.message === "驗證錯誤, 請重新登入") {
+        router.push("/login");
+      }
     }
   }).catch((error) => {
     console.log("useBaseFetch error", error);

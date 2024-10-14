@@ -1,17 +1,30 @@
 <script lang="ts" setup>
+import { postLogOut } from "@/apis/login";
 const headerRef = ref(null);
 const indexStore = useIndexStore();
 const ariaExpanded = ref(false);
+const router = useRouter();
 const closeNavbar = () => {
   ariaExpanded.value = false;
 };
 const { shouldShowDarkMode, shouldShowDarkModeText, shouldShowDarkModeBackground } =
   useIndexStore();
-const { headerHeight, scrollY } = storeToRefs(indexStore);
+const { headerHeight, scrollY, isLogin } = storeToRefs(indexStore);
 const getHeight = (ref: Ref<HTMLElement | null>, height: Ref<number>) => {
   if (ref.value) {
     height.value = ref.value.clientHeight;
   }
+};
+const handleLogout = async () => {
+  const res = await postLogOut();
+  if (process.client) {
+    document.cookie = `token=; `;
+  }
+  if (res.success) {
+    isLogin.value = false;
+    router.push("/login");
+  }
+  console.log("logout", res);
 };
 const navConfig = [
   {
@@ -103,6 +116,27 @@ onUnmounted(() => {
               activeClass="test-white"
               >{{ list.name }}</NuxtLink
             >
+          </li>
+          <li v-if="!isLogin">
+            <NuxtLink
+              @click="closeNavbar()"
+              to="/login"
+              class="block py-2 px-3 text-center rounded md:bg-transparent md:p-0"
+              :class="shouldShowDarkModeText()"
+              >登入</NuxtLink
+            >
+          </li>
+          <li v-else-if="isLogin">
+            <button
+              @click="
+                closeNavbar();
+                handleLogout();
+              "
+              class="block py-2 px-3 text-center rounded md:bg-transparent md:p-0"
+              :class="shouldShowDarkModeText()"
+            >
+              登出
+            </button>
           </li>
           <li class="hidden md:block">
             <ModeSwitchIcon />

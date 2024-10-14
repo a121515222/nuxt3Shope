@@ -53,7 +53,7 @@ const shouldHeight = () => {
   if (bannerConfigProp.isMainBanner) {
     return `min-height:${screenHeight.value - headerHeight.value}px`;
   } else {
-    return `min-height:${bannerConfigProp.bannerHeight}`;
+    return `min-height:${bannerConfigProp.bannerHeight}px`;
   }
 };
 const { isIntersecting, interSectionObserver } = useInterSectionObserver();
