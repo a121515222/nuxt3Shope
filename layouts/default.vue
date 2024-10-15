@@ -6,7 +6,7 @@ import { postCheckLogin } from "@/apis/login";
 const route = useRoute();
 const handleCheckLogin = async () => {
   // 如果是admin的路由，就檢查是否登入
-  if (route.path().includes("/admin")) {
+  if (route.path.includes("/admin")) {
     await postCheckLogin();
   }
 };
