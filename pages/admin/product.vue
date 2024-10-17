@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+// import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 const isNew = ref(false);
 const products = ref([
   {
@@ -32,6 +33,9 @@ const productTemp = ref({
   imagesUrl: []
 });
 const modalRef = ref(null);
+
+// const editor = ref(ClassicEditor);
+const editorData = ref("");
 const productStatus = (isEnabled) => {
   return isEnabled === 1 ? "啟用" : "未啟用";
 };
@@ -46,6 +50,9 @@ const openModal = (item) => {
     modalRef.value.modalShow();
   }
 };
+watch(editorData, (newVal) => {
+  console.log(newVal);
+});
 </script>
 <template>
   <div class="py-5 dark:text-white">
@@ -172,6 +179,8 @@ const openModal = (item) => {
       <p v-else>請選擇一個商品查看</p>
     </div>
   </div>
-  <Modal ref="modalRef" :modalPropsId="'adminProductModal'"></Modal>
+  <Modal ref="modalRef" :modalPropsId="'adminProductModal'">
+    <TheCkeditor v-model="editorData"></TheCkeditor>
+  </Modal>
 </template>
 <style></style>
