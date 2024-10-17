@@ -42,12 +42,10 @@ const showProduct = (item) => {
   productTemp.value = item;
 };
 const openModal = (item) => {
-  console.log("openModal", modalRef.value);
   if (modalRef.value) {
     modalRef.value.modalShow();
   }
 };
-const alertMessage = ref("test");
 </script>
 <template>
   <div class="py-5 dark:text-white">
@@ -174,6 +172,6 @@ const alertMessage = ref("test");
       <p v-else>請選擇一個商品查看</p>
     </div>
   </div>
-  <Modal ref="modalRef" :alertMessage="alertMessage"></Modal>
+  <Modal ref="modalRef" :modalPropsId="'adminProductModal'"></Modal>
 </template>
 <style></style>

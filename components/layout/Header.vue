@@ -24,7 +24,6 @@ const handleLogout = async () => {
     isLogin.value = false;
     router.push("/login");
   }
-  console.log("logout", res);
 };
 const navConfig = [
   {
@@ -34,8 +33,27 @@ const navConfig = [
   {
     name: "文章列表",
     path: "/articleList"
+  },
+  {
+    name: "編輯產品",
+    path: "/admin/product"
   }
 ];
+interface NavList {
+  name: string;
+  path: string;
+}
+const showNavbar = computed(() => {
+  const result: NavList[] = [];
+  navConfig.forEach((list) => {
+    if (isLogin.value && list.path.includes("/admin")) {
+      result.push(list);
+    } else if (!list.path.includes("/admin")) {
+      result.push(list);
+    }
+  });
+  return result;
+});
 onMounted(() => {
   window.addEventListener("scroll", () => {
     scrollY.value = window.scrollY;
@@ -106,7 +124,7 @@ onUnmounted(() => {
           class="font-medium flex flex-col p-4 md:p-0 mt-2 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 transition-colors duration-300"
           :class="shouldShowDarkModeBackground()"
         >
-          <li v-for="list in navConfig">
+          <li v-for="list in showNavbar">
             <NuxtLink
               @click="closeNavbar()"
               :to="list.path"

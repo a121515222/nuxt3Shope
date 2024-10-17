@@ -1,5 +1,4 @@
 <script setup>
-import { useFlowbite } from "@/composables/useFlowbite";
 import Toast from "@/components/Toast.vue";
 import MessageBox from "~/components/MessageBox.vue";
 import { postCheckLogin } from "@/apis/login";
@@ -7,16 +6,19 @@ const route = useRoute();
 const handleCheckLogin = async () => {
   // 如果是admin的路由，就檢查是否登入
   if (route.path.includes("/admin")) {
-    await postCheckLogin();
+    const res = await postCheckLogin();
+    if (res.success) {
+      isLogin.value = true;
+    } else {
+      isLogin.value = false;
+      router.push("/login");
+    }
   }
 };
 const indexStore = useIndexStore();
 const { windowHeightListener, removeWindowHeightListener } = indexStore;
 const { footerHeight, windowHeight, isDarkMode, headerHeight, isLogin } = storeToRefs(indexStore);
 onMounted(async () => {
-  useFlowbite(() => {
-    initFlowbite();
-  });
   windowHeightListener();
   if (process.client) {
     await handleCheckLogin();

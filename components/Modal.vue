@@ -1,103 +1,127 @@
 <script lang="ts" setup>
-import { Modal } from "flowbite";
-const props = defineProps({
-  alertPropsId: {
-    type: String,
-    default: "dashBoardAlert"
-  },
-  alertMessage: {
-    type: String,
-    default: ""
+interface ModalProps {
+  modalPropsId?: string;
+  modalTitle?: string;
+}
+const props = withDefaults(defineProps<ModalProps>(), {
+  modalPropsId: "modal",
+  modalTitle: ""
+});
+const overlayVisible = ref(false);
+const modalRef = ref<HTMLElement | null>(null);
+onMounted(() => {});
+// if (process.client) {
+//   useFlowbite(({ initModals }) => {
+//     initModals();
+//   });
+// }
+const modalShow = () => {
+  if (modalRef.value) {
+    modalRef.value.classList.remove("hidden");
+    // modalRef.value.setAttribute("roll", "dialog");
+    // modalRef.value.setAttribute("aria-hidden", "false");
+    // modalRef.value.setAttribute("aria-modal", "true");
+    if (process.client) {
+      const body = document.body;
+      document.body.classList.add("overflow-hidden");
+      overlayVisible.value = true;
+    }
   }
-});
-let modal: Modal;
-onMounted(() => {
-  const $targetEl = document.getElementById(props.alertPropsId);
-  const options = {
-    closable: true,
-    onHide: () => {},
-    onShow: () => {},
-    onToggle: () => {}
-  };
-  const instanceOptions = {
-    id: props.alertPropsId,
-    override: true
-  };
-  modal = new Modal($targetEl, options, instanceOptions);
-});
+};
+const modalHide = () => {
+  if (modalRef.value) {
+    modalRef.value.classList.add("hidden");
+    // modalRef.value.removeAttribute("roll");
+    // modalRef.value.setAttribute("aria-hidden", "true");
+    // modalRef.value.removeAttribute("aria-modal");
+    if (process.client) {
+      document.body.classList.remove("overflow-hidden");
+      overlayVisible.value = false;
+    }
+  }
+};
+const modalToggle = () => {
+  if (modalRef.value) {
+    modalRef.value.classList.toggle("hidden");
+    // modalRef.value.getAttribute("roll") === "dialog"
+    //   ? modalRef.value.removeAttribute("roll")
+    //   : modalRef.value.setAttribute("roll", "dialog");
+    // modalRef.value.getAttribute("aria-hidden") === "false"
+    //   ? modalRef.value.setAttribute("aria-hidden", "true")
+    //   : modalRef.value.setAttribute("aria-hidden", "false");
+    // modalRef.value.getAttribute("aria-modal") === "true"
+    //   ? modalRef.value.removeAttribute("aria-modal")
+    //   : modalRef.value.setAttribute("aria-modal", "true");
+    if (process.client) {
+      document.body.classList.toggle("overflow-hidden");
+      overlayVisible.value = !overlayVisible.value;
+    }
+  }
+};
 defineExpose({
-  modalShow: () => {
-    modal.show();
-  },
-  modalHide: () => {
-    modal.hide();
-  },
-  modalToggle: () => {
-    modal.toggle();
-  }
+  modalShow,
+  modalHide,
+  modalToggle
 });
 </script>
 <template>
-  <div
-    :id="props.alertPropsId"
-    tabindex="-1"
-    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
-  >
-    <div class="relative p-4 w-full max-w-md max-h-full">
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-        <button
-          type="button"
-          class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-          :data-modal-hide="props.alertPropsId"
-          @click="modal.hide()"
-        >
-          <svg
-            class="w-3 h-3"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 14"
+  <div>
+    <div
+      ref="modalRef"
+      :id="props.modalPropsId"
+      tabindex="-1"
+      aria-hidden="true"
+      class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full flex justify-center items-center"
+    >
+      <div class="relative w-full h-full max-w-7xl md:h-auto">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <!-- Modal header -->
+          <div class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-600">
+            <h3 class="text-xl font-semibold text-gray-900 lg:text-2xl dark:text-white">
+              {{ props.modalTitle }}
+            </h3>
+            <button
+              id="closeButton"
+              data-modal-hide="modal"
+              type="button"
+              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+              @click="modalHide"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <!-- Modal body -->
+          <div class="p-6 space-y-6">
+            <slot></slot>
+          </div>
+          <!-- Modal footer -->
+          <div
+            class="flex justify-end items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
           >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-            />
-          </svg>
-          <span class="sr-only">Close modal</span>
-        </button>
-        <div class="p-4 md:p-5 text-center">
-          <svg
-            class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 20"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-            />
-          </svg>
-          <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-            {{ props.alertMessage }}
-          </h3>
-          <button
-            :data-modal-hide="props.alertPropsId"
-            type="button"
-            class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-            @click="modal.hide()"
-          >
-            Ok
-          </button>
+            <button
+              type="button"
+              class="text-secondary bg-primary hover:opacity-80 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+            >
+              確定
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  <!-- modal overlay -->
+  <div v-if="overlayVisible" class="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/80 z-40"></div>
 </template>
 <style></style>
