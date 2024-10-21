@@ -5,7 +5,6 @@ import {
   type CheckTokenResponse,
   type LogOutResponse
 } from "@/types/loginTypes";
-import { get } from "http";
 export function postLogin(data: UserLogin) {
   // #todo
   // signin login 傻傻分不清楚 之後弄自己的後端之後要改成 signin

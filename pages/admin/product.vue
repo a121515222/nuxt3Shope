@@ -1,49 +1,46 @@
 <script lang="ts" setup>
-// import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-const isNew = ref(false);
-const products = ref([
-  {
-    id: "",
-    title: "",
-    origin_price: "",
-    price: "",
-    unit: "",
-    is_enabled: true,
-    category: "",
-    description: "",
-    content: "",
-    imageUrl: "",
-    imagesUrl: []
-  }
-]);
+import {
+  getAdminProducts,
+  postAdminProduct,
+  putAdminProduct,
+  deleteAdminProduct
+} from "@/apis/adminProduct";
+import { type AdminProduct } from "@/types/adminProductTypes";
+const messageBoxStore = useMessageBoxStore();
+const { showConfirm } = messageBoxStore;
+const { addToast } = useToastStore();
+const isAddNewProduct = ref(false);
+const products = ref<AdminProduct[]>([]);
 // 暫時寫死 isLoading 為 false
 const isLoading = ref(false);
 const postId = ref("");
-const productTemp = ref({
+const productTemp = ref<AdminProduct>({
   id: "",
   title: "",
-  origin_price: "",
-  price: "",
+  origin_price: 0,
+  price: 0,
   unit: "",
-  is_enabled: true,
+  is_enabled: 0,
   category: "",
   description: "",
   content: "",
   imageUrl: "",
-  imagesUrl: []
+  imagesUrl: [],
+  num: 0
 });
-const modalData = ref({
+const modalData = ref<AdminProduct>({
   id: "",
   title: "",
-  origin_price: "",
-  price: "",
+  origin_price: 0,
+  price: 0,
   unit: "",
-  is_enabled: 1,
+  is_enabled: 0,
   category: "",
   description: "",
   content: "",
   imageUrl: "",
-  imagesUrl: []
+  imagesUrl: [],
+  num: 0
 });
 const productStatus = ref([
   { value: 0, status: "未上架" },
@@ -60,15 +57,62 @@ const editorData = ref("");
 const shouldProductActive = (isEnabled) => {
   return isEnabled === 1 ? "啟用" : "未啟用";
 };
-const deleteProduct = () => {
-  console.log("deleteProduct");
+
+const handleGetAdminProducts = async (page: number = 1) => {
+  const res = await getAdminProducts(page);
+  products.value = res.products;
 };
+const handleModalConfirm = async () => {
+  if (isAddNewProduct.value) {
+    // #todo 可以塞驗證
+    await handleAddProduct();
+  } else {
+    // #todo 可以塞驗證
+    await handleEditProduct();
+  }
+};
+const handleAddProduct = async () => {
+  const res = await postAdminProduct(modalData.value);
+  if (res.success) {
+    addToast({ type: "success", message: "新增成功" });
+    await handleGetAdminProducts();
+  } else {
+    addToast({ type: "danger", message: "新增失敗" });
+  }
+};
+const handleEditProduct = async () => {
+  const res = await putAdminProduct(modalData.value);
+  if (res.success) {
+    addToast({ type: "success", message: "編輯成功" });
+    await handleGetAdminProducts();
+  } else {
+    addToast({ type: "danger", message: "編輯失敗" });
+  }
+};
+const handleDeleteAdminProduct = async (id: string) => {
+  const result = await showConfirm("確定要刪除產品嗎?", "刪除商品");
+  if (result) {
+    const res = await deleteAdminProduct(id);
+    if (res.success) {
+      addToast({ type: "success", message: "刪除成功" });
+      await handleGetAdminProducts();
+    } else {
+      addToast({ type: "danger", message: "刪除失敗" });
+    }
+  } else {
+    addToast({ type: "warning", message: "取消刪除" });
+  }
+};
+
 const showProduct = (item) => {
   productTemp.value = item;
 };
-const openModal = (item) => {
+const openModal = (item: string | AdminProduct = "") => {
   if (modalRef.value) {
     modalRef.value.modalShow();
+    if (typeof item !== "string" && item.id) {
+      modalData.value = item;
+    }
   }
 };
 const uploadImg = () => {
@@ -80,8 +124,12 @@ const addImg = () => {
 const deleteImg = () => {
   console.log("deleteImg");
 };
+
 watch(editorData, (newVal) => {
   console.log(newVal);
+});
+onMounted(async () => {
+  await handleGetAdminProducts();
 });
 </script>
 <template>
@@ -94,7 +142,7 @@ watch(editorData, (newVal) => {
           class="btn btn-primary"
           type="button"
           @click="
-            isNew = true;
+            isAddNewProduct = true;
             openModal();
           "
         >
@@ -140,7 +188,7 @@ watch(editorData, (newVal) => {
                     :class="{ 'cursor-not-allowed': isLoading }"
                     @click="
                       postId = item.id;
-                      isNew = false;
+                      isAddNewProduct = false;
                       openModal(item);
                     "
                   >
@@ -156,7 +204,7 @@ watch(editorData, (newVal) => {
                     :class="{ 'cursor-not-allowed': isLoading }"
                     @click="
                       postId = item.id;
-                      deleteProduct();
+                      handleDeleteAdminProduct(item.id);
                     "
                   >
                     <span v-if="isLoading" class="spinner-border spinner-border-sm"></span>
@@ -216,7 +264,12 @@ watch(editorData, (newVal) => {
     </div>
   </div>
 
-  <Modal ref="modalRef" :modalPropsId="'adminProductModal'">
+  <Modal
+    ref="modalRef"
+    :modalPropsId="'adminProductModal'"
+    :modalPropsTitle="'產品編輯'"
+    @modalConfirm="handleModalConfirm"
+  >
     <div class="grid grid-cols-1 md:grid-cols-4 md:gap-4 my-3">
       <div class="col-span-1">
         <div class="mb-3">

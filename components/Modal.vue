@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 interface ModalProps {
   modalPropsId?: string;
-  modalTitle?: string;
+  modalPropsTitle?: string;
 }
 const props = withDefaults(defineProps<ModalProps>(), {
   modalPropsId: "modal",
@@ -9,7 +9,6 @@ const props = withDefaults(defineProps<ModalProps>(), {
 });
 const overlayVisible = ref(false);
 const modalRef = ref<HTMLElement | null>(null);
-onMounted(() => {});
 const modalShow = () => {
   if (modalRef.value) {
     modalRef.value.classList.remove("hidden");
@@ -43,6 +42,11 @@ defineExpose({
   modalHide,
   modalToggle
 });
+const emits = defineEmits(["modalConfirm"]);
+const confirm = () => {
+  emits("modalConfirm");
+  modalHide();
+};
 </script>
 <template>
   <div
@@ -60,7 +64,7 @@ defineExpose({
           class="flex items-start justify-between p-5 border-b rounded-t bg-gray-300 dark:bg-gray-500"
         >
           <h3 class="text-xl font-semibold text-gray-900 lg:text-2xl dark:text-white">
-            {{ props.modalTitle }}
+            {{ props.modalPropsTitle }}
           </h3>
           <button
             id="closeButton"
@@ -93,6 +97,7 @@ defineExpose({
           <button
             type="button"
             class="text-secondary bg-primary hover:opacity-80 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+            @click="confirm"
           >
             確定
           </button>

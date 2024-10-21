@@ -162,7 +162,7 @@ onMounted(async () => {
 </script>
 <template>
   <div
-    class="text-center fixed bottom-0 right-0 transform -translate-x-4 -translate-y-4 md:-translate-x-1/2 md:-translate-y-12"
+    class="text-center fixed bottom-[52 px] lg:bottom-[16px] right-0 transform -translate-x-4 -translate-y-4 md:-translate-x-1/2 md:-translate-y-12"
     v-show="isShowCartButton"
   >
     <button
