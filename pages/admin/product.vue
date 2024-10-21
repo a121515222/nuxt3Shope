@@ -54,8 +54,9 @@ const modalRef = ref<{ modalShow: () => void } | null>(null);
 
 // const editor = ref(ClassicEditor);
 const editorData = ref("");
-const shouldProductActive = (isEnabled) => {
-  return isEnabled === 1 ? "啟用" : "未啟用";
+// #todo isEnabled 自己做後端的時候命名要改
+const shouldProductActive = (isEnabled: number) => {
+  return productStatus.value.find((status) => status.value === isEnabled)?.status || "";
 };
 
 const handleGetAdminProducts = async (page: number = 1) => {
@@ -133,13 +134,13 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div class="container mx-auto">
+  <div class="container mx-auto px-6">
     <div class="py-5 dark:text-white">
       <h2 class="text-2xl font-semibold">產品列表</h2>
       <div class="flex justify-end mb-3">
         <!-- Button trigger modal -->
         <button
-          class="btn btn-primary"
+          class="btn bg-primary text-white hover:opacity-80 px-4 py-2 rounded-lg border-primary"
           type="button"
           @click="
             isAddNewProduct = true;
@@ -150,17 +151,16 @@ onMounted(async () => {
         </button>
       </div>
       <div class="w-full my-3">
-        <div class="border rounded-lg bg-gray-400 dark:bg-gray-700">
+        <div class="border rounded-lg bg-gray-400 dark:bg-gray-500 overflow-x-auto">
           <table class="min-w-full table-auto">
             <thead>
-              <tr>
+              <tr class="text-nowrap">
                 <th class="px-4 py-2">產品名稱</th>
                 <th class="px-4 py-2">原價</th>
                 <th class="px-4 py-2">售價</th>
                 <th class="px-4 py-2">單位</th>
-                <th class="px-4 py-2">是否啟用</th>
+                <th class="px-4 py-2">貨物狀態</th>
                 <th class="px-4 py-2">查看細節</th>
-                <th class="px-4 py-2"></th>
                 <th class="px-4 py-2"></th>
               </tr>
             </thead>
@@ -168,21 +168,24 @@ onMounted(async () => {
               <tr
                 v-for="(item, index) in products"
                 :key="item.id + index"
-                class="hover:bg-gray-300 dark:hover:bg-gray-600"
+                class="hover:bg-gray-500 hover:text-white dark:hover:bg-gray-800 text-nowrap"
+                :class="{ 'bg-gray-300 dark:bg-gray-400': index % 2 === 0 }"
               >
-                <td class="border px-4 py-2">{{ item.title }}</td>
-                <td class="border px-4 py-2">{{ item.origin_price }}</td>
-                <td class="border px-4 py-2">{{ item.price }}</td>
-                <td class="border px-4 py-2">{{ item.unit }}</td>
-                <td class="border px-4 py-2">{{ shouldProductActive(item.is_enabled) }}</td>
-                <td class="border px-4 py-2">
+                <td class="border px-4 py-2 text-center">{{ item.title }}</td>
+                <td class="border px-4 py-2 text-center">{{ item.origin_price }}</td>
+                <td class="border px-4 py-2 text-center">{{ item.price }}</td>
+                <td class="border px-4 py-2 text-center">{{ item.unit }}</td>
+                <td class="border px-4 py-2 text-center">
+                  {{ shouldProductActive(item.is_enabled) }}
+                </td>
+                <td class="border px-4 py-2 text-center">
                   <button class="btn btn-outline-primary" type="button" @click="showProduct(item)">
                     查看細節
                   </button>
                 </td>
-                <td class="border px-4 py-2">
+                <td class="border px-4 py-2 flex justify-center gap-4">
                   <button
-                    class="btn btn-outline-success"
+                    class="border-primary border-2 px-4 py-2 rounded-lg hover:bg-primary"
                     type="button"
                     :disabled="isLoading"
                     :class="{ 'cursor-not-allowed': isLoading }"
@@ -195,10 +198,8 @@ onMounted(async () => {
                     <span v-if="isLoading" class="spinner-border spinner-border-sm"></span>
                     編輯
                   </button>
-                </td>
-                <td class="border px-4 py-2">
                   <button
-                    class="btn btn-outline-danger"
+                    class="border border-red-500 border-2 px-4 py-2 rounded-lg hover:bg-red-500"
                     type="button"
                     :disabled="isLoading"
                     :class="{ 'cursor-not-allowed': isLoading }"
