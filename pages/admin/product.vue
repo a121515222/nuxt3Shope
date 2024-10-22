@@ -5,6 +5,7 @@ import {
   putAdminProduct,
   deleteAdminProduct
 } from "@/apis/adminProduct";
+import { postAdminImageUpload } from "@/apis/adminUpload";
 import { type AdminProduct } from "@/types/adminProductTypes";
 const messageBoxStore = useMessageBoxStore();
 const { showConfirm } = messageBoxStore;
@@ -105,7 +106,7 @@ const handleDeleteAdminProduct = async (id: string) => {
   }
 };
 
-const showProduct = (item) => {
+const showProduct = (item: AdminProduct) => {
   productTemp.value = item;
 };
 const openModal = (item: string | AdminProduct = "") => {
@@ -116,14 +117,49 @@ const openModal = (item: string | AdminProduct = "") => {
     }
   }
 };
-const uploadImg = () => {
-  console.log("uploadImg");
+const uploadFileRef = ref<HTMLInputElement | null>(null);
+const uploadImg = async () => {
+  if (uploadFileRef.value) {
+    const files = uploadFileRef.value.files;
+    if (!files) {
+      addToast({ type: "danger", message: "No file selected" });
+      return;
+    }
+    const file = files[0];
+    const res = await postAdminImageUpload(file);
+    if (res.success) {
+      if (!modalData.value.imagesUrl) {
+        modalData.value.imagesUrl = [];
+      }
+      if (res.imageUrl) {
+        if (!modalData.value.imageUrl) {
+          modalData.value.imageUrl = res.imageUrl;
+        } else {
+          if (!modalData.value.imagesUrl) {
+            modalData.value.imagesUrl = [];
+          }
+          modalData.value.imagesUrl.push(res.imageUrl);
+        }
+        addToast({ type: "success", message: "上傳成功" });
+      }
+    } else {
+      addToast({ type: "danger", message: "上傳失敗" });
+    }
+  }
 };
 const addImg = () => {
-  console.log("addImg");
+  if (!modalData.value.imagesUrl) {
+    modalData.value.imagesUrl = [];
+  }
+  if (modalData.value.imagesUrl.length === 5) {
+    return;
+  } else {
+    modalData.value.imagesUrl.push("");
+  }
 };
 const deleteImg = () => {
-  console.log("deleteImg");
+  if (!modalData.value.imagesUrl) return;
+  modalData.value.imagesUrl.pop();
 };
 
 watch(editorData, (newVal) => {
@@ -268,7 +304,7 @@ onMounted(async () => {
   <Modal
     ref="modalRef"
     :modalPropsId="'adminProductModal'"
-    :modalPropsTitle="'產品編輯'"
+    :modalPropsTitle="isAddNewProduct ? '新增產品' : '產品編輯'"
     @modalConfirm="handleModalConfirm"
   >
     <div class="grid grid-cols-1 md:grid-cols-4 md:gap-4 my-3">
@@ -287,7 +323,7 @@ onMounted(async () => {
             class="block dark:text-white rounded-lg border border-gray-300 dark:border-gray-500 dark:bg-gray-700 w-full placeholder-gray-400"
             type="file"
             name="file-to-upload"
-            ref="upLoadFile"
+            ref="uploadFileRef"
             :disabled="isLoading || modalData.imagesUrl?.length === 5"
             @change="uploadImg"
             :class="{
@@ -318,13 +354,17 @@ onMounted(async () => {
         <template v-if="modalData.imageUrl">
           <div class="mb-3" v-for="(item, index) in modalData.imagesUrl" :key="item + 1">
             <p>其他圖片 {{ index + 1 }}</p>
-            <img class="w-full h-auto" :src="item" :alt="modalData.title" />
+            <img
+              class="w-full h-auto"
+              :src="item || '/defaultImg/image-1@2x.jpg'"
+              :alt="modalData.title"
+            />
             <label class="block text-gray-700 dark:text-white">其他產品圖片 {{ index + 1 }}</label>
             <input
               class="block inputStyle"
               type="text"
               placeholder="請輸其他產品圖片網址"
-              v-model.trim.lazy="modalData.imagesUrl[index]"
+              v-model.trim.lazy="(modalData.imagesUrl ?? [])[index]"
             />
           </div>
         </template>
@@ -338,7 +378,7 @@ onMounted(async () => {
         </button>
         <button
           class="btn btn-outline-danger w-full block bg-red-500 text-white hover:bg-red-600"
-          v-if="modalData.imagesUrl?.length > 1"
+          v-if="modalData.imagesUrl && modalData.imagesUrl.length >= 1"
           @click="deleteImg()"
         >
           刪除圖片
