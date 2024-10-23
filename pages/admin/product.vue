@@ -255,7 +255,7 @@ onMounted(async () => {
         </div>
         <!--  #todo   放分頁Component -->
 
-        <!-- <PaginationComponent :pagination="page" @send-page="getProduct" /> -->
+        <Pagination />
       </div>
 
       <h2 class="text-2xl font-semibold mt-6">單一產品細節</h2>
