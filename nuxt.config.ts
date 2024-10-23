@@ -23,7 +23,8 @@ export default defineNuxtConfig({
         autoImports: ["defineStore", "acceptHMRUpdate"]
       }
     ],
-    "@nuxtjs/tailwindcss"
+    "@nuxtjs/tailwindcss",
+    "@vueuse/nuxt"
   ],
   vite: {
     define: {

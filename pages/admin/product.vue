@@ -59,10 +59,11 @@ const editorData = ref("");
 const shouldProductActive = (isEnabled: number) => {
   return productStatus.value.find((status) => status.value === isEnabled)?.status || "";
 };
-
+const paginationData = ref();
 const handleGetAdminProducts = async (page: number = 1) => {
   const res = await getAdminProducts(page);
   products.value = res.products;
+  paginationData.value = res.pagination;
 };
 const handleModalConfirm = async () => {
   if (isAddNewProduct.value) {
@@ -161,7 +162,9 @@ const deleteImg = () => {
   if (!modalData.value.imagesUrl) return;
   modalData.value.imagesUrl.pop();
 };
-
+const handleChangePage = async (page: number) => {
+  await handleGetAdminProducts(page);
+};
 watch(editorData, (newVal) => {
   console.log(newVal);
 });
@@ -255,7 +258,7 @@ onMounted(async () => {
         </div>
         <!--  #todo   放分頁Component -->
 
-        <Pagination />
+        <Pagination :pagination="paginationData" @changePage="handleChangePage" />
       </div>
 
       <h2 class="text-2xl font-semibold mt-6">單一產品細節</h2>

@@ -1,99 +1,113 @@
 <script lang="ts" setup>
-const pagination = ref({
-  total_pages: 15,
-  current_page: 1,
-  has_pre: false,
-  has_next: true,
-  category: ""
+import { useThrottleFn } from "@vueuse/core";
+interface Pagination {
+  total_pages: number;
+  current_page: number;
+  has_pre: boolean;
+  has_next: boolean;
+  category: string;
+}
+
+interface PaginationProps {
+  pagination?: Pagination;
+}
+
+const props = withDefaults(defineProps<PaginationProps>(), {
+  pagination: (): Pagination => ({
+    total_pages: 0,
+    current_page: 1,
+    has_pre: false,
+    has_next: true,
+    category: ""
+  })
 });
+
 const showPaginationList = computed(() => {
-  console.log("currentPage", pagination.value.current_page);
-  if (pagination.value.total_pages < 15) {
-    return Array.from({ length: pagination.value.total_pages }, (_, i) => i + 1);
+  if (props.pagination.total_pages < 15) {
+    return Array.from({ length: props.pagination.total_pages }, (_, i) => i + 1);
   } else {
     if (
-      pagination.value.current_page <= 3 ||
-      pagination.value.current_page > pagination.value.total_pages - 3
+      props.pagination.current_page <= 3 ||
+      props.pagination.current_page > props.pagination.total_pages - 3
     ) {
       const firstArr = [1, 2, 3, "..."];
       const lastArr = [
         "...",
-        pagination.value.total_pages - 2,
-        pagination.value.total_pages - 1,
-        pagination.value.total_pages
+        props.pagination.total_pages - 2,
+        props.pagination.total_pages - 1,
+        props.pagination.total_pages
       ];
       const midArr = [];
       for (
-        let i = Math.ceil(pagination.value.total_pages / 2) - 1;
-        i <= Math.ceil(pagination.value.total_pages / 2) + 1;
+        let i = Math.ceil(props.pagination.total_pages / 2) - 1;
+        i <= Math.ceil(props.pagination.total_pages / 2) + 1;
         i++
       ) {
         midArr.push(i);
       }
       return [...firstArr, ...midArr, ...lastArr];
-    } else if (pagination.value.current_page <= 6) {
+    } else if (props.pagination.current_page <= 6) {
       const firstArr = [1, 2, 3];
       const lastArr = [
         "...",
-        pagination.value.total_pages - 2,
-        pagination.value.total_pages - 1,
-        pagination.value.total_pages
+        props.pagination.total_pages - 2,
+        props.pagination.total_pages - 1,
+        props.pagination.total_pages
       ];
       const midArr = [4, 5, 6, 7];
       return [...firstArr, ...midArr, ...lastArr];
-    } else if (pagination.value.current_page >= pagination.value.total_pages - 4) {
+    } else if (props.pagination.current_page >= props.pagination.total_pages - 4) {
       const firstArr = [1, 2, 3, "..."];
       const lastArr = [
-        pagination.value.total_pages - 2,
-        pagination.value.total_pages - 1,
-        pagination.value.total_pages
+        props.pagination.total_pages - 2,
+        props.pagination.total_pages - 1,
+        props.pagination.total_pages
       ];
       const midArr = [
-        pagination.value.total_pages - 6,
-        pagination.value.total_pages - 5,
-        pagination.value.total_pages - 4,
-        pagination.value.total_pages - 3
+        props.pagination.total_pages - 6,
+        props.pagination.total_pages - 5,
+        props.pagination.total_pages - 4,
+        props.pagination.total_pages - 3
       ];
       return [...firstArr, ...midArr, ...lastArr];
     } else {
       const firstArr = [1, 2, 3, "..."];
       const lastArr = [
         "...",
-        pagination.value.total_pages - 2,
-        pagination.value.total_pages - 1,
-        pagination.value.total_pages
+        props.pagination.total_pages - 2,
+        props.pagination.total_pages - 1,
+        props.pagination.total_pages
       ];
       const midArr = [
-        pagination.value.current_page - 1,
-        pagination.value.current_page,
-        pagination.value.current_page + 1
+        props.pagination.current_page - 1,
+        props.pagination.current_page,
+        props.pagination.current_page + 1
       ];
       return [...firstArr, ...midArr, ...lastArr];
     }
   }
 });
 
-const emits = defineEmits(["changePage", "previousPage", "nextPage"]);
-const changePage = (page: number | string) => {
+const emits = defineEmits(["changePage"]);
+const changePage = useThrottleFn((page: number | string) => {
   if (page === "..." || typeof page === "string") return;
-  pagination.value.current_page = Number(page);
   emits("changePage", page);
-};
-const previousPage = () => {
-  if (pagination.value.current_page > 1) {
-    pagination.value.current_page--;
-    emits("previousPage");
+}, 500);
+const previousPage = useThrottleFn(() => {
+  if (props.pagination.current_page > 1) {
+    props.pagination.current_page--;
+    emits("changePage", props.pagination.current_page);
   }
-};
-const nextPage = () => {
-  if (pagination.value.current_page < pagination.value.total_pages) {
-    pagination.value.current_page++;
-    emits("nextPage");
+}, 500);
+const nextPage = useThrottleFn(() => {
+  if (props.pagination.current_page < props.pagination.total_pages) {
+    props.pagination.current_page++;
+    emits("changePage", props.pagination.current_page);
   }
-};
+}, 500);
 </script>
 <template>
-  <nav aria-label="Page navigation example">
+  <nav aria-label="Page navigation" v-if="props.pagination.total_pages > 0">
     <ul class="flex items-center -space-x-px text-sm lg:text-base h-8 lg:h-10">
       <li>
         <a
