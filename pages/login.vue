@@ -29,7 +29,7 @@ const shouldHeight = () => {
 <template>
   <div class="container mx-auto">
     <div class="flex justify-center items-center" :style="shouldHeight()">
-      <div class="w-full max-w-sm">
+      <div class="w-full max-w-sm mx-6">
         <div class="dark:text-white bg-gray-200 dark:bg-gray-700 shadow-md rounded-lg my-3">
           <div class="p-5">
             <div class="mb-4">

@@ -37,6 +37,10 @@ const navConfig = [
   {
     name: "編輯產品",
     path: "/admin/product"
+  },
+  {
+    name: "編輯文章",
+    path: "/admin/article"
   }
 ];
 interface NavList {
