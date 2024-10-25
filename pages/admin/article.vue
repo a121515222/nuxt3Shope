@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+import dayjs from "dayjs";
+const indexStore = useIndexStore();
+const { isDarkMode } = storeToRefs(indexStore);
+const datePickerRef = ref<HTMLElement | null>(null);
 const articles = ref([
   {
     author: "測試",
@@ -109,18 +113,16 @@ const isAddNewArticle = ref(false);
 const postId = ref("");
 const modalData = ref({
   title: "",
-  category: "",
-  content: "",
-  origin_price: 0,
-  price: 0,
-  unit: "",
-  is_enabled: 0,
+  author: "",
+  create_at: new Date(),
+  description: "",
+  id: "",
   imageUrl: "",
-  imagesUrl: [],
-  description: ""
+  isPublic: false,
+  tag: []
 });
 const modalRef = ref<{ modalShow: () => void } | null>(null);
-const openModal = (item: string) => {
+const openModal = (item: string = "") => {
   if (modalRef.value) {
     modalRef.value.modalShow();
     if (typeof item !== "string" && item.id) {
@@ -129,6 +131,45 @@ const openModal = (item: string) => {
   }
 };
 const handleDeleteAdminArticle = () => {};
+const handleModalConfirm = () => {
+  console.log("handleModalConfirm", modalData.value);
+};
+const testFn = () => {
+  console.log("testFn");
+};
+const uploadImg = () => {};
+const addImg = () => {};
+const deleteImg = () => {};
+const editorData = ref("");
+const showDate = computed(() => {
+  return dayjs(modalData.value.create_at).format("YYYY-MM-DD");
+});
+const showDatePicker = () => {
+  if (datePickerRef.value) {
+    datePickerRef.value.classList.remove("hidden");
+  }
+};
+const hideDatePicker = () => {
+  if (datePickerRef.value) {
+    datePickerRef.value.classList.add("hidden");
+  }
+};
+// 監聽外部點擊事件
+const handleClickOutside = (event: MouseEvent) => {
+  // 檢查是否為左鍵點擊
+  if (event.button !== 0) return;
+
+  // 如果日期選擇器存在且點擊位置不在日期選擇器內
+  if (datePickerRef.value && !datePickerRef.value.contains(event.target as Node)) {
+    hideDatePicker();
+  }
+};
+onMounted(() => {
+  document.addEventListener("mousedown", handleClickOutside);
+});
+onUnmounted(() => {
+  document.removeEventListener("mousedown", handleClickOutside);
+});
 </script>
 <template>
   <div class="container mx-auto px-6">
@@ -166,7 +207,7 @@ const handleDeleteAdminArticle = () => {};
                 class="hover:bg-gray-500 hover:text-white dark:hover:bg-gray-800 text-nowrap"
                 :class="{ 'bg-gray-300 dark:bg-gray-400': index % 2 === 0 }"
               >
-                <td class="border px-4 py-2 text-center">{{ item.create_at }}</td>
+                <td class="border px-4 py-2 text-center" v-timeFormat="item.create_at"></td>
                 <td class="border px-4 py-2 text-center">{{ item.title }}</td>
                 <td class="border px-4 py-2 text-center">{{ item.author }}</td>
                 <td class="border px-4 py-2">
@@ -241,10 +282,10 @@ const handleDeleteAdminArticle = () => {};
             type="file"
             name="file-to-upload"
             ref="uploadFileRef"
-            :disabled="isLoading || modalData.imagesUrl?.length === 5"
+            :disabled="isLoading || modalData.imageUrl === ''"
             @change="uploadImg"
             :class="{
-              'cursor-not-allowed opacity-50': isLoading || modalData.imagesUrl?.length === 5
+              'cursor-not-allowed opacity-50': isLoading || modalData.imageUrl === ''
             }"
           />
         </div>
@@ -257,45 +298,27 @@ const handleDeleteAdminArticle = () => {};
           />
         </div>
         <div class="mb-3">
-          <label class="block text-gray-700 dark:text-white" for="productImageUrl"
-            >主要產品圖片</label
-          >
+          <label class="block text-gray-700 dark:text-white" for="productImageUrl">文章]圖片</label>
           <input
             class="block inputStyle"
             type="text"
             id="productImageUrl"
-            placeholder="請輸入主要產品圖片網址"
+            placeholder="請輸入文章圖片網址"
             v-model.trim.lazy="modalData.imageUrl"
           />
         </div>
-        <template v-if="modalData.imageUrl">
-          <div class="mb-3" v-for="(item, index) in modalData.imagesUrl" :key="item + 1">
-            <p>其他圖片 {{ index + 1 }}</p>
-            <img
-              class="w-full h-auto"
-              :src="item || '/defaultImg/image-1@2x.jpg'"
-              :alt="modalData.title"
-            />
-            <label class="block text-gray-700 dark:text-white">其他產品圖片 {{ index + 1 }}</label>
-            <input
-              class="block inputStyle"
-              type="text"
-              placeholder="請輸其他產品圖片網址"
-              v-model.trim.lazy="(modalData.imagesUrl ?? [])[index]"
-            />
-          </div>
-        </template>
+
         <button
           class="btn btn-outline-success w-full block my-3 bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
           v-if="modalData.imageUrl"
-          :disabled="modalData.imagesUrl?.length === 5"
+          :disabled="modalData.imageUrl === ''"
           @click="addImg()"
         >
           新增圖片
         </button>
         <button
           class="btn btn-outline-danger w-full block bg-red-500 text-white hover:bg-red-600"
-          v-if="modalData.imagesUrl && modalData.imagesUrl.length >= 1"
+          v-if="modalData.imageUrl"
           @click="deleteImg()"
         >
           刪除圖片
@@ -303,86 +326,70 @@ const handleDeleteAdminArticle = () => {};
       </div>
 
       <div class="col-span-3">
-        <div class="mb-3">
-          <label class="block text-gray-700 dark:text-white" for="productName">產品名稱</label>
-          <input
-            class="block inputStyle"
-            id="productName"
-            placeholder="請輸入產品名稱"
-            v-model.trim="modalData.title"
-          />
-        </div>
-        <div class="mb-3">
-          <label class="block text-gray-700 dark:text-white" for="productCategory">產品分類</label>
-          <input
-            class="block inputStyle"
-            type="text"
-            id="productCategory"
-            placeholder="請輸入產品分類"
-            v-model.trim="modalData.category"
-          />
-        </div>
-        <div class="mb-3">
-          <label class="block text-gray-700 dark:text-white" for="productContent">產品內容</label>
-          <input
-            class="block inputStyle"
-            type="text"
-            id="productContent"
-            placeholder="請輸入產品內容"
-            v-model.trim="modalData.content"
-          />
-        </div>
         <div class="grid grid-cols-2 gap-4">
           <div class="mb-3">
-            <label class="block text-gray-700 dark:text-white" for="productOrigin_price"
-              >產品原價</label
+            <label class="block col-span-1 text-gray-700 dark:text-white" for="articleTitle"
+              >文章標題</label
             >
             <input
               class="block inputStyle"
-              type="number"
-              id="productOrigin_price"
-              placeholder="請輸入產品原價"
-              min="0"
-              v-model.number="modalData.origin_price"
+              id="productName"
+              placeholder="請輸入文章標題"
+              v-model.trim="modalData.title"
             />
           </div>
           <div class="mb-3">
-            <label class="block text-gray-700 dark:text-white" for="productPrice">產品售價</label>
-            <input
-              class="block inputStyle"
-              type="number"
-              id="productPrice"
-              placeholder="請輸入產品售價"
-              min="0"
-              v-model.number="modalData.price"
-            />
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="mb-3">
-            <label class="block text-gray-700 dark:text-white" for="is_enabled">產品狀態</label>
-            <select class="block inputStyle" id="is_enabled" v-model.number="modalData.is_enabled">
-              <option value="" disabled>請選擇產品狀態</option>
-              <option v-for="status in productStatus" :key="status.value" :value="status.value">
-                {{ status.status }}
-              </option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="block text-gray-700 dark:text-white" for="productUnit">產品單位</label>
+            <label class="block text-gray-700 dark:text-white" for="articleAuthor">文章作者</label>
             <input
               class="block inputStyle"
               type="text"
-              id="productUnit"
-              placeholder="請輸入產品單位"
-              v-model.trim="modalData.unit"
+              id="productContent"
+              placeholder="請輸入文章作者"
+              v-model.trim="modalData.author"
             />
           </div>
+          <div class="mb-3">
+            <label class="block text-gray-700 dark:text-white" for="articleCreateDate"
+              >文章日期</label
+            >
+            <div class="relative w-full">
+              <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                <svg
+                  class="w-4 h-4 text-gray-500 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                class="text-sm rounded-lg ps-10 p-2.5 block dark:placeholder-gray-400 dark:text-white w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
+                placeholder="請選擇文章日期"
+                v-model="showDate"
+                @focus="showDatePicker"
+              />
+              <div ref="datePickerRef" class="absolute z-10 hidden">
+                <VDatePicker
+                  v-model="modalData.create_at"
+                  :is-dark="isDarkMode"
+                  @dayclick="hideDatePicker"
+                />
+              </div>
+            </div>
+          </div>
         </div>
+
         <div class="mb-3">
-          <label class="block text-gray-700 dark:text-white" for="productDescription"
-            >產品描述</label
-          >
+          <label class="block text-gray-700 dark:text-white" for="articleContent">文章內容</label>
           <TheCkeditor v-model="editorData"></TheCkeditor>
         </div>
       </div>
