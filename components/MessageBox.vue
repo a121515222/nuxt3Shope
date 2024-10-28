@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 const messageBoxStore = useMessageBoxStore();
 const { isVisible, title, message, type } = storeToRefs(messageBoxStore);
-const { confirm, cancel, close } = messageBoxStore;
+const { confirm, cancel, close, denial } = messageBoxStore;
 const handleClick = () => {
   if (type.value === "confirm") {
-    confirm();
+    return confirm();
+  } else if (type.value === "alert") {
+    return denial();
   } else {
-    close();
+    return close();
   }
 };
 </script>

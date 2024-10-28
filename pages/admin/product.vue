@@ -53,7 +53,6 @@ const productStatus = ref([
 ]);
 const modalRef = ref<{ modalShow: () => void } | null>(null);
 
-// const editor = ref(ClassicEditor);
 const editorData = ref("");
 // #todo isEnabled 自己做後端的時候命名要改
 const shouldProductActive = (isEnabled: number) => {
@@ -165,9 +164,7 @@ const deleteImg = () => {
 const handleChangePage = async (page: number) => {
   await handleGetAdminProducts(page);
 };
-watch(editorData, (newVal) => {
-  console.log(newVal);
-});
+
 onMounted(async () => {
   await handleGetAdminProducts();
 });

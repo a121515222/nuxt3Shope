@@ -21,12 +21,11 @@ export const useMessageBoxStore = defineStore("messageBox", () => {
       message.value = alertMessage;
       type.value = "alert";
       isVisible.value = true;
-      resolvePromise = () => resolve();
+      resolvePromise = () => resolve;
     });
   };
   const handleResponse = (response: boolean) => {
     isVisible.value = false;
-    console.log("resolvePromise", resolvePromise);
     if (resolvePromise) {
       resolvePromise(response);
       resolvePromise = null;
@@ -35,6 +34,18 @@ export const useMessageBoxStore = defineStore("messageBox", () => {
 
   const confirm = () => handleResponse(true);
   const cancel = () => handleResponse(false);
+  const denial = () => handleResponse(false);
   const close = () => handleResponse(true);
-  return { isVisible, title, message, type, showConfirm, confirm, cancel, showAlert, close };
+  return {
+    isVisible,
+    title,
+    message,
+    type,
+    showConfirm,
+    confirm,
+    cancel,
+    showAlert,
+    close,
+    denial
+  };
 });

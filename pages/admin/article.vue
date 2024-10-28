@@ -1,146 +1,146 @@
 <script lang="ts" setup>
+// #todo image 與 imageUrl 變數名稱可以選一個使用
 import dayjs from "dayjs";
+import {
+  getAdminArticles,
+  getAdminArticle,
+  postAdminArticle,
+  putAdminArticle,
+  deleteAdminArticle
+} from "@/apis/adminArticle";
+import { postAdminImageUpload } from "@/apis/adminUpload";
+import { type AdminArticle } from "@/types/adminArticleTypes";
 const indexStore = useIndexStore();
+const { addToast } = useToastStore();
 const { isDarkMode } = storeToRefs(indexStore);
+const messageBoxStore = useMessageBoxStore();
+const { showAlert } = messageBoxStore;
 const datePickerRef = ref<HTMLElement | null>(null);
-const articles = ref([
-  {
-    author: "測試",
-    create_at: 1682380800,
-    description: "測試2",
-    id: "-NTtUHn_iug2d8gmBAyD",
-    image: "https://upload.cc/i1/2022/02/06/nMIKtu.jpg",
-    isPublic: false,
-    tag: ["555555"],
-    title: "測試",
-    num: 1
-  },
-  {
-    author: "測試",
-    create_at: 1683072000,
-    description: "測試",
-    id: "-NTtIqHuqXu7fRPWeSyO",
-    image: "https://upload.cc/i1/2022/02/06/nMIKtu.jpg",
-    isPublic: false,
-    tag: ["33335555555"],
-    title: "測試",
-    num: 2
-  },
-  {
-    author: "測試",
-    create_at: 1682553600,
-    description: "測試",
-    id: "-NTtIhN9HALu2qwESBS4",
-    image: "https://upload.cc/i1/2022/02/06/nMIKtu.jpg",
-    isPublic: false,
-    title: "測試",
-    num: 3
-  },
-  {
-    author: "測試2",
-    create_at: 1682380800,
-    description: "測試",
-    id: "-NTtI15rUokHiEklQ1cJ",
-    image: "",
-    isPublic: false,
-    title: "測試",
-    num: 4
-  },
-  {
-    author: "測試2",
-    create_at: 1682380800,
-    description: "測試2",
-    id: "-NTtFiag7E2_44j3GW_w",
-    image: "https://upload.cc/i1/2022/02/06/nMIKtu.jpg",
-    isPublic: false,
-    title: "測試2",
-    num: 5
-  },
-  {
-    author: "測試",
-    create_at: 1682380800,
-    description: "測試",
-    id: "-NTtElFR-0J6jCwcCIt3",
-    image: "",
-    isPublic: false,
-    title: "測試",
-    num: 6
-  },
-  {
-    author: "測試",
-    create_at: 1682467200,
-    description: "測試",
-    id: "-NTtEWVNooOkiUN-h5GO",
-    image: "https://upload.cc/i1/2022/02/06/nMIKtu.jpg",
-    isPublic: false,
-    title: "測試",
-    num: 7
-  },
-  {
-    author: "測試",
-    create_at: 1682553600,
-    description: "測試",
-    id: "-NTtDvvFtB6Xc_AereUv",
-    image: "https://upload.cc/i1/2022/02/06/nMIKtu.jpg",
-    isPublic: false,
-    title: "測試",
-    num: 8
-  },
-  {
-    author: "測試",
-    create_at: 1682553600,
-    description: "測試",
-    id: "-NTtCtjNyMDiFZ_nSmyc",
-    image: "https://upload.cc/i1/2022/02/06/nMIKtu.jpg",
-    isPublic: false,
-    tag: ["666666666", "", ""],
-    title: "測試",
-    num: 9
-  },
-  {
-    author: "測試2",
-    create_at: 1682380800,
-    description: "測試",
-    id: "-NTtCcT-1EQ26zxJ6eum",
-    image: "https://upload.cc/i1/2022/02/06/nMIKtu.jpg",
-    isPublic: false,
-    title: "測試",
-    num: 10
-  }
-]);
+const articles = ref<AdminArticle[]>([]);
 const isLoading = ref(false);
 const isAddNewArticle = ref(false);
 const postId = ref("");
-const modalData = ref({
+const modalData = ref<AdminArticle>({
   title: "",
   author: "",
   create_at: new Date(),
   description: "",
   id: "",
-  imageUrl: "",
+  image: "",
   isPublic: false,
-  tag: []
+  tag: [],
+  content: "",
+  num: 0
 });
+
 const modalRef = ref<{ modalShow: () => void } | null>(null);
-const openModal = (item: string = "") => {
+const openModal = async (item: string | AdminArticle = "") => {
   if (modalRef.value) {
     modalRef.value.modalShow();
     if (typeof item !== "string" && item.id) {
-      modalData.value = item;
+      const res = await getAdminArticle(item.id);
+      modalData.value = {
+        ...item,
+        content: res.article.content,
+        create_at: new Date(item.create_at)
+      };
+    } else {
+      modalData.value = {
+        title: "",
+        author: "",
+        create_at: new Date().getTime(),
+        description: "",
+        id: "",
+        image: "",
+        isPublic: false,
+        tag: [],
+        content: "",
+        num: 0
+      };
     }
   }
 };
-const handleDeleteAdminArticle = () => {};
-const handleModalConfirm = () => {
-  console.log("handleModalConfirm", modalData.value);
+const handleAdminArticleModalData = async () => {
+  if (!modalData.value?.content || modalData.value?.content === "") {
+    await showAlert("警告", "請輸入文章內容");
+    return;
+  }
+  if (!modalData.value?.tag) {
+    modalData.value.tag = [];
+  }
+  modalData.value.create_at = new Date(modalData.value.create_at).getTime();
 };
-const testFn = () => {
-  console.log("testFn");
+const handleGetAdminProducts = async (page: number = 1) => {
+  const res = await getAdminArticles(page);
+  if (res.success) {
+    articles.value = res.articles;
+  }
 };
-const uploadImg = () => {};
-const addImg = () => {};
-const deleteImg = () => {};
-const editorData = ref("");
+const handleAddAdminArticle = async () => {
+  await handleAdminArticleModalData();
+  const res = await postAdminArticle(modalData.value);
+  if (res.success) {
+    addToast({ type: "success", message: "新增成功" });
+    await handleGetAdminProducts();
+  } else {
+    addToast({ type: "danger", message: "新增失敗" });
+  }
+  [];
+};
+const handleEditAdminArticle = async () => {
+  await handleAdminArticleModalData();
+  const res = await putAdminArticle(modalData.value);
+  if (res.success) {
+    addToast({ type: "success", message: "編輯成功" });
+    await handleGetAdminProducts();
+  } else {
+    addToast({ type: "danger", message: "編輯失敗" });
+  }
+};
+const handleDeleteAdminArticle = async (id: string) => {
+  isLoading.value = true;
+  const res = await deleteAdminArticle(id);
+  if (res.success) {
+    addToast({ type: "success", message: "刪除成功" });
+    await handleGetAdminProducts();
+  } else {
+    addToast({ type: "danger", message: "刪除失敗" });
+  }
+  isLoading.value = false;
+};
+const handleModalConfirm = async (id: string) => {
+  if (isAddNewArticle.value) {
+    await handleAddAdminArticle();
+  } else {
+    await handleEditAdminArticle();
+  }
+};
+const uploadFileRef = ref<HTMLInputElement | null>(null);
+const uploadImg = async () => {
+  if (uploadFileRef.value) {
+    const files = uploadFileRef.value.files;
+    if (!files) {
+      addToast({ type: "danger", message: "No file selected" });
+      return;
+    }
+    const file = files[0];
+    const res = await postAdminImageUpload(file);
+    if (res.success) {
+      if (res.imageUrl) {
+        if (!modalData.value.image) {
+          modalData.value.image = res.imageUrl;
+        }
+        addToast({ type: "success", message: "上傳成功" });
+      }
+    } else {
+      addToast({ type: "danger", message: "上傳失敗" });
+    }
+  }
+};
+// const addImg = () => {};
+const deleteImg = () => {
+  modalData.value.image = "";
+};
 const showDate = computed(() => {
   return dayjs(modalData.value.create_at).format("YYYY-MM-DD");
 });
@@ -164,7 +164,23 @@ const handleClickOutside = (event: MouseEvent) => {
     hideDatePicker();
   }
 };
-onMounted(() => {
+const handleTagDelete = (index: number) => {
+  if (!modalData.value?.tag) {
+    return;
+  } else {
+    modalData.value.tag.splice(index, 1);
+  }
+};
+const handleAddTag = () => {
+  if (modalData.value?.tag === undefined) {
+    modalData.value.tag = [];
+  }
+  if (modalData.value.tag.length < 5) {
+    modalData.value.tag.push("");
+  }
+};
+onMounted(async () => {
+  await handleGetAdminProducts();
   document.addEventListener("mousedown", handleClickOutside);
 });
 onUnmounted(() => {
@@ -211,11 +227,11 @@ onUnmounted(() => {
                 <td class="border px-4 py-2 text-center">{{ item.title }}</td>
                 <td class="border px-4 py-2 text-center">{{ item.author }}</td>
                 <td class="border px-4 py-2">
-                  <samp
+                  <span
                     v-for="tag in item.tag"
                     :key="tag + index"
                     class="text-xs font-medium me-2 px-2.5 py-0.5 rounded bg-third text-white"
-                    >{{ tag }}</samp
+                    >{{ tag }}</span
                   >
                 </td>
                 <td class="border px-4 py-2 flex justify-center gap-4">
@@ -250,7 +266,7 @@ onUnmounted(() => {
               </tr>
             </tbody>
           </table>
-          <p class="p-1">一共有 {{ articles.length }} 項產品</p>
+          <p class="p-1">一共有 {{ articles.length }} 文章</p>
         </div>
         <!--  #todo   放分頁Component -->
 
@@ -262,7 +278,7 @@ onUnmounted(() => {
   <Modal
     ref="modalRef"
     :modalPropsId="'adminProductModal'"
-    :modalPropsTitle="isAddNewArticle ? '新增產品' : '產品編輯'"
+    :modalPropsTitle="isAddNewArticle ? '新增文章' : '文章編輯'"
     @modalConfirm="handleModalConfirm"
   >
     <div class="grid grid-cols-1 md:grid-cols-4 md:gap-4 my-3">
@@ -282,17 +298,17 @@ onUnmounted(() => {
             type="file"
             name="file-to-upload"
             ref="uploadFileRef"
-            :disabled="isLoading || modalData.imageUrl === ''"
+            :disabled="isLoading || modalData.image !== ''"
             @change="uploadImg"
             :class="{
-              'cursor-not-allowed opacity-50': isLoading || modalData.imageUrl === ''
+              'cursor-not-allowed opacity-50': isLoading || modalData.image !== ''
             }"
           />
         </div>
         <div>
           <img
             class="w-full h-auto"
-            :src="modalData.imageUrl || '/defaultImg/image-1@2x.jpg'"
+            :src="modalData.image || '/defaultImg/image-1@2x.jpg'"
             :alt="modalData.title + ' picture'"
             :title="modalData.title"
           />
@@ -304,21 +320,21 @@ onUnmounted(() => {
             type="text"
             id="productImageUrl"
             placeholder="請輸入文章圖片網址"
-            v-model.trim.lazy="modalData.imageUrl"
+            v-model.trim.lazy="modalData.image"
           />
         </div>
 
-        <button
-          class="btn btn-outline-success w-full block my-3 bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          v-if="modalData.imageUrl"
-          :disabled="modalData.imageUrl === ''"
+        <!-- <button
+          class="btn btn-outline-success rounded-lg w-full block my-3 bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          v-if="modalData.image"
+          :disabled="modalData.image === ''"
           @click="addImg()"
         >
           新增圖片
-        </button>
+        </button> -->
         <button
-          class="btn btn-outline-danger w-full block bg-red-500 text-white hover:bg-red-600"
-          v-if="modalData.imageUrl"
+          class="btn btn-outline-danger rounded-lg w-full block bg-red-500 text-white hover:bg-red-600"
+          v-if="modalData.image"
           @click="deleteImg()"
         >
           刪除圖片
@@ -326,7 +342,7 @@ onUnmounted(() => {
       </div>
 
       <div class="col-span-3">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="mb-3">
             <label class="block col-span-1 text-gray-700 dark:text-white" for="articleTitle"
               >文章標題</label
@@ -386,11 +402,49 @@ onUnmounted(() => {
               </div>
             </div>
           </div>
+          <div class="mb-3">
+            <label class="inline-flex items-center mb-5 cursor-pointer">
+              <input type="checkbox" value="" class="sr-only peer" v-model="modalData.isPublic" />
+              <div
+                class="relative w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
+              ></div>
+              <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >是否公開</span
+              >
+            </label>
+          </div>
         </div>
-
+        <div class="mb-3">
+          <label class="block text-gray-700 dark:text-white" for="articleTag">文章標籤</label>
+          <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
+            <div v-for="(t, index) in modalData.tag" :key="index + t" class="relative">
+              <input
+                type="text"
+                id="search-dropdown"
+                class="inputStyle"
+                placeholder="請輸入文章標籤"
+                :value="t"
+              />
+              <button
+                type="submit"
+                class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-red-500 hover:bg-red-600 rounded-e-lg"
+                @click="handleTagDelete(index)"
+              >
+                刪除
+              </button>
+            </div>
+            <button
+              v-if="!(modalData.tag?.length === 5)"
+              class="btn btn-outline-success rounded-lg block p-2 bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed0"
+              @click="handleAddTag"
+            >
+              新增
+            </button>
+          </div>
+        </div>
         <div class="mb-3">
           <label class="block text-gray-700 dark:text-white" for="articleContent">文章內容</label>
-          <TheCkeditor v-model="editorData"></TheCkeditor>
+          <TheCkeditor v-model="modalData.content"></TheCkeditor>
         </div>
       </div>
     </div>
