@@ -74,6 +74,7 @@ const handleGetAdminProducts = async (page: number = 1) => {
   const res = await getAdminArticles(page);
   if (res.success) {
     articles.value = res.articles;
+    paginationData.value = res.pagination;
   }
 };
 const handleAddAdminArticle = async () => {
@@ -137,7 +138,6 @@ const uploadImg = async () => {
     }
   }
 };
-// const addImg = () => {};
 const deleteImg = () => {
   modalData.value.image = "";
 };
@@ -178,6 +178,10 @@ const handleAddTag = () => {
   if (modalData.value.tag.length < 5) {
     modalData.value.tag.push("");
   }
+};
+const paginationData = ref();
+const handleChangePage = async (page: number) => {
+  await handleGetAdminProducts(page);
 };
 onMounted(async () => {
   await handleGetAdminProducts();
@@ -266,11 +270,9 @@ onUnmounted(() => {
               </tr>
             </tbody>
           </table>
-          <p class="p-1">一共有 {{ articles.length }} 文章</p>
+          <p class="p-1">一共有 {{ articles.length }} 篇文章</p>
         </div>
-        <!--  #todo   放分頁Component -->
-
-        <!-- <Pagination :pagination="paginationData" @changePage="handleChangePage" /> -->
+        <Pagination :pagination="paginationData" @changePage="handleChangePage" />
       </div>
     </div>
   </div>
@@ -314,7 +316,7 @@ onUnmounted(() => {
           />
         </div>
         <div class="mb-3">
-          <label class="block text-gray-700 dark:text-white" for="productImageUrl">文章]圖片</label>
+          <label class="block text-gray-700 dark:text-white" for="productImageUrl">文章圖片</label>
           <input
             class="block inputStyle"
             type="text"

@@ -253,7 +253,6 @@ onMounted(async () => {
           </table>
           <p class="p-1">一共有 {{ products.length }} 項產品</p>
         </div>
-        <!--  #todo   放分頁Component -->
 
         <Pagination :pagination="paginationData" @changePage="handleChangePage" />
       </div>
