@@ -70,7 +70,7 @@ const handleAdminArticleModalData = async () => {
   }
   modalData.value.create_at = new Date(modalData.value.create_at).getTime();
 };
-const handleGetAdminProducts = async (page: number = 1) => {
+const handleGetAdminArticles = async (page: number = 1) => {
   const res = await getAdminArticles(page);
   if (res.success) {
     articles.value = res.articles;
@@ -82,7 +82,7 @@ const handleAddAdminArticle = async () => {
   const res = await postAdminArticle(modalData.value);
   if (res.success) {
     addToast({ type: "success", message: "新增成功" });
-    await handleGetAdminProducts();
+    await handleGetAdminArticles();
   } else {
     addToast({ type: "danger", message: "新增失敗" });
   }
@@ -93,7 +93,7 @@ const handleEditAdminArticle = async () => {
   const res = await putAdminArticle(modalData.value);
   if (res.success) {
     addToast({ type: "success", message: "編輯成功" });
-    await handleGetAdminProducts();
+    await handleGetAdminArticles();
   } else {
     addToast({ type: "danger", message: "編輯失敗" });
   }
@@ -103,7 +103,7 @@ const handleDeleteAdminArticle = async (id: string) => {
   const res = await deleteAdminArticle(id);
   if (res.success) {
     addToast({ type: "success", message: "刪除成功" });
-    await handleGetAdminProducts();
+    await handleGetAdminArticles();
   } else {
     addToast({ type: "danger", message: "刪除失敗" });
   }
@@ -181,10 +181,10 @@ const handleAddTag = () => {
 };
 const paginationData = ref();
 const handleChangePage = async (page: number) => {
-  await handleGetAdminProducts(page);
+  await handleGetAdminArticles(page);
 };
 onMounted(async () => {
-  await handleGetAdminProducts();
+  await handleGetAdminArticles();
   document.addEventListener("mousedown", handleClickOutside);
 });
 onUnmounted(() => {
@@ -405,14 +405,15 @@ onUnmounted(() => {
             </div>
           </div>
           <div class="mb-3">
+            <label class="block text-gray-700 dark:text-white" for="articleCreateDate"
+              >是否公開</label
+            >
             <label class="inline-flex items-center mb-5 cursor-pointer">
               <input type="checkbox" value="" class="sr-only peer" v-model="modalData.isPublic" />
               <div
                 class="relative w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
               ></div>
-              <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >是否公開</span
-              >
+              <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span>
             </label>
           </div>
         </div>

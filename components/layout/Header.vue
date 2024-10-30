@@ -41,6 +41,14 @@ const navConfig = [
   {
     name: "編輯文章",
     path: "/admin/article"
+  },
+  {
+    name: "編輯優惠券",
+    path: "/admin/coupon"
+  },
+  {
+    name: "編輯訂單",
+    path: "/admin/order"
   }
 ];
 interface NavList {
@@ -50,7 +58,11 @@ interface NavList {
 const showNavbar = computed(() => {
   const result: NavList[] = [];
   navConfig.forEach((list) => {
+    //#todo 這邊要改成權限判斷，第一條可以再加一個判斷是否為admin
+    // 第二點可以增加是不是登入的狀態
     if (isLogin.value && list.path.includes("/admin")) {
+      result.push(list);
+    } else if (list.path && !list.path.includes("/admin")) {
       result.push(list);
     } else if (!list.path.includes("/admin")) {
       result.push(list);
