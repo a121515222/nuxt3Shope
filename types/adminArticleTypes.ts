@@ -1,3 +1,4 @@
+import type { Pagination } from "@/types/paginationTypes";
 export interface AdminArticle {
   author: string;
   create_at: number | Date;
@@ -24,11 +25,6 @@ export interface AdminArticleResponse {
 export interface FetchAdminArticle {
   success: boolean;
   articles: AdminArticle[];
-  pagination: {
-    total_pages: number;
-    current_page: number;
-    has_pre: boolean;
-    has_next: boolean;
-  };
+  pagination: Pagination;
   messages: string[];
 }

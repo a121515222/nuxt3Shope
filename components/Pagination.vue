@@ -5,7 +5,7 @@ interface Pagination {
   current_page: number;
   has_pre: boolean;
   has_next: boolean;
-  category: string;
+  category?: string;
 }
 
 interface PaginationProps {
