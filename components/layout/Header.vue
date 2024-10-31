@@ -35,9 +35,14 @@ const navConfig = [
     path: "/articleList"
   },
   {
+    name: "訂單查詢",
+    path: "/orderList"
+  },
+  {
     name: "編輯產品",
     path: "/admin/product"
   },
+
   {
     name: "編輯文章",
     path: "/admin/article"
@@ -47,7 +52,7 @@ const navConfig = [
     path: "/admin/coupon"
   },
   {
-    name: "編輯訂單",
+    name: "訂單管理",
     path: "/admin/order"
   }
 ];
