@@ -1,9 +1,15 @@
 import type { Pagination } from "@/types/paginationTypes";
-export interface FetchOrderData {
+export interface FetchOrdersData {
   success: boolean;
   pagination: Pagination;
   messages: string[];
   orders: Order[];
+}
+export interface FetchOrderData {
+  success: boolean;
+  pagination: Pagination;
+  messages: string[];
+  order: Order;
 }
 
 export interface Order {
