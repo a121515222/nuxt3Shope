@@ -104,7 +104,7 @@ onUnmounted(() => {});
     <template #bannerBtn>
       <div class="flex flex-row justify-center pb-8">
         <NuxtLink
-          to="/articals"
+          to="/articleList"
           class="text-sm md:text-2xl text-primary bg-secondary hover:bg-white hover:text-orange-500 rounded-lg px-4 py-2 mt-4"
         >
           了解更多

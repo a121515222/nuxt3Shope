@@ -30,7 +30,7 @@ const route = useRoute();
 const shouldShowCartButton = () => {
   if (route.name === "index") {
     isShowCartButton.value = !isMainBannerIntersection.value;
-  } else if (/product(List)?/.test(route.path)) {
+  } else if (/product(List)?/.test(route.path) || /pay/.test(route.path)) {
     isShowCartButton.value = true;
   } else {
     isShowCartButton.value = false;
@@ -39,8 +39,9 @@ const shouldShowCartButton = () => {
 
 const isChangeNum = ref(false);
 const isCartLoading = ref(false);
+const router = useRouter();
 const toPayProcess = () => {
-  console.log("toPayProcess");
+  router.push("/paymentUserInfoFrom");
 };
 watch(
   [isMainBannerIntersection, () => route.path], // 監聽多個來源
@@ -162,7 +163,7 @@ onMounted(async () => {
 </script>
 <template>
   <div
-    class="text-center fixed bottom-[52 px] lg:bottom-[16px] right-0 transform -translate-x-4 -translate-y-4 md:-translate-x-1/2 md:-translate-y-12"
+    class="text-center fixed bottom-[52px] lg:bottom-[16px] right-0 transform -translate-x-4 -translate-y-4 md:-translate-x-1/2 md:-translate-y-12"
     v-show="isShowCartButton"
   >
     <button
@@ -335,7 +336,7 @@ onMounted(async () => {
         <div class="self-end pb-1">
           <button
             type="button"
-            class="bg-third text-white border border-third px-4 rounded-lg hover:opacity-80 disabled:opacity-50"
+            class="py-2 px-3 bg-third text-white border border-third px-4 rounded-lg hover:opacity-80 disabled:opacity-50"
             @click="
               toPayProcess();
               cartClose();

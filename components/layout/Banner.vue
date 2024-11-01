@@ -20,7 +20,7 @@ const bannerHeight = ref(0);
 const switchImages = () => {
   const images = bannerImages.value?.children;
   if (!images) return;
-  if (bannerConfigProp.imagesPath.length <= 1) {
+  if (bannerConfigProp.imagesPath.length === 1) {
     // 只有一張圖片時不切換, 直接顯示
     images[0].classList.remove("opacity-0");
     images[0].classList.add("opacity-100");
@@ -53,7 +53,7 @@ const shouldHeight = () => {
   if (bannerConfigProp.isMainBanner) {
     return `min-height:${screenHeight.value - headerHeight.value}px`;
   } else {
-    return `min-height:${bannerConfigProp.bannerHeight}px`;
+    return `min-height:${bannerConfigProp.bannerHeight}`;
   }
 };
 const { isIntersecting, interSectionObserver } = useInterSectionObserver();

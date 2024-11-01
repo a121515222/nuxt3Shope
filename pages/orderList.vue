@@ -17,7 +17,6 @@ const goToPay = (id: string) => {
 onMounted(async () => {
   await handleGetOrderData();
 });
-// https://vue3-course-api.hexschool.io/v2/api/chun-chia//orders?page=1
 </script>
 <template>
   <div class="container mx-auto px-6 py-6 bg-gray-300 dark:bg-gray-800 dark:text-white">
