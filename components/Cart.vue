@@ -41,7 +41,7 @@ const isChangeNum = ref(false);
 const isCartLoading = ref(false);
 const router = useRouter();
 const toPayProcess = () => {
-  router.push("/paymentUserInfoFrom");
+  router.push("/pay/paymentUserInfoFrom");
 };
 watch(
   [isMainBannerIntersection, () => route.path], // 監聽多個來源
@@ -159,7 +159,6 @@ onMounted(async () => {
   shouldShowCartButton();
   await handleGetCart();
 });
-// :style="{ transform: isShowCart ? 'translateX(0)' : `translateX(${cartWidth}px)` }"
 </script>
 <template>
   <div
@@ -167,12 +166,12 @@ onMounted(async () => {
     v-show="isShowCartButton"
   >
     <button
-      class="relative group text-white bg-third focus:ring-4 focus:ring-third rounded-lg text-sm px-5 py-2.5"
+      class="relative group text-white bg-third focus:ring-4 focus:ring-third rounded-lg text-sm px-3 py-2 :g:px-5 lg:py-2.5"
       type="button"
       @click="toggleCart"
     >
       <svg
-        class="w-12 h-12 text-secondary group-hover:text-red-500"
+        class="w-8 h-8 lg:w-12 lg:h-12 text-secondary group-hover:text-red-500"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"

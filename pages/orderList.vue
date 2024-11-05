@@ -46,7 +46,7 @@ onMounted(async () => {
             <td class="px-4 py-2 text-center">{{ item.user.tel }}</td>
             <td
               :class="{
-                'text-green-600': item.is_paid,
+                'text-green-400': item.is_paid,
                 'text-red-600': !item.is_paid
               }"
               class="px-4 py-2 text-center"

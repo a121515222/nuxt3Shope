@@ -98,12 +98,11 @@ const handleSendUserInfo = async () => {
     ]).then((results) => results.every(Boolean));
 
     if (isValid) {
-      console.log("資料驗證成功", userInfo.value);
       const res = await postOrderData(userInfo.value);
-      const { message } = res;
+      const { message, orderId } = res;
       if (res.success) {
         addToast({ type: "success", message });
-        toFinalPage();
+        toPayPage(orderId);
       } else {
         addToast({ type: "danger", message: "訂單建立失敗" });
       }
@@ -114,8 +113,8 @@ const handleSendUserInfo = async () => {
 };
 
 const router = useRouter();
-const toFinalPage = () => {
-  console.log("toFinalPage");
+const toPayPage = (id: string) => {
+  router.push(`/pay/${id}`);
 };
 const nameInputRef = ref();
 const nameInputErrorMessageRef = ref();
@@ -128,9 +127,6 @@ const addressInputErrorMessageRef = ref();
 </script>
 <template>
   <div class="container mx-auto px-6 py-6 bg-gray-300 dark:bg-gray-800 dark:text-white">
-    <div class="flex justify-center">
-      <PaymentProcess :currentStatus="'userInfo'" :isPaymentCompleted="false"></PaymentProcess>
-    </div>
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2 lg:col-span-1">
         <div class="relative mb-6">

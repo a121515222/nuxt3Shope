@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { getOrderData } from "@/apis/order";
+import { postPay } from "@/apis/pay";
 import type { OrderProduct } from "@/types/orderType";
 interface product {
   title: string;
@@ -38,15 +39,28 @@ const user = ref();
 const total = ref();
 const is_paid = ref();
 const cerateDate = ref();
-const payment = ref(0);
+// #todo payment 用自己的後端需要傳到後端
+const paymentMethod = ref(0);
 const currentStatus = ref("");
 const paymentOptionsConfig = [
   { value: 1, text: "信用卡" },
   { value: 2, text: "ATM" },
   { value: 3, text: "超商繳款" }
 ];
-const pay = () => {
+const router = useRouter();
+const pay = async () => {
   console.log("pay");
+  isLoading.value = true;
+  const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
+  if (!id) {
+    return;
+  } else {
+    const res = await postPay(id);
+    if (res.success) {
+      isLoading.value = false;
+      router.push("/pay/finishedPayment");
+    }
+  }
 };
 onMounted(async () => {
   await handleGetOrderData(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id);
@@ -56,10 +70,6 @@ onMounted(async () => {
   <div class="container mx-auto px-6 py-6 bg-gray-300 dark:bg-gray-800 dark:text-white">
     <div class="flex justify-center">
       <div class="w-full lg:w-2/3">
-        <PaymentProcess
-          :currentStatus="'confirmAndPay'"
-          :isPaymentCompleted="is_paid"
-        ></PaymentProcess>
         <h2 class="mb-3 border-b-2 border-gray-600 dark:border-gray-400 font-bold text-xl">
           已購商品清單
         </h2>
@@ -157,7 +167,7 @@ onMounted(async () => {
             選擇付款方式
           </h2>
           <div class="flex mb-3">
-            <select v-model="payment" class="block inputStyle">
+            <select v-model="paymentMethod" class="block inputStyle">
               <option value="0" selected disabled>請選擇付款方式</option>
               <option
                 v-for="option in paymentOptionsConfig"
@@ -171,7 +181,7 @@ onMounted(async () => {
               class="ml-4 bg-primary text-white px-4 py-2 rounded hover:opacity-80 disabled:opacity-50 text-nowrap"
               type="button"
               @click="pay()"
-              :disabled="isLoading || payment === 0"
+              :disabled="isLoading || paymentMethod === 0"
             >
               確認付款
             </button>
