@@ -5,7 +5,7 @@ interface ArticleCardListProps {
   articleIdProp?: string;
 }
 const props = withDefaults(defineProps<ArticleCardListProps>(), {
-  articleListProp: (): Article[] => [],
+  articleListProp: () => [] as Article[],
   articleIdProp: ""
 });
 </script>

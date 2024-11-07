@@ -41,7 +41,7 @@ onUnmounted(() => {
     <Loading></Loading>
     <Toast></Toast>
     <MessageBox></MessageBox>
-    <div :style="`min-height: ${windowHeight - footerHeight * 2}px`">
+    <div :style="`min-height: ${windowHeight - footerHeight - headerHeight}px`">
       <slot />
     </div>
     <LayoutFooter></LayoutFooter>

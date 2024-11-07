@@ -13,8 +13,8 @@
 
 <script setup>
 import { ref } from "vue";
-
-const isLoading = ref(true);
+const indexStore = useIndexStore();
+const { isLoading } = storeToRefs(indexStore);
 </script>
 
 <style scoped>
