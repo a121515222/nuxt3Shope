@@ -14,7 +14,6 @@ const props = withDefaults(defineProps<ProductCardListProps>(), {
   productListProp: (): Product[] => [],
   productIdProp: ""
 });
-const isPageLoading = ref(false);
 const shouldShowLoading = (id: string) => {
   return id === props.productIdProp;
 };

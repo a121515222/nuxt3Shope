@@ -2,6 +2,8 @@
 import { type FetchProductsData } from "@/types/productTypes";
 import { type SearchBarEmitInfo } from "@/types/searchBarTypes";
 import { getProducts } from "@/apis/products";
+const indexStore = useIndexStore();
+const { isLoading } = storeToRefs(indexStore);
 const productStore = useProductStore();
 const { productDataList } = storeToRefs(productStore);
 const { data } = await useAsyncData("getProducts", async () => {
@@ -29,6 +31,7 @@ const handlePriceLowToHigh = () => {
 
 const handleSearch = (searchData: SearchBarEmitInfo) => {
   const { searchInfo, minPrice, maxPrice } = searchData;
+  isLoading.value = true;
   // 篩選商品列表
   showProductList.value = productDataList.value.filter((product) => {
     // 檢查搜尋字串
@@ -52,6 +55,7 @@ const handleSearch = (searchData: SearchBarEmitInfo) => {
   });
   // 移除重複的產品
   showProductList.value = [...new Set(showProductList.value)];
+  isLoading.value = false;
 };
 </script>
 <template>

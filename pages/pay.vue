@@ -5,8 +5,8 @@
       <PaymentProcess></PaymentProcess>
     </div>
   </div>
-  <Main>
+  <main>
     <NuxtPage></NuxtPage>
-  </Main>
+  </main>
 </template>
 <style></style>

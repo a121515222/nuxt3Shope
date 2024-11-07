@@ -166,8 +166,8 @@ onUnmounted(() => {
             >
           </li>
           <li v-else-if="isLogin">
-            <button
-              @click="
+            <a
+              @click.prevent="
                 closeNavbar();
                 handleLogout();
               "
@@ -175,7 +175,7 @@ onUnmounted(() => {
               :class="shouldShowDarkModeText()"
             >
               登出
-            </button>
+            </a>
           </li>
           <li class="hidden md:block">
             <ModeSwitchIcon />

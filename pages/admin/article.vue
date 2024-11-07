@@ -79,23 +79,35 @@ const handleGetAdminArticles = async (page: number = 1) => {
 };
 const handleAddAdminArticle = async () => {
   await handleAdminArticleModalData();
-  const res = await postAdminArticle(modalData.value);
-  if (res.success) {
-    addToast({ type: "success", message: "新增成功" });
-    await handleGetAdminArticles();
-  } else {
+  try {
+    isLoading.value = true;
+    const res = await postAdminArticle(modalData.value);
+    if (res.success) {
+      addToast({ type: "success", message: "新增成功" });
+      await handleGetAdminArticles();
+    } else {
+      addToast({ type: "danger", message: "新增失敗" });
+    }
+  } catch (error) {
     addToast({ type: "danger", message: "新增失敗" });
+  } finally {
+    isLoading.value = false;
   }
-  [];
 };
 const handleEditAdminArticle = async () => {
   await handleAdminArticleModalData();
-  const res = await putAdminArticle(modalData.value);
-  if (res.success) {
-    addToast({ type: "success", message: "編輯成功" });
-    await handleGetAdminArticles();
-  } else {
+  try {
+    const res = await putAdminArticle(modalData.value);
+    if (res.success) {
+      addToast({ type: "success", message: "編輯成功" });
+      await handleGetAdminArticles();
+    } else {
+      addToast({ type: "danger", message: "編輯失敗" });
+    }
+  } catch (error) {
     addToast({ type: "danger", message: "編輯失敗" });
+  } finally {
+    isLoading.value = false;
   }
 };
 const handleDeleteAdminArticle = async (id: string) => {
