@@ -1,10 +1,16 @@
 <script lang="ts" setup>
 import { postLogOut } from "@/apis/login";
 const headerRef = ref(null);
+const navbarRef = ref<HTMLElement | null>(null);
 const indexStore = useIndexStore();
 const ariaExpanded = ref(false);
 const router = useRouter();
+const route = useRoute();
 const closeNavbar = () => {
+  if (navbarRef.value) {
+    navbarRef.value.classList.remove("block");
+    navbarRef.value.classList.add("hidden");
+  }
   ariaExpanded.value = false;
 };
 const { shouldShowDarkMode, shouldShowDarkModeText, shouldShowDarkModeBackground } =
@@ -137,6 +143,7 @@ onUnmounted(() => {
       </div>
 
       <div
+        ref="navbarRef"
         class="w-full md:block md:w-auto"
         id="navbar-default"
         :class="ariaExpanded ? 'block' : 'hidden'"
@@ -152,7 +159,7 @@ onUnmounted(() => {
               class="block py-2 px-3 text-center rounded md:bg-transparent md:p-0"
               :class="shouldShowDarkModeText()"
               ariaCurrentValue="page"
-              activeClass="test-white"
+              activeClass="text-white"
               >{{ list.name }}</NuxtLink
             >
           </li>

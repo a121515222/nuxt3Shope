@@ -8,12 +8,12 @@ import {
 import { postAdminImageUpload } from "@/apis/adminUpload";
 import { type AdminProduct } from "@/types/adminProductTypes";
 const messageBoxStore = useMessageBoxStore();
+const indexStore = useIndexStore();
+const { isLoading } = storeToRefs(indexStore);
 const { showConfirm } = messageBoxStore;
 const { addToast } = useToastStore();
 const isAddNewProduct = ref(false);
 const products = ref<AdminProduct[]>([]);
-// 暫時寫死 isLoading 為 false
-const isLoading = ref(false);
 const postId = ref("");
 const productTemp = ref<AdminProduct>({
   id: "",
@@ -74,21 +74,35 @@ const handleModalConfirm = async () => {
   }
 };
 const handleAddProduct = async () => {
-  const res = await postAdminProduct(modalData.value);
-  if (res.success) {
-    addToast({ type: "success", message: "新增成功" });
-    await handleGetAdminProducts();
-  } else {
+  try {
+    isLoading.value = true;
+    const res = await postAdminProduct(modalData.value);
+    if (res.success) {
+      addToast({ type: "success", message: "新增成功" });
+      await handleGetAdminProducts();
+    } else {
+      addToast({ type: "danger", message: "新增失敗" });
+    }
+  } catch (error) {
     addToast({ type: "danger", message: "新增失敗" });
+  } finally {
+    isLoading.value = false;
   }
 };
 const handleEditProduct = async () => {
-  const res = await putAdminProduct(modalData.value);
-  if (res.success) {
-    addToast({ type: "success", message: "編輯成功" });
-    await handleGetAdminProducts();
-  } else {
+  try {
+    isLoading.value = true;
+    const res = await putAdminProduct(modalData.value);
+    if (res.success) {
+      addToast({ type: "success", message: "編輯成功" });
+      await handleGetAdminProducts();
+    } else {
+      addToast({ type: "danger", message: "編輯失敗" });
+    }
+  } catch (error) {
     addToast({ type: "danger", message: "編輯失敗" });
+  } finally {
+    isLoading.value = false;
   }
 };
 const handleDeleteAdminProduct = async (id: string) => {

@@ -1,3 +1,21 @@
 .inputStyle {
-  @apply w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500;
+  @apply w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500 !important;
+  /* 自動完成時的樣式 */
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus {
+    -webkit-text-fill-color: rgb(17 24 39) !important; /* text-gray-900 */
+    -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+    border-color: rgb(209 213 219) !important; /* border-gray-300 */
+    border-radius: 0.375rem !important; /* rounded-md */
+  }
+
+  /* 深色模式自動完成樣式 */
+  .dark &:-webkit-autofill,
+  .dark &:-webkit-autofill:hover,
+  .dark &:-webkit-autofill:focus {
+    -webkit-text-fill-color: white !important;
+    -webkit-box-shadow: 0 0 0px 1000px rgb(55 65 81) inset !important; /* dark:bg-gray-700 */
+    border-color: rgb(209 213 219) !important;
+  }
 }

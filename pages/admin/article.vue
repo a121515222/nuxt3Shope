@@ -11,13 +11,13 @@ import {
 import { postAdminImageUpload } from "@/apis/adminUpload";
 import { type AdminArticle } from "@/types/adminArticleTypes";
 const indexStore = useIndexStore();
+const { isLoading } = storeToRefs(indexStore);
 const { addToast } = useToastStore();
 const { isDarkMode } = storeToRefs(indexStore);
 const messageBoxStore = useMessageBoxStore();
 const { showAlert } = messageBoxStore;
 const datePickerRef = ref<HTMLElement | null>(null);
 const articles = ref<AdminArticle[]>([]);
-const isLoading = ref(false);
 const isAddNewArticle = ref(false);
 const postId = ref("");
 const modalData = ref<AdminArticle>({
@@ -97,6 +97,7 @@ const handleAddAdminArticle = async () => {
 const handleEditAdminArticle = async () => {
   await handleAdminArticleModalData();
   try {
+    isLoading.value = true;
     const res = await putAdminArticle(modalData.value);
     if (res.success) {
       addToast({ type: "success", message: "編輯成功" });
