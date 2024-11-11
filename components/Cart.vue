@@ -266,6 +266,7 @@ onMounted(async () => {
                     class="w-[50px] h-[30px] object-cover"
                     :src="item.product.imageUrl"
                     :alt="item.product.title"
+                    loading="lazy"
                   />
                 </td>
                 <td>{{ item.product.title }}</td>

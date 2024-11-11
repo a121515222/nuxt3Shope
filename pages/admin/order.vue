@@ -241,6 +241,7 @@ onMounted(async () => {
                                       item.products[key]?.product?.imageUrl ||
                                       '/defaultImg/image-1@2x.jpg'
                                     "
+                                    loading="lazy"
                                     class="max-w-12 max-h-8 object-cover"
                                   />
                                 </td>

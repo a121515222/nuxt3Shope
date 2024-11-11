@@ -3,6 +3,7 @@ import { getOrdersData } from "@/apis/order";
 import type { Order } from "@/types/orderType";
 const router = useRouter();
 const orders = ref<Order[]>();
+
 const handleGetOrderData = async (page: number = 1) => {
   const res = await getOrdersData(page);
   orders.value = res.orders;

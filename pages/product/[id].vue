@@ -65,6 +65,7 @@ onMounted(async () => {
               class="object-cover w-full h-full"
               :src="images[pictureShowIndex]"
               :alt="`${product.title} picture`"
+              loading="lazy"
             />
           </div>
         </template>
@@ -74,6 +75,7 @@ onMounted(async () => {
               class="object-cover w-full h-full rounded-lg"
               :src="product.imageUrl"
               :alt="`${product.title} picture`"
+              loading="lazy"
             />
           </div>
         </template>
@@ -172,6 +174,7 @@ onMounted(async () => {
                 class="object-cover w-full h-full rounded-lg"
                 :src="i"
                 :alt="product.title + ' picture ' + index"
+                loading="lazy"
               />
             </a>
           </div>

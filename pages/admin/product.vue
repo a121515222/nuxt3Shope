@@ -7,6 +7,7 @@ import {
 } from "@/apis/adminProduct";
 import { postAdminImageUpload } from "@/apis/adminUpload";
 import { type AdminProduct } from "@/types/adminProductTypes";
+
 const messageBoxStore = useMessageBoxStore();
 const indexStore = useIndexStore();
 const { isLoading } = storeToRefs(indexStore);
@@ -43,6 +44,22 @@ const modalData = ref<AdminProduct>({
   imagesUrl: [],
   num: 0
 });
+const resetModalData = () => {
+  modalData.value = {
+    id: "",
+    title: "",
+    origin_price: 0,
+    price: 0,
+    unit: "",
+    is_enabled: 0,
+    category: "",
+    description: "",
+    content: "",
+    imageUrl: "",
+    imagesUrl: [],
+    num: 0
+  };
+};
 const productStatus = ref([
   { value: 0, status: "未上架" },
   { value: 1, status: "已上架" },
@@ -194,6 +211,7 @@ onMounted(async () => {
         @click="
           isAddNewProduct = true;
           openModal();
+          resetModalData();
         "
       >
         增加商品
@@ -280,6 +298,7 @@ onMounted(async () => {
                 class="w-full object-cover"
                 :src="productTemp.imageUrl || '../../public/defaultImg/image-1@2x.jpg'"
                 :alt="productTemp.title"
+                loading="lazy"
               />
             </div>
             <div class="flex items-center">
@@ -304,6 +323,7 @@ onMounted(async () => {
               class="w-full object-cover"
               :src="img || '../../public/defaultImg/image-1@2x.jpg'"
               :alt="productTemp.title"
+              loading="lazy"
             />
           </div>
         </div>
@@ -348,6 +368,7 @@ onMounted(async () => {
             :src="modalData.imageUrl || '/defaultImg/image-1@2x.jpg'"
             :alt="modalData.title + ' picture'"
             :title="modalData.title"
+            loading="lazy"
           />
         </div>
         <div class="mb-3">
@@ -369,6 +390,7 @@ onMounted(async () => {
               class="w-full h-auto"
               :src="item || '/defaultImg/image-1@2x.jpg'"
               :alt="modalData.title"
+              loading="lazy"
             />
             <label class="block text-gray-700 dark:text-white">其他產品圖片 {{ index + 1 }}</label>
             <input

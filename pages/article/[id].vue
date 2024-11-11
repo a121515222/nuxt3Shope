@@ -45,6 +45,7 @@ onMounted(async () => {
           class="w-full h-full object-cover rounded-lg"
           :src="article.image"
           :alt="article.title + ' picture'"
+          loading="lazy"
         />
       </div>
       <div class="w-full lg:w-1/2 mt-3 px-4">

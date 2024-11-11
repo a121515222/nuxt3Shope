@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<ArticleCardListProps>(), {
                   style="min-height: 300px; max-height: 300px"
                   :src="item.image"
                   :alt="item.title"
+                  loading="lazy"
                 />
               </div>
               <div

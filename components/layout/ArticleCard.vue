@@ -20,7 +20,12 @@ const props = withDefaults(defineProps<ArticleCardProps>(), {
         <div
           class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 dark:text-white bg-gray-200 dark:bg-gray-700"
         >
-          <img class="w-full h-48 object-cover" :alt="item.title" :src="item.image" />
+          <img
+            class="w-full h-48 object-cover"
+            :alt="item.title"
+            :src="item.image"
+            loading="lazy"
+          />
           <div class="p-4 dark:text-white bg-gray-200 dark:bg-gray-700">
             <h3 class="text-2xl font-bold mb-2">{{ item.title }}</h3>
             <p class="line-clamp-2">{{ item.description }}</p>

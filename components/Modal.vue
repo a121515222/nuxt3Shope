@@ -58,7 +58,7 @@ const confirm = () => {
   >
     <div class="relative w-full h-full max-w-7xl md:h-auto">
       <!-- Modal content -->
-      <div class="relative bg-white rounded-lg shadow">
+      <div class="relative bg-white rounded-lg shadow max-h-[90vh] overflow-y-auto no-scrollbar">
         <!-- Modal header -->
         <div
           class="flex items-start justify-between p-5 border-b rounded-t bg-gray-300 dark:bg-gray-500"

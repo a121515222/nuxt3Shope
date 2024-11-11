@@ -60,6 +60,7 @@ onMounted(() => {
                 class="w-full h-52 object-cover rounded-t-md"
                 :src="item.imageUrl"
                 :alt="item.title"
+                loading="lazy"
               />
               <p
                 class="absolute top-0 left-0 bg-secondary text-primary p-1"

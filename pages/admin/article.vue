@@ -326,6 +326,7 @@ onUnmounted(() => {
             :src="modalData.image || '/defaultImg/image-1@2x.jpg'"
             :alt="modalData.title + ' picture'"
             :title="modalData.title"
+            loading="lazy"
           />
         </div>
         <div class="mb-3">
