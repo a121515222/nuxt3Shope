@@ -196,7 +196,7 @@ onMounted(async () => {
   </div>
 
   <div
-    class="fixed top-0 right-0 z-40 w-full md:w-1/2 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out bg-gray-200 dark:bg-gray-700"
+    class="fixed top-0 right-0 z-40 w-full md:w-1/2 h-screen p-4 overflow-y-auto transition-all duration-300 ease-in-out bg-gray-200 dark:bg-gray-700 no-scrollbar"
     tabindex="-1"
     ref="cartRef"
     :class="{ [`right-[${cartWidth}px]`]: isShowCart, 'translate-x-full': !isShowCart }"
@@ -293,7 +293,7 @@ onMounted(async () => {
                 <td class="flex flex-col gap-1">
                   <button
                     type="button"
-                    class="border border-primary bg-primary rounded-lg px-2 py-2 text-nowrap text-secondary hover:opacity-80 disabled:opacity-50"
+                    class="mt-2 border border-primary bg-primary rounded-lg px-2 py-2 text-nowrap text-secondary hover:opacity-80 disabled:opacity-50"
                     :disabled="isCartLoading"
                     :class="{ 'cursor-not-allowed': isCartLoading }"
                     @click="
@@ -307,7 +307,7 @@ onMounted(async () => {
                     {{ isChangeNum && item.id === cartId ? "完成" : "編輯" }}
                   </button>
                   <button
-                    class="border border-red-500 rounded-lg text-red-500 px-2 py-2 text-nowrap hover:opacity-80 disabled:opacity-50"
+                    class="mb-2 border border-red-500 rounded-lg text-red-500 px-2 py-2 text-nowrap hover:opacity-80 disabled:opacity-50"
                     type="button"
                     @click="handleDeleteCart(item.id)"
                     :disabled="isCartLoading"
