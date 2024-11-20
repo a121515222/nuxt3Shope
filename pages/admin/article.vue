@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 // #todo image 與 imageUrl 變數名稱可以選一個使用
-import dayjs from "dayjs";
 import {
   getAdminArticles,
   getAdminArticle,
@@ -17,6 +16,8 @@ const { isDarkMode } = storeToRefs(indexStore);
 const messageBoxStore = useMessageBoxStore();
 const { showAlert } = messageBoxStore;
 const datePickerRef = ref<HTMLElement | null>(null);
+const { showDatePicker, hideDatePicker, formateShowDate } = useDatePicker(datePickerRef);
+
 const articles = ref<AdminArticle[]>([]);
 const isAddNewArticle = ref(false);
 const postId = ref("");
@@ -154,29 +155,10 @@ const uploadImg = async () => {
 const deleteImg = () => {
   modalData.value.image = "";
 };
-const showDate = computed(() => {
-  return dayjs(modalData.value.create_at).format("YYYY-MM-DD");
+const formateDate = computed(() => {
+  return formateShowDate(modalData.value.create_at);
 });
-const showDatePicker = () => {
-  if (datePickerRef.value) {
-    datePickerRef.value.classList.remove("hidden");
-  }
-};
-const hideDatePicker = () => {
-  if (datePickerRef.value) {
-    datePickerRef.value.classList.add("hidden");
-  }
-};
-// 監聽外部點擊事件
-const handleClickOutside = (event: MouseEvent) => {
-  // 檢查是否為左鍵點擊
-  if (event.button !== 0) return;
 
-  // 如果日期選擇器存在且點擊位置不在日期選擇器內
-  if (datePickerRef.value && !datePickerRef.value.contains(event.target as Node)) {
-    hideDatePicker();
-  }
-};
 const handleTagDelete = (index: number) => {
   if (!modalData.value?.tag) {
     return;
@@ -198,11 +180,8 @@ const handleChangePage = async (page: number) => {
 };
 onMounted(async () => {
   await handleGetAdminArticles();
-  document.addEventListener("mousedown", handleClickOutside);
 });
-onUnmounted(() => {
-  document.removeEventListener("mousedown", handleClickOutside);
-});
+onUnmounted(() => {});
 </script>
 <template>
   <div class="container mx-auto px-6">
@@ -404,9 +383,9 @@ onUnmounted(() => {
               </div>
               <input
                 type="text"
-                class="text-sm rounded-lg ps-10 p-2.5 block dark:placeholder-gray-400 dark:text-white w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
+                class="text-sm rounded-lg ps-10 block dark:placeholder-gray-400 dark:text-white w-full border border-gray-300 rounded-md px-4 py-2.5 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
                 placeholder="請選擇文章日期"
-                v-model="showDate"
+                v-model="formateDate"
                 @focus="showDatePicker"
               />
               <div ref="datePickerRef" class="absolute z-10 hidden">

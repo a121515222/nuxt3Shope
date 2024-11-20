@@ -6,6 +6,7 @@ import {
   addressValidatePattern
 } from "@/utils/validatePattern";
 import { postOrderData } from "@/apis/order";
+
 const userInfo = ref({
   name: "",
   tel: "",
@@ -14,78 +15,42 @@ const userInfo = ref({
   message: ""
 });
 const { addToast } = useToastStore();
-const { validateInput } = useInputValidate();
-const nameRule = (data: string | number) => {
-  return nameValidatePattern.test(String(data));
-};
-const emailRule = (data: string | number) => {
-  return emailValidatePattern.test(String(data));
-};
-const telRule = (data: string | number) => {
-  return telValidatePattern.test(String(data));
-};
-const addressRule = (data: string | number) => {
-  return addressValidatePattern.test(String(data));
-};
+const { nameValidate, emailValidate, telValidate, addressValidate } = useFormValidate();
 const handleNameValidate = async () => {
-  try {
-    const result = validateInput(
-      nameRule,
-      userInfo.value.name,
-      "只能輸入英文或中文",
-      nameInputErrorMessageRef.value,
-      nameInputRef.value
-    );
-    return result;
-  } catch (error) {
-    console.error("姓名驗證失敗", error);
-    return false;
-  }
+  const result = await nameValidate(
+    userInfo.value.name,
+    "",
+    nameInputErrorMessageRef.value,
+    nameInputRef.value
+  );
+  return result;
 };
 const handleEmailValidate = async () => {
-  try {
-    const result = validateInput(
-      emailRule,
-      userInfo.value.email,
-      "請輸入正確的電子郵件格式",
-      emailInputErrorMessageRef.value,
-      emailInputRef.value
-    );
-    return result;
-  } catch (error) {
-    console.error("電子郵件驗證失敗", error);
-    return false;
-  }
+  const result = await emailValidate(
+    userInfo.value.email,
+    "",
+    emailInputErrorMessageRef.value,
+    emailInputRef.value
+  );
+  return result;
 };
 const handleTelValidate = async () => {
-  try {
-    const result = validateInput(
-      telRule,
-      userInfo.value.tel,
-      "請輸入正確的電話格式",
-      telInputErrorMessageRef.value,
-      telInputRef.value
-    );
-    return result;
-  } catch (error) {
-    console.error("電話驗證失敗", error);
-    return false;
-  }
+  const result = await telValidate(
+    userInfo.value.tel,
+    "",
+    telInputErrorMessageRef.value,
+    telInputRef.value
+  );
+  return result;
 };
 const handleAddressValidate = async () => {
-  try {
-    const result = validateInput(
-      addressRule,
-      userInfo.value.address,
-      "請輸入正確的地址格式",
-      addressInputErrorMessageRef.value,
-      addressInputRef.value
-    );
-    return result;
-  } catch (error) {
-    console.error("地址驗證失敗", error);
-    return false;
-  }
+  const result = await addressValidate(
+    userInfo.value.address,
+    "",
+    addressInputErrorMessageRef.value,
+    addressInputRef.value
+  );
+  return result;
 };
 
 const handleSendUserInfo = async () => {

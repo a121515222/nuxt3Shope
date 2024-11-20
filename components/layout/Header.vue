@@ -169,7 +169,7 @@ onUnmounted(() => {
               to="/login"
               class="block py-2 px-3 text-center rounded md:bg-transparent md:p-0"
               :class="shouldShowDarkModeText()"
-              >登入</NuxtLink
+              >登入/註冊</NuxtLink
             >
           </li>
           <li v-else-if="isLogin">

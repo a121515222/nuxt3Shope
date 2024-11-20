@@ -14,3 +14,6 @@ export const telValidatePattern: RegExp = /^09[0-9]{2}[-\s]?[0-9]{3}[-\s]?[0-9]{
 // "台北市信義區101大樓"
 export const addressValidatePattern: RegExp =
   /^[\u4e00-\u9fa5\d]{2,3}[市縣][\u4e00-\u9fa5\d]{2,3}[區鄉鎮市][\u4e00-\u9fa5\w\s,-]+$/;
+
+// 定義密碼驗證的正則表達式：至少一個字母和至少7個數字
+export const passwordValidatePattern: RegExp = /^(?=.*[a-zA-Z])(?=(?:\D*\d){7})[a-zA-Z\d]+$/;

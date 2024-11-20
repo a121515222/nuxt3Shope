@@ -418,7 +418,7 @@ onMounted(async () => {
         </button>
       </div>
 
-      <div class="col-span-3">
+      <div class="col-span-1 md:col-span-3">
         <div class="mb-3">
           <label class="block text-gray-700 dark:text-white" for="productName">產品名稱</label>
           <input

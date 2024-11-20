@@ -25,6 +25,9 @@ const login = async () => {
 const shouldHeight = () => {
   return `min-height:${windowHeight.value - headerHeight.value * 2}px`;
 };
+const goToSignIn = () => {
+  router.push("/signIn");
+};
 </script>
 <template>
   <div class="container mx-auto">
@@ -59,6 +62,13 @@ const shouldHeight = () => {
             </form>
           </div>
           <div class="flex justify-end mb-3">
+            <button
+              type="button"
+              class="bg-primary hover:opacity-80 mr-4 mb-6 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              @click="goToSignIn"
+            >
+              註冊
+            </button>
             <button
               type="button"
               class="bg-primary hover:opacity-80 mr-4 mb-6 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

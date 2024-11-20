@@ -4,22 +4,25 @@ export function useInputValidate() {
     data: string,
     errorMessageToDisplays: string,
     errorMessageRef: HTMLParagraphElement,
-    inputRef?: HTMLInputElement
+    inputRef?: HTMLInputElement,
+    extraRule?: () => boolean
   ): Promise<boolean> => {
     return new Promise((resolve, reject) => {
-      if (!rule(data)) {
+      console.log("extraRule", extraRule?.());
+      const extraRuleResult = typeof extraRule?.() === "undefined" ? true : extraRule();
+      if (rule(data) && extraRuleResult) {
+        resetValidationMessage(errorMessageRef);
+        if (inputRef) {
+          resetValidationInputStyle(inputRef);
+        }
+        resolve(true);
+      } else {
         errorMessageRef.textContent = errorMessageToDisplays;
         addValidationMessage(errorMessageRef);
         if (inputRef) {
           addValidationInputStyle(inputRef);
         }
         reject(false);
-      } else {
-        resetValidationMessage(errorMessageRef);
-        if (inputRef) {
-          resetValidationInputStyle(inputRef);
-        }
-        resolve(true);
       }
     });
   };
