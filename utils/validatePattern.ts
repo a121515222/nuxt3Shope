@@ -17,3 +17,5 @@ export const addressValidatePattern: RegExp =
 
 // 定義密碼驗證的正則表達式：至少一個字母和至少7個數字
 export const passwordValidatePattern: RegExp = /^(?=.*[a-zA-Z])(?=(?:\D*\d){7})[a-zA-Z\d]+$/;
+// 不允許空白
+export const noBlankValidatePattern: RegExp = /^\S+$/;

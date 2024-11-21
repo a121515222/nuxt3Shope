@@ -116,32 +116,33 @@ const filterAutoCompleteList = (list: (Product | Article)[]): string[] => {
     })
     .map((list) => list.title);
 };
-
+const minPriceValidateConfig = {
+  productPriceRule: {
+    fn: () => productPriceRule(minPrice.value),
+    errorMessage: "請輸入大於0的數字"
+  },
+  minPriceRule: {
+    fn: () => minPriceRule(),
+    errorMessage: "請輸入小於最高價格的數字"
+  }
+};
+const maxPriceValidateConfig = {
+  productPriceRule: {
+    fn: () => productPriceRule(maxPrice.value),
+    errorMessage: "請輸入大於0的數字"
+  },
+  maxPriceRule: {
+    fn: () => maxPriceRule(),
+    errorMessage: "請輸入大於最低價格的數字"
+  }
+};
 const handleMinPriceBlurValidation = async () => {
   try {
-    const firstValidationResult = await validateInput(
-      productPriceRule,
-      minPrice.value,
-      "請輸入大於0的數字",
+    const result = await validateInput(
+      minPriceValidateConfig,
       minPriceInputErrorMessageRef.value as HTMLParagraphElement
     );
-
-    // 如果第一個驗證失敗，直接返回
-    if (!firstValidationResult) {
-      emitValidateResult(false);
-      return;
-    }
-
-    // 只有在第一個驗證通過的情況下才執行第二個驗證
-    const secondValidationResult = await validateInput(
-      minPriceRule,
-      minPrice.value,
-      "請輸入小於最高價格的數字",
-      minPriceInputErrorMessageRef.value as HTMLParagraphElement,
-      minPriceInputRef.value as HTMLInputElement
-    );
-
-    emitValidateResult(secondValidationResult);
+    emitValidateResult(result);
   } catch (error) {
     console.log("minPrice驗證失敗", error);
     emitValidateResult(false);
@@ -150,29 +151,12 @@ const handleMinPriceBlurValidation = async () => {
 
 const handleMaxPriceBlurValidation = async () => {
   try {
-    const firstValidationResult = await validateInput(
-      productPriceRule,
-      maxPrice.value,
-      "請輸入大於0的數字",
+    const result = await validateInput(
+      maxPriceValidateConfig,
       maxPriceInputErrorMessageRef.value as HTMLParagraphElement
     );
 
-    // 如果第一個驗證失敗，直接返回
-    if (!firstValidationResult) {
-      emitValidateResult(false);
-      return;
-    }
-
-    // 只有在第一個驗證通過的情況下才執行第二個驗證
-    const secondValidationResult = await validateInput(
-      maxPriceRule,
-      maxPrice.value,
-      "請輸入大於最低價格的數字",
-      maxPriceInputErrorMessageRef.value as HTMLParagraphElement,
-      maxPriceInputRef.value as HTMLInputElement
-    );
-
-    emitValidateResult(secondValidationResult);
+    emitValidateResult(result);
   } catch (error) {
     console.log("maxPrice驗證失敗", error);
     emitValidateResult(false);

@@ -3,7 +3,8 @@ import {
   nameValidatePattern,
   emailValidatePattern,
   telValidatePattern,
-  addressValidatePattern
+  addressValidatePattern,
+  noBlankValidatePattern
 } from "@/utils/validatePattern";
 import { postOrderData } from "@/apis/order";
 
@@ -19,7 +20,6 @@ const { nameValidate, emailValidate, telValidate, addressValidate } = useFormVal
 const handleNameValidate = async () => {
   const result = await nameValidate(
     userInfo.value.name,
-    "",
     nameInputErrorMessageRef.value,
     nameInputRef.value
   );
@@ -28,7 +28,6 @@ const handleNameValidate = async () => {
 const handleEmailValidate = async () => {
   const result = await emailValidate(
     userInfo.value.email,
-    "",
     emailInputErrorMessageRef.value,
     emailInputRef.value
   );
@@ -37,7 +36,6 @@ const handleEmailValidate = async () => {
 const handleTelValidate = async () => {
   const result = await telValidate(
     userInfo.value.tel,
-    "",
     telInputErrorMessageRef.value,
     telInputRef.value
   );
@@ -46,7 +44,6 @@ const handleTelValidate = async () => {
 const handleAddressValidate = async () => {
   const result = await addressValidate(
     userInfo.value.address,
-    "",
     addressInputErrorMessageRef.value,
     addressInputRef.value
   );

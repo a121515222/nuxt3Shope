@@ -1,9 +1,11 @@
+import type { RuleConfig } from "@/types/validateInputType";
 import {
   nameValidatePattern,
   emailValidatePattern,
   telValidatePattern,
   addressValidatePattern,
-  passwordValidatePattern
+  passwordValidatePattern,
+  noBlankValidatePattern
 } from "@/utils/validatePattern";
 const { validateInput } = useInputValidate();
 export function useFormValidate() {
@@ -26,10 +28,87 @@ export function useFormValidate() {
     console.log("confirmPassword === password", confirmPassword === password);
     return confirmPassword === password;
   };
+  const noBlankRule = (data: string | number) => {
+    return noBlankValidatePattern.test(String(data));
+  };
 
+  const nameValidateRuleConfig = (data: string | number) => {
+    return {
+      sevenNumberOneLetter: {
+        fn: () => nameRule(data),
+        errorMessage: "只能輸入英文或中文"
+      },
+      noBlank: {
+        fn: () => noBlankRule(data),
+        errorMessage: "姓名不能包含空白"
+      }
+    };
+  };
+  const emailValidateRuleConfig = (data: string | number) => {
+    return {
+      email: {
+        fn: () => emailRule(data),
+        errorMessage: "請輸入正確的電子郵件格式"
+      },
+      noBlankRule: {
+        fn: () => noBlankRule(data),
+        errorMessage: "電子郵件格式不能包含空白"
+      }
+    };
+  };
+  const telValidateRuleConfig = (data: string | number) => {
+    return {
+      tel: {
+        fn: () => telRule(data),
+        errorMessage: "請輸入正確的電話號碼格式"
+      },
+      noBlankRule: {
+        fn: () => noBlankRule(data),
+        errorMessage: "電話不能包含空白"
+      }
+    };
+  };
+  const addressValidateRuleConfig = (data: string | number) => {
+    return {
+      address: {
+        fn: () => addressRule(data),
+        errorMessage: "請輸入正確的地址格式"
+      },
+      noBlankRule: {
+        fn: () => noBlankRule(data),
+        errorMessage: "地址不能包含空白"
+      }
+    };
+  };
+  const passwordValidateRuleConfig = (data: string | number) => {
+    return {
+      password: {
+        fn: () => passwordRule(data),
+        errorMessage: "至少一個字母和至少7個數字"
+      },
+      noBlankRule: {
+        fn: () => noBlankRule(data),
+        errorMessage: "密碼不能包含空白"
+      }
+    };
+  };
+  const confirmPasswordValidateRuleConfig = (
+    confirmPassword: string | number,
+    password: string | number
+  ) => {
+    return {
+      confirmPassword: {
+        fn: () => confirmPasswordRule(confirmPassword, password),
+        errorMessage: "請輸入相同的密碼"
+      },
+      noBlankRule: {
+        fn: () => noBlankRule(confirmPassword),
+        errorMessage: "確認密碼不能包含空白"
+      }
+    };
+  };
   const nameValidate = async (
     name: string,
-    errorMessage: string,
     errorMessageRef: HTMLParagraphElement | null,
     inputRef: HTMLInputElement | null
   ): Promise<boolean> => {
@@ -38,13 +117,7 @@ export function useFormValidate() {
       return Promise.resolve(false);
     }
     try {
-      const result = await validateInput(
-        nameRule,
-        name,
-        (errorMessage = "只能輸入英文或中文"),
-        errorMessageRef,
-        inputRef
-      );
+      const result = await validateInput(nameValidateRuleConfig(name), errorMessageRef, inputRef);
       return result;
     } catch (error) {
       console.warn("姓名驗證失敗", error);
@@ -54,7 +127,6 @@ export function useFormValidate() {
 
   const emailValidate = async (
     email: string,
-    errorMessage: string,
     errorMessageRef: HTMLParagraphElement | null,
     inputRef: HTMLInputElement | null
   ): Promise<boolean> => {
@@ -63,13 +135,7 @@ export function useFormValidate() {
       return Promise.resolve(false);
     }
     try {
-      const result = await validateInput(
-        emailRule,
-        email,
-        (errorMessage = "請輸入正確的電子郵件格式"),
-        errorMessageRef,
-        inputRef
-      );
+      const result = await validateInput(emailValidateRuleConfig(email), errorMessageRef, inputRef);
       return result;
     } catch (error) {
       console.warn("電子郵件驗證失敗", error);
@@ -79,7 +145,6 @@ export function useFormValidate() {
 
   const telValidate = async (
     tel: string,
-    errorMessage: string,
     errorMessageRef: HTMLParagraphElement | null,
     inputRef: HTMLInputElement | null
   ): Promise<boolean> => {
@@ -88,13 +153,7 @@ export function useFormValidate() {
       return Promise.resolve(false);
     }
     try {
-      const result = await validateInput(
-        telRule,
-        tel,
-        (errorMessage = "請輸入正確的電話號碼格式"),
-        errorMessageRef,
-        inputRef
-      );
+      const result = await validateInput(telValidateRuleConfig(tel), errorMessageRef, inputRef);
       return result;
     } catch (error) {
       console.warn("電話號碼驗證失敗", error);
@@ -104,7 +163,6 @@ export function useFormValidate() {
 
   const addressValidate = async (
     address: string,
-    errorMessage: string,
     errorMessageRef: HTMLParagraphElement | null,
     inputRef: HTMLInputElement | null
   ): Promise<boolean> => {
@@ -114,9 +172,7 @@ export function useFormValidate() {
     }
     try {
       const result = await validateInput(
-        addressRule,
-        address,
-        (errorMessage = "請輸入正確的地址格式"),
+        addressValidateRuleConfig(address),
         errorMessageRef,
         inputRef
       );
@@ -128,7 +184,6 @@ export function useFormValidate() {
   };
   const passwordValidate = async (
     password: string,
-    errorMessage: string,
     errorMessageRef: HTMLParagraphElement | null,
     inputRef: HTMLInputElement | null
   ): Promise<boolean> => {
@@ -138,9 +193,7 @@ export function useFormValidate() {
     }
     try {
       const result = await validateInput(
-        passwordRule,
-        password,
-        (errorMessage = "至少一個字母和至少7個數字"),
+        passwordValidateRuleConfig(password),
         errorMessageRef,
         inputRef
       );
@@ -153,7 +206,6 @@ export function useFormValidate() {
   const confirmPasswordValidate = async (
     confirmPassword: string,
     password: string,
-    errorMessage: string,
     errorMessageRef: HTMLParagraphElement | null,
     inputRef: HTMLInputElement | null
   ): Promise<boolean> => {
@@ -162,12 +214,9 @@ export function useFormValidate() {
     }
     try {
       const result = await validateInput(
-        passwordRule,
-        confirmPassword,
-        (errorMessage = "請輸入相同的密碼"),
+        confirmPasswordValidateRuleConfig(confirmPassword, password),
         errorMessageRef,
-        inputRef,
-        () => confirmPasswordRule(confirmPassword, password)
+        inputRef
       );
       return result;
     } catch (error) {

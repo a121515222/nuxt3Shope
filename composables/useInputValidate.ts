@@ -1,29 +1,51 @@
+import type { RuleConfig } from "@/types/validateInputType";
+import { useThrottleFn } from "@vueuse/core";
 export function useInputValidate() {
+  const handleInputStopTextValidate = useThrottleFn((event: Event, callback: () => void) => {
+    console.log("handleInputStopTextValidate");
+    const target = event.target as HTMLInputElement;
+    if (target) {
+      callback();
+    }
+  }, 500);
   const validateInput = (
-    rule: (data: string | number) => boolean,
-    data: string,
-    errorMessageToDisplays: string,
+    ruleConfig: RuleConfig,
     errorMessageRef: HTMLParagraphElement,
-    inputRef?: HTMLInputElement,
-    extraRule?: () => boolean
+    inputRef?: HTMLInputElement
   ): Promise<boolean> => {
     return new Promise((resolve, reject) => {
-      console.log("extraRule", extraRule?.());
-      const extraRuleResult = typeof extraRule?.() === "undefined" ? true : extraRule();
-      if (rule(data) && extraRuleResult) {
+      // 如果沒有規則配置，默認通過驗證
+      if (!ruleConfig) {
         resetValidationMessage(errorMessageRef);
         if (inputRef) {
           resetValidationInputStyle(inputRef);
         }
         resolve(true);
-      } else {
-        errorMessageRef.textContent = errorMessageToDisplays;
-        addValidationMessage(errorMessageRef);
-        if (inputRef) {
-          addValidationInputStyle(inputRef);
-        }
-        reject(false);
+        return;
       }
+
+      // 遍历规则配置，逐一验证
+      for (const key in ruleConfig) {
+        const rule = ruleConfig[key];
+        // 调用 `fn`，不需要额外显式传入 `extraArgs`
+        if (!rule.fn()) {
+          // 如果规则不通过，显示错误信息并返回失败
+          errorMessageRef.textContent = rule.errorMessage;
+          addValidationMessage(errorMessageRef);
+          if (inputRef) {
+            addValidationInputStyle(inputRef);
+          }
+          reject(false);
+          return;
+        }
+      }
+
+      // 如果所有規則通過，清空錯誤訊息並返回成功
+      resetValidationMessage(errorMessageRef);
+      if (inputRef) {
+        resetValidationInputStyle(inputRef);
+      }
+      resolve(true);
     });
   };
   const addValidationMessage = (ref: HTMLElement) => {
@@ -50,6 +72,7 @@ export function useInputValidate() {
   };
   return {
     validateInput,
+    handleInputStopTextValidate,
     validateAllInputs,
     addValidationMessage,
     resetValidationMessage,

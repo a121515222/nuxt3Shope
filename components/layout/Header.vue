@@ -178,7 +178,7 @@ onUnmounted(() => {
                 closeNavbar();
                 handleLogout();
               "
-              class="block py-2 px-3 text-center rounded md:bg-transparent md:p-0"
+              class="block py-2 px-3 text-center rounded md:bg-transparent md:p-0 hover:cursor-pointer"
               :class="shouldShowDarkModeText()"
             >
               登出

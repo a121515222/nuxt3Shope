@@ -28,6 +28,18 @@ const shouldHeight = () => {
 const goToSignIn = () => {
   router.push("/signIn");
 };
+const passwordInputRef = ref();
+const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
+  const input = inputRef;
+  if (!input) {
+    return;
+  }
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+};
 </script>
 <template>
   <div class="container mx-auto">
@@ -47,16 +59,22 @@ const goToSignIn = () => {
                   v-model="user.username"
                 />
               </div>
-              <div class="mb-4">
+              <div class="mb-4 relative">
                 <label for="password" class="block text-gray-700 text-sm font-bold mb-2"
                   >密碼</label
                 >
                 <input
                   type="password"
+                  ref="passwordInputRef"
                   class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
                   placeholder="請輸入密碼"
                   autocomplete="current-password"
                   v-model="user.password"
+                />
+                <PasswordToggle
+                  :right="'4'"
+                  :bottom="'2'"
+                  @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)"
                 />
               </div>
             </form>

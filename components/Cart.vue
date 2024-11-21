@@ -119,12 +119,18 @@ const couponRule = (data: string | number): boolean => {
   data = data.toString();
   return couponValidatePattern.test(data);
 };
+
+const couponValidateConfig = {
+  rule: {
+    fn: () => couponRule(coupon.value),
+    errorMessage: "優惠券只有英文與數字"
+  }
+};
+
 const handleCouponInputValidation = async () => {
   try {
     const result = await validateInput(
-      couponRule,
-      coupon.value,
-      "優惠券只有英文與數字",
+      couponValidateConfig,
       couponInputErrorMessageRef.value as HTMLParagraphElement
     );
     return result;

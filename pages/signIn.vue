@@ -1,12 +1,7 @@
 <script lang="ts" setup>
-import {
-  nameValidatePattern,
-  emailValidatePattern,
-  telValidatePattern,
-  addressValidatePattern
-} from "@/utils/validatePattern";
 const indexStore = useIndexStore();
 const { addToast } = useToastStore();
+const { handleInputStopTextValidate } = useInputValidate();
 const {
   nameValidate,
   emailValidate,
@@ -34,7 +29,6 @@ const formateDate = computed(() => {
 const handleNameValidate = async () => {
   const result = await nameValidate(
     signInfo.value.name,
-    "",
     nameInputErrorMessageRef.value,
     nameInputRef.value
   );
@@ -43,7 +37,6 @@ const handleNameValidate = async () => {
 const handleEmailValidate = async () => {
   const result = await emailValidate(
     signInfo.value.email,
-    "",
     emailInputErrorMessageRef.value,
     emailInputRef.value
   );
@@ -52,7 +45,6 @@ const handleEmailValidate = async () => {
 const handleTelValidate = async () => {
   const result = await telValidate(
     signInfo.value.tel,
-    "",
     telInputErrorMessageRef.value,
     telInputRef.value
   );
@@ -61,7 +53,6 @@ const handleTelValidate = async () => {
 const handleAddressValidate = async () => {
   const result = await addressValidate(
     signInfo.value.address,
-    "",
     addressInputErrorMessageRef.value,
     addressInputRef.value
   );
@@ -70,7 +61,6 @@ const handleAddressValidate = async () => {
 const handlePasswordValidate = async () => {
   const result = await passwordValidate(
     signInfo.value.password,
-    "",
     passwordInputErrorMessageRef.value,
     passwordInputRef.value
   );
@@ -83,7 +73,6 @@ const handleConfirmPasswordValidate = async () => {
   const result = await confirmPasswordValidate(
     signInfo.value.confirmPassword,
     signInfo.value.password,
-    "",
     confirmPasswordInputErrorMessageRef.value,
     confirmPasswordInputRef.value
   );
@@ -137,6 +126,18 @@ const passwordInputRef = ref();
 const passwordInputErrorMessageRef = ref();
 const confirmPasswordInputRef = ref();
 const confirmPasswordInputErrorMessageRef = ref();
+const isShowPassword = ref(false);
+const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
+  const input = inputRef;
+  if (!input) {
+    return;
+  }
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+};
 </script>
 <template>
   <div class="container mx-auto px-6 py-5 dark:text-white">
@@ -149,11 +150,10 @@ const confirmPasswordInputErrorMessageRef = ref();
         <label class="block text-gray-700 dark:text-white" for="userName">姓名</label>
         <input
           ref="nameInputRef"
-          :pattern="nameValidatePattern.source"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
           placeholder="請輸入姓名"
           v-model.trim="signInfo.name"
-          @blur="handleNameValidate"
+          @input="(event) => handleInputStopTextValidate(event, handleNameValidate)"
         />
         <p
           ref="nameInputErrorMessageRef"
@@ -166,11 +166,10 @@ const confirmPasswordInputErrorMessageRef = ref();
         <label class="block text-gray-700 dark:text-white" for="email">電子郵件</label>
         <input
           ref="emailInputRef"
-          :pattern="emailValidatePattern.source"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
           placeholder="請輸入電子郵件"
           v-model.trim="signInfo.email"
-          @blur="handleEmailValidate"
+          @input="(event) => handleInputStopTextValidate(event, handleEmailValidate)"
         />
         <p
           ref="emailInputErrorMessageRef"
@@ -183,11 +182,10 @@ const confirmPasswordInputErrorMessageRef = ref();
         <label class="block text-gray-700 dark:text-white" for="tel">電話號碼</label>
         <input
           ref="telInputRef"
-          :pattern="telValidatePattern.source"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
           placeholder="請輸入電話號碼"
           v-model.trim="signInfo.tel"
-          @blur="handleTelValidate"
+          @input="(event) => handleInputStopTextValidate(event, handleTelValidate)"
         />
         <p
           ref="telInputErrorMessageRef"
@@ -200,11 +198,10 @@ const confirmPasswordInputErrorMessageRef = ref();
         <label class="block text-gray-700 dark:text-white" for="address">地址</label>
         <input
           ref="addressInputRef"
-          :pattern="addressValidatePattern.source"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
           placeholder="請輸入地址"
           v-model.trim="signInfo.address"
-          @blur="handleAddressValidate"
+          @input="(event) => handleInputStopTextValidate(event, handleAddressValidate)"
         />
         <p
           ref="addressInputErrorMessageRef"
@@ -264,11 +261,18 @@ const confirmPasswordInputErrorMessageRef = ref();
         <label class="block text-gray-700 dark:text-white" for="password">密碼</label>
         <input
           ref="passwordInputRef"
+          type="password"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
           placeholder="請輸入密碼"
           v-model.trim="signInfo.password"
-          @blur="handlePasswordValidate"
+          @input="(event) => handleInputStopTextValidate(event, handlePasswordValidate)"
         />
+        <PasswordToggle
+          :right="'4'"
+          :bottom="'2'"
+          @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)"
+        />
+
         <p
           ref="passwordInputErrorMessageRef"
           class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
@@ -279,10 +283,16 @@ const confirmPasswordInputErrorMessageRef = ref();
         <label class="block text-gray-700 dark:text-white" for="confirmPassword">確認密碼</label>
         <input
           ref="confirmPasswordInputRef"
+          type="password"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
           placeholder="請再次輸入密碼"
           v-model.trim="signInfo.confirmPassword"
-          @blur="handleConfirmPasswordValidate"
+          @input="(event) => handleInputStopTextValidate(event, handleConfirmPasswordValidate)"
+        />
+        <PasswordToggle
+          :right="'4'"
+          :bottom="'2'"
+          @emitToggleShowPassWord="toggleShowPassWord(confirmPasswordInputRef)"
         />
         <p
           ref="confirmPasswordInputErrorMessageRef"
