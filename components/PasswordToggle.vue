@@ -1,8 +1,8 @@
 <template>
   <svg
     v-if="!isShowPassword"
-    :class="toggleClass"
-    class="w-6 h-6 text-gray-800 dark:text-white absolute cursor-pointer"
+    class="w-6 h-6 text-gray-800 dark:text-white absolute cursor-pointer z-10"
+    :style="dynamicStyle"
     @click="toggleShowPassWord"
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
@@ -21,8 +21,8 @@
 
   <svg
     v-if="isShowPassword"
-    :class="toggleClass"
-    class="w-6 h-6 text-gray-800 dark:text-white absolute cursor-pointer"
+    class="w-6 h-6 text-gray-800 dark:text-white absolute cursor-pointer z-10"
+    :style="dynamicStyle"
     @click="toggleShowPassWord"
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
@@ -42,13 +42,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps } from "vue";
-
 // 接收父组件传递的右侧和底部位置参数
-const { right, bottom } = defineProps<{
-  right: string;
-  bottom: string;
-}>();
+interface Props {
+  right?: string;
+  bottom?: string;
+}
+const props = withDefaults(defineProps<Props>(), {
+  right: "2",
+  bottom: "4"
+});
 const emit = defineEmits(["emitToggleShowPassWord"]);
 const isShowPassword = ref(false);
 
@@ -57,8 +59,12 @@ const toggleShowPassWord = () => {
   isShowPassword.value = !isShowPassword.value;
   emit("emitToggleShowPassWord");
 };
-
-const toggleClass = `right-${right} bottom-${bottom}`;
+const tailwindSpaceUnit = 2; // 1 space unit = 2px
+const dynamicStyle = computed(() => {
+  const rightValue = Number(props.right) || 0; // 如果轉換失敗，設置為 0
+  const bottomValue = Number(props.bottom) || 0; // 如果轉換失敗，設置為 0
+  return `right:${rightValue * tailwindSpaceUnit}px; bottom:${bottomValue * tailwindSpaceUnit}px;`;
+});
 </script>
 
 <style scoped>

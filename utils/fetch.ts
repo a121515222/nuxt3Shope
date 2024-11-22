@@ -1,20 +1,23 @@
 export function useBaseFetch<T>(
   url: string,
   options = {},
-  urlType: "client" | "admin" | "check" = "client"
+  urlType: "client" | "admin" | "check" | "newClient" = "client"
 ) {
   const config = useRuntimeConfig();
   const baseUrl = config.public.baseApiUrl;
   const basePath = config.public.baseApiPath;
+  const baseApiUrl = config.public.baseApiNew;
   const { addToast } = useToastStore();
   const clientUrl = `${baseUrl}/api/${basePath}/${url}`;
   const adminUrl = `${baseUrl}/${url}`;
   const checkUrl = `${baseUrl}/api/user/${url}`;
+  const newClientUrl = `${baseApiUrl}/${url}`;
   const router = useRouter();
   const urlMap = {
     client: clientUrl,
     admin: adminUrl,
-    check: checkUrl
+    check: checkUrl,
+    newClient: newClientUrl
   };
   return $fetch<T>(urlMap[urlType], {
     ...options,
@@ -33,7 +36,6 @@ export function useBaseFetch<T>(
       }
     }
   }).catch((error) => {
-    console.log("useBaseFetch error", error);
     return Promise.reject(error); // 明確返回 Promise
   });
 }

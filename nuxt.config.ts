@@ -6,7 +6,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       baseApiUrl: "",
-      baseApiPath: ""
+      baseApiPath: "",
+      baseApiNew: ""
     }
   },
   devtools: { enabled: true },

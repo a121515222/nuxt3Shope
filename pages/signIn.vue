@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+import type { SignInDataType } from "@/types/singInTypes";
+import { postSignIn } from "@/apis/signIn";
+const messageBoxStore = useMessageBoxStore();
+const { showConfirm, showAlert } = messageBoxStore;
 const indexStore = useIndexStore();
 const { addToast } = useToastStore();
 const { handleInputStopTextValidate } = useInputValidate();
@@ -10,11 +14,13 @@ const {
   passwordValidate,
   confirmPasswordValidate
 } = useFormValidate();
+
 const datePickerRef = ref<HTMLElement | null>(null);
 const { showDatePicker, hideDatePicker, formateShowDate } = useDatePicker(datePickerRef);
-const { isDarkMode } = storeToRefs(indexStore);
-const signInfo = ref({
-  name: "",
+const { isDarkMode, isLoading } = storeToRefs(indexStore);
+const router = useRouter();
+const signInfo: Ref<SignInDataType> = ref({
+  username: "",
   email: "",
   tel: "",
   address: "",
@@ -24,11 +30,14 @@ const signInfo = ref({
   gender: null
 });
 const formateDate = computed(() => {
+  if (!signInfo.value.birthday) {
+    signInfo.value.birthday = new Date();
+  }
   return formateShowDate(signInfo.value.birthday);
 });
 const handleNameValidate = async () => {
   const result = await nameValidate(
-    signInfo.value.name,
+    signInfo.value.username,
     nameInputErrorMessageRef.value,
     nameInputRef.value
   );
@@ -88,16 +97,30 @@ const handleSendSignInfo = async () => {
     ]).then((results) => results.every(Boolean));
 
     if (isValid) {
-      // const res = await postOrderData(signInfo.value);
-      // const { message, orderId } = res;
-      // if (res.success) {
-      //   addToast({ type: "success", message });
-      // } else {
-      //   addToast({ type: "danger", message: "訂單建立失敗" });
-      // }
+      signInfo.value.birthday = new Date(signInfo.value.birthday).getTime();
+      isLoading.value = true;
+      const res = await postSignIn(signInfo.value);
+      if (res.status) {
+        addToast({ type: "success", message: res.message });
+        isLoading.value = false;
+        await handleSuccessSignIn();
+      } else {
+        addToast({ type: "danger", message: "註冊失敗" });
+      }
     }
   } catch (error) {
     console.error("資料驗證失敗", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+const handleSuccessSignIn = async () => {
+  const result = await showConfirm(
+    "完成註冊",
+    `請至${signInfo.value.email}信箱收取驗證信，並點擊信中連結完成註冊,確定後將導向登入頁面`
+  );
+  if (result) {
+    router.push("/login");
   }
 };
 const genderConfig = {
@@ -126,7 +149,6 @@ const passwordInputRef = ref();
 const passwordInputErrorMessageRef = ref();
 const confirmPasswordInputRef = ref();
 const confirmPasswordInputErrorMessageRef = ref();
-const isShowPassword = ref(false);
 const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
   const input = inputRef;
   if (!input) {
@@ -152,7 +174,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
           ref="nameInputRef"
           class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
           placeholder="請輸入姓名"
-          v-model.trim="signInfo.name"
+          v-model.trim="signInfo.username"
           @input="(event) => handleInputStopTextValidate(event, handleNameValidate)"
         />
         <p
@@ -267,11 +289,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
           v-model.trim="signInfo.password"
           @input="(event) => handleInputStopTextValidate(event, handlePasswordValidate)"
         />
-        <PasswordToggle
-          :right="'4'"
-          :bottom="'2'"
-          @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)"
-        />
+        <PasswordToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
 
         <p
           ref="passwordInputErrorMessageRef"
@@ -289,11 +307,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
           v-model.trim="signInfo.confirmPassword"
           @input="(event) => handleInputStopTextValidate(event, handleConfirmPasswordValidate)"
         />
-        <PasswordToggle
-          :right="'4'"
-          :bottom="'2'"
-          @emitToggleShowPassWord="toggleShowPassWord(confirmPasswordInputRef)"
-        />
+        <PasswordToggle @emitToggleShowPassWord="toggleShowPassWord(confirmPasswordInputRef)" />
         <p
           ref="confirmPasswordInputErrorMessageRef"
           class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
@@ -303,6 +317,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
     <button
       @click="handleSendSignInfo"
       class="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+      :disabled="isLoading"
     >
       送出資料
     </button>

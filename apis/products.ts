@@ -1,5 +1,5 @@
 import { useBaseFetch } from "@/utils/fetch";
-import { type FetchProductsData, type FetchProductData } from "~/types/productTypes";
+import type { FetchProductsData, FetchProductData } from "~/types/productTypes";
 export function getProducts() {
   return useBaseFetch<FetchProductsData>("products/all", {
     method: "GET",

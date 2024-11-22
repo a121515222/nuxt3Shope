@@ -81,8 +81,7 @@ const maxPriceRule = (): boolean => {
   if (maxPrice.value === "") {
     return true;
   }
-  if (maxPrice.value < minPrice.value) {
-    console.log("maxPriceRule", maxPrice.value < minPrice.value);
+  if (Number(maxPrice.value) < Number(minPrice.value)) {
     return false;
   } else {
     return true;
@@ -95,7 +94,7 @@ const minPriceRule = (): boolean => {
   if (minPrice.value === "") {
     return true;
   }
-  if (minPrice.value > maxPrice.value) {
+  if (Number(minPrice.value) > Number(maxPrice.value)) {
     return false;
   } else {
     return true;

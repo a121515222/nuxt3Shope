@@ -15,13 +15,13 @@ export const useMessageBoxStore = defineStore("messageBox", () => {
       resolvePromise = resolve;
     });
   };
-  const showAlert = (alertTitle: string, alertMessage: string): Promise<void> => {
+  const showAlert = (alertTitle: string, alertMessage: string): Promise<boolean> => {
     return new Promise((resolve) => {
       title.value = alertTitle;
       message.value = alertMessage;
       type.value = "alert";
       isVisible.value = true;
-      resolvePromise = () => resolve;
+      resolvePromise = resolve;
     });
   };
   const handleResponse = (response: boolean) => {

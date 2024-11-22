@@ -6,7 +6,7 @@ export const nameValidatePattern: RegExp = /^(?!\s*$)[A-Za-z\u4e00-\u9fa5\s]+$/;
 // mail格式
 export const emailValidatePattern: RegExp = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 // 手機與市話驗證可以支援分割符號 08-123-4567 0912-345-678 0912345678
-export const telValidatePattern: RegExp = /^09[0-9]{2}[-\s]?[0-9]{3}[-\s]?[0-9]{3}$/;
+export const telValidatePattern: RegExp = /^(?:0[2-9]-?\d{3,4}-?\d{3,4}|09\d{2}-?\d{3}-?\d{3})$/;
 // 可通過的地址格式
 //"台北市信義區信義路五段7號"
 // "台北市中正區重慶南路一段122號"

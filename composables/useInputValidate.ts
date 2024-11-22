@@ -1,13 +1,11 @@
 import type { RuleConfig } from "@/types/validateInputType";
-import { useThrottleFn } from "@vueuse/core";
 export function useInputValidate() {
-  const handleInputStopTextValidate = useThrottleFn((event: Event, callback: () => void) => {
-    console.log("handleInputStopTextValidate");
+  const handleInputStopTextValidate = (event: Event, callback: () => void) => {
     const target = event.target as HTMLInputElement;
     if (target) {
       callback();
     }
-  }, 500);
+  };
   const validateInput = (
     ruleConfig: RuleConfig,
     errorMessageRef: HTMLParagraphElement,

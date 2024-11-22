@@ -1,4 +1,3 @@
-import type { RuleConfig } from "@/types/validateInputType";
 import {
   nameValidatePattern,
   emailValidatePattern,
@@ -25,7 +24,6 @@ export function useFormValidate() {
     return passwordValidatePattern.test(String(data));
   };
   const confirmPasswordRule = (confirmPassword: string | number, password: string | number) => {
-    console.log("confirmPassword === password", confirmPassword === password);
     return confirmPassword === password;
   };
   const noBlankRule = (data: string | number) => {
@@ -34,49 +32,49 @@ export function useFormValidate() {
 
   const nameValidateRuleConfig = (data: string | number) => {
     return {
-      sevenNumberOneLetter: {
-        fn: () => nameRule(data),
-        errorMessage: "只能輸入英文或中文"
-      },
       noBlank: {
         fn: () => noBlankRule(data),
         errorMessage: "姓名不能包含空白"
+      },
+      sevenNumberOneLetter: {
+        fn: () => nameRule(data),
+        errorMessage: "只能輸入英文或中文"
       }
     };
   };
   const emailValidateRuleConfig = (data: string | number) => {
     return {
-      email: {
-        fn: () => emailRule(data),
-        errorMessage: "請輸入正確的電子郵件格式"
-      },
       noBlankRule: {
         fn: () => noBlankRule(data),
         errorMessage: "電子郵件格式不能包含空白"
+      },
+      email: {
+        fn: () => emailRule(data),
+        errorMessage: "請輸入正確的電子郵件格式"
       }
     };
   };
   const telValidateRuleConfig = (data: string | number) => {
     return {
-      tel: {
-        fn: () => telRule(data),
-        errorMessage: "請輸入正確的電話號碼格式"
-      },
       noBlankRule: {
         fn: () => noBlankRule(data),
         errorMessage: "電話不能包含空白"
+      },
+      tel: {
+        fn: () => telRule(data),
+        errorMessage: "請輸入正確的電話號碼格式"
       }
     };
   };
   const addressValidateRuleConfig = (data: string | number) => {
     return {
-      address: {
-        fn: () => addressRule(data),
-        errorMessage: "請輸入正確的地址格式"
-      },
       noBlankRule: {
         fn: () => noBlankRule(data),
         errorMessage: "地址不能包含空白"
+      },
+      address: {
+        fn: () => addressRule(data),
+        errorMessage: "請輸入正確的地址格式"
       }
     };
   };
