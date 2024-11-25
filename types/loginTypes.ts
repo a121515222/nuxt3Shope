@@ -1,14 +1,20 @@
 export interface UserLogin {
-  username: string;
+  account: string;
   password: string;
 }
 
 export interface UserLoginResponse {
-  success: boolean;
+  status: boolean;
   message: string;
-  uid: string;
-  token: string;
-  expired: number;
+  data: {
+    birthday: number;
+    email: string;
+    gender: string;
+    name: string;
+    rank: string;
+    token: string;
+    userId: string;
+  };
 }
 
 export interface CheckTokenResponse {

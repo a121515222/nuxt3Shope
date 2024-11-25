@@ -1,24 +1,49 @@
 <script lang="ts" setup>
-import { postLogin } from "@/apis/login";
+import { postLogin, postLoginNew } from "@/apis/login";
+import { resentVerifyMail } from "@/apis/resentVerifyMail";
+import { setCookie } from "@/utils/setCookie";
 import { type UserLogin } from "@/types/loginTypes";
+
 const indexStore = useIndexStore();
+const messageStore = useMessageBoxStore();
+const { showAlert } = messageStore;
 const { isLogin, headerHeight, windowHeight } = storeToRefs(indexStore);
 const user = ref<UserLogin>({
-  username: "",
+  account: "",
   password: ""
 });
+const isForgotPassword = ref(false);
 const router = useRouter();
-const login = async () => {
-  if (user.value.username === "" || user.value.password === "") {
+const handleSendInfo = async () => {
+  if (isForgotPassword.value) {
+    await handleResendVerifyMail();
+  } else {
+    await login();
+  }
+};
+const handleResendVerifyMail = async () => {
+  if (user.value.account === "") {
+    await showAlert("是不是忘了什麼?", "請輸入註冊帳號");
     return;
   } else {
-    const res = await postLogin(user.value);
+    const res = await resentVerifyMail(user.value.account);
+    if (res.status) {
+      await showAlert("驗證信已寄出", "請至信箱收取驗證信");
+    } else {
+      await showAlert("發生錯誤", "請稍後再試");
+    }
+  }
+};
+const login = async () => {
+  if (user.value.account === "" || user.value.password === "") {
+    showAlert("是不是忘了什麼?", "請輸入帳號密碼");
+    return;
+  } else {
+    const res = await postLoginNew(user.value);
     if (process.client) {
-      // cookie 好像沒辦法存時間
-      // document.cookie = `token=${res.token}; expires= ${new Date(res.expired)};`;
-      document.cookie = `token=${res.token}; `;
+      setCookie("token", res.data.token, 7);
       isLogin.value = true;
-      router.push("/admin/product");
+      // router.push("/admin/product");
     }
   }
 };
@@ -55,11 +80,11 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
                   id="account"
                   class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
                   placeholder="請輸入帳號(mail)"
-                  autocomplete="username"
-                  v-model="user.username"
+                  autocomplete="account"
+                  v-model="user.account"
                 />
               </div>
-              <div class="mb-4 relative">
+              <div class="mb-4 relative" v-if="!isForgotPassword">
                 <label for="password" class="block text-gray-700 text-sm font-bold mb-2"
                   >密碼</label
                 >
@@ -75,21 +100,34 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
               </div>
             </form>
           </div>
-          <div class="flex justify-end mb-3">
+          <div class="flex justify-end pr-4 mb-2">
             <button
               type="button"
-              class="bg-primary hover:opacity-80 mr-4 mb-6 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              class="bg-primary hover:opacity-80 mr-4 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               @click="goToSignIn"
+              v-if="!isForgotPassword"
             >
               註冊
             </button>
             <button
               type="button"
-              class="bg-primary hover:opacity-80 mr-4 mb-6 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              @click="login"
+              class="bg-primary hover:opacity-80 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              @click="handleSendInfo"
             >
-              登入
+              {{ isForgotPassword ? "重寄驗證信" : "登入" }}
             </button>
+          </div>
+          <div class="flex justify-end mb-3 pr-4 text-primary dark:text-secondary">
+            <p
+              class="hover:cursor-pointer"
+              @click="isForgotPassword = !isForgotPassword"
+              v-if="!isForgotPassword"
+            >
+              重寄驗證信/忘記密碼
+            </p>
+            <p class="hover:cursor-pointer" v-else @click="isForgotPassword = !isForgotPassword">
+              登入/註冊
+            </p>
           </div>
         </div>
       </div>

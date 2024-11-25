@@ -93,7 +93,9 @@ const handleSendSignInfo = async () => {
       handleNameValidate(),
       handleEmailValidate(),
       handleTelValidate(),
-      handleAddressValidate()
+      handleAddressValidate(),
+      handlePasswordValidate(),
+      handleConfirmPasswordValidate()
     ]).then((results) => results.every(Boolean));
 
     if (isValid) {

@@ -35,5 +35,11 @@ export default defineNuxtConfig({
     server: {
       proxy: {}
     }
+  },
+  devServer: {
+    https: {
+      key: "./https/localhost+3-key.pem",
+      cert: "./https/localhost+3.pem"
+    }
   }
 });
