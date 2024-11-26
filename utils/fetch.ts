@@ -22,7 +22,7 @@ export function useBaseFetch<T>(
   return $fetch<T>(urlMap[urlType], {
     ...options,
     timeout: 10000,
-    credentials: "include",
+    credentials: "include", //帶上cookie
     onResponseError: (error) => {
       console.error("$fetch error", error.response._data.message);
       addToast({

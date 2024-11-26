@@ -23,6 +23,7 @@ export interface CheckTokenResponse {
   uid?: string;
 }
 export interface LogOutResponse {
-  success: boolean;
-  uid: string;
+  status: boolean;
+  message: string;
+  data: null;
 }

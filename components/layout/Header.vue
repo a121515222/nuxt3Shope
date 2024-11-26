@@ -1,8 +1,10 @@
 <script lang="ts" setup>
-import { postLogOut } from "@/apis/login";
+import { postLogOut, postLogOutNew } from "@/apis/login";
 const headerRef = ref(null);
 const navbarRef = ref<HTMLElement | null>(null);
 const indexStore = useIndexStore();
+const { userId } = storeToRefs(indexStore);
+const { addToast } = useToastStore();
 const ariaExpanded = ref(false);
 const router = useRouter();
 const route = useRoute();
@@ -22,11 +24,12 @@ const getHeight = (ref: Ref<HTMLElement | null>, height: Ref<number>) => {
   }
 };
 const handleLogout = async () => {
-  const res = await postLogOut();
+  const res = await postLogOutNew(userId.value);
   if (process.client) {
-    document.cookie = `token=; `;
+    document.cookie = `authorization=; `;
   }
-  if (res.success) {
+  if (res.status) {
+    addToast({ type: "success", message: "成功登出" });
     isLogin.value = false;
     router.push("/login");
   }

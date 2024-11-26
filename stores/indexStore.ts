@@ -11,6 +11,7 @@ export const useIndexStore = defineStore("index", () => {
   const isLogin = ref(false);
   const windowHeight = ref(0);
   const isLoading = ref(false);
+  const userId = ref("");
   const shouldShowDarkMode = (): string => {
     return isDarkMode
       ? scrollY.value >= 50
@@ -60,6 +61,7 @@ export const useIndexStore = defineStore("index", () => {
     isShowAlert,
     isLogin,
     isLoading,
+    userId,
     shouldShowDarkMode,
     shouldShowDarkModeText,
     shouldShowDarkModeBackground,

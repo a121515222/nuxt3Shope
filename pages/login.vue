@@ -5,6 +5,7 @@ import { setCookie } from "@/utils/setCookie";
 import { type UserLogin } from "@/types/loginTypes";
 
 const indexStore = useIndexStore();
+const { userId } = storeToRefs(indexStore);
 const messageStore = useMessageBoxStore();
 const { showAlert } = messageStore;
 const { isLogin, headerHeight, windowHeight } = storeToRefs(indexStore);
@@ -41,7 +42,8 @@ const login = async () => {
   } else {
     const res = await postLoginNew(user.value);
     if (process.client) {
-      setCookie("token", res.data.token, 7);
+      userId.value = res.data.userId;
+      setCookie("authorization", res.data.token, 7);
       isLogin.value = true;
       // router.push("/admin/product");
     }

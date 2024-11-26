@@ -19,6 +19,21 @@ export function postLoginNew(data: UserLogin) {
     "newClient"
   );
 }
+export function postLogOutNew(id: string) {
+  const api_token = getCookie("authorization");
+  return useBaseFetch<LogOutResponse>(
+    "logOut",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      },
+      body: JSON.stringify({ id })
+    },
+    "newClient"
+  );
+}
 
 export function postLogin(data: UserLogin) {
   // #todo
@@ -37,7 +52,7 @@ export function postLogin(data: UserLogin) {
 }
 
 export function postLogOut() {
-  const api_token = getCookie("token");
+  const api_token = getCookie("authorization");
   return useBaseFetch<LogOutResponse>(
     "check",
     {
