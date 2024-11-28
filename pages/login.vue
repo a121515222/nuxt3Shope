@@ -98,7 +98,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
                   autocomplete="current-password"
                   v-model="user.password"
                 />
-                <PasswordToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
+                <InputToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
               </div>
             </form>
           </div>

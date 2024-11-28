@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type { SignInDataType } from "@/types/singInTypes";
 import { postSignIn } from "@/apis/signIn";
+import { genderConfig } from "@/utils/config";
 const messageBoxStore = useMessageBoxStore();
-const { showConfirm, showAlert } = messageBoxStore;
+const { showConfirm } = messageBoxStore;
 const indexStore = useIndexStore();
 const { addToast } = useToastStore();
 const { handleInputStopTextValidate } = useInputValidate();
@@ -123,20 +124,6 @@ const handleSuccessSignIn = async () => {
   );
   if (result) {
     router.push("/login");
-  }
-};
-const genderConfig = {
-  male: {
-    value: "male",
-    showText: "男性"
-  },
-  female: {
-    value: "female",
-    showText: "女性"
-  },
-  other: {
-    value: null,
-    showText: "不透露"
   }
 };
 const nameInputRef = ref();
@@ -291,7 +278,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
           v-model.trim="signInfo.password"
           @input="(event) => handleInputStopTextValidate(event, handlePasswordValidate)"
         />
-        <PasswordToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
+        <InputToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
 
         <p
           ref="passwordInputErrorMessageRef"
@@ -309,7 +296,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
           v-model.trim="signInfo.confirmPassword"
           @input="(event) => handleInputStopTextValidate(event, handleConfirmPasswordValidate)"
         />
-        <PasswordToggle @emitToggleShowPassWord="toggleShowPassWord(confirmPasswordInputRef)" />
+        <InputToggle @emitToggleShowPassWord="toggleShowPassWord(confirmPasswordInputRef)" />
         <p
           ref="confirmPasswordInputErrorMessageRef"
           class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"

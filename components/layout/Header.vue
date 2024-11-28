@@ -36,6 +36,10 @@ const handleLogout = async () => {
 };
 const navConfig = [
   {
+    name: "使用者資訊",
+    path: "/userInfo"
+  },
+  {
     name: "產品列表",
     path: "/productList"
   },
