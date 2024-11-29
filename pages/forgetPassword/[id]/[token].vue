@@ -120,7 +120,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
                 >
                 <input
                   type="password"
-                  ref="confirmPasswordInputRef"
+                  ref="newPasswordInputRef"
                   class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
                   placeholder="請輸入密碼"
                   autocomplete="current-password"
@@ -134,7 +134,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
                 />
 
                 <p
-                  ref="confirmPasswordInputErrorMessageRef"
+                  ref="newPasswordInputErrorMessageRef"
                   class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
                 ></p>
               </div>

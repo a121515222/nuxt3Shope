@@ -7,3 +7,11 @@ export function setCookie(name: string, value: string, days: number) {
   }
   document.cookie = `${name}=${value || ""}${expires}; path=/`;
 }
+
+export function getAuthorizationCookie() {
+  // 用正則表達式提取 key 為 'authorization' 的值
+  const match = document.cookie.match(/(?:^|;)\s*authorization=([^;]+)/);
+
+  // 如果找到了，返回值，否則返回 null
+  return match ? match[1] : null;
+}

@@ -1,13 +1,18 @@
 <script setup>
 import Toast from "@/components/Toast.vue";
 import MessageBox from "~/components/MessageBox.vue";
-import { postCheckLogin } from "@/apis/login";
+import { postCheckLoginNew } from "@/apis/login";
 const route = useRoute();
 const handleCheckLogin = async () => {
   // 如果是admin的路由，就檢查是否登入
   if (route.path.includes("/admin")) {
-    const res = await postCheckLogin();
-    if (res.success) {
+    const userId = localStorage.getItem("userId") ?? "";
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
+    const res = await postCheckLoginNew(userId);
+    if (res.status) {
       isLogin.value = true;
     } else {
       isLogin.value = false;

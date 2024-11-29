@@ -34,6 +34,21 @@ export function postLogOutNew(id: string) {
     "newClient"
   );
 }
+export function postCheckLoginNew(id: string) {
+  const api_token = getCookie("authorization");
+  return useBaseFetch<CheckTokenResponse>(
+    "logInCheck",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      },
+      body: JSON.stringify({ id })
+    },
+    "newClient"
+  );
+}
 
 export function postLogin(data: UserLogin) {
   // #todo

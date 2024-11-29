@@ -37,7 +37,7 @@ const handleLogout = async () => {
 const navConfig = [
   {
     name: "使用者資訊",
-    path: "/userInfo"
+    path: "/admin/userInfo"
   },
   {
     name: "產品列表",
@@ -79,6 +79,8 @@ const showNavbar = computed(() => {
     //#todo 這邊要改成權限判斷，第一條可以再加一個判斷是否為admin
     // 第二點可以增加是不是登入的狀態
     if (isLogin.value && list.path.includes("/admin")) {
+      result.push(list);
+    } else if (isLogin.value && list.path === "/userInfo") {
       result.push(list);
     } else if (list.path && !list.path.includes("/admin")) {
       result.push(list);

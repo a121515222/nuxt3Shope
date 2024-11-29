@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { postLogin, postLoginNew } from "@/apis/login";
 import { resentVerifyMail } from "@/apis/resentVerifyMail";
-import { setCookie } from "@/utils/setCookie";
+import { setCookie } from "@/utils/cookie";
 import { type UserLogin } from "@/types/loginTypes";
 
 const indexStore = useIndexStore();
@@ -42,10 +42,11 @@ const login = async () => {
   } else {
     const res = await postLoginNew(user.value);
     if (process.client) {
+      localStorage.setItem("userId", res.data.userId);
       userId.value = res.data.userId;
       setCookie("authorization", res.data.token, 7);
       isLogin.value = true;
-      // router.push("/admin/product");
+      router.push("/admin/userInfo");
     }
   }
 };

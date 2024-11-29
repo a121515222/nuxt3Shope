@@ -1,23 +1,26 @@
 <script lang="ts" setup>
-import type { UserInfoDataType } from "@/types/userInfoTypes";
+import type { UserInfoDataType, userInfoUpdateDataType } from "@/types/userInfoTypes";
 import { genderConfig } from "@/utils/config";
-const userInfo = ref<UserInfoDataType>({
+import { getUserInfo, updateUserInfo } from "@/apis/userInfo";
+const indexStore = useIndexStore();
+const { userId, isDarkMode, isLoading } = storeToRefs(indexStore);
+const userInfo = ref<userInfoUpdateDataType>({
   username: "",
   email: "",
   tel: "",
   address: "",
   birthday: "",
   password: "",
+  newPassword: "",
   confirmPassword: "",
-  gender: null
+  gender: null,
+  id: userId.value
 });
 const messageBoxStore = useMessageBoxStore();
 const { showConfirm } = messageBoxStore;
-const indexStore = useIndexStore();
 const { addToast } = useToastStore();
 const datePickerRef = ref<HTMLElement | null>(null);
 const { showDatePicker, hideDatePicker, formateShowDate } = useDatePicker(datePickerRef);
-const { isDarkMode, isLoading } = storeToRefs(indexStore);
 const {
   nameValidate,
   emailValidate,
@@ -65,11 +68,12 @@ const handleAddressValidate = async () => {
   );
   return result;
 };
-const handlePasswordValidate = async () => {
+const handleNwePasswordValidate = async () => {
   const result = await passwordValidate(
-    userInfo.value.password,
-    passwordInputErrorMessageRef.value,
-    passwordInputRef.value
+    userInfo.value.newPassword,
+    newPasswordInputErrorMessageRef.value,
+    newPasswordInputRef.value,
+    true
   );
   if (userInfo.value.confirmPassword) {
     await handleConfirmPasswordValidate();
@@ -79,9 +83,19 @@ const handlePasswordValidate = async () => {
 const handleConfirmPasswordValidate = async () => {
   const result = await confirmPasswordValidate(
     userInfo.value.confirmPassword,
-    userInfo.value.password,
+    userInfo.value.newPassword,
     confirmPasswordInputErrorMessageRef.value,
-    confirmPasswordInputRef.value
+    confirmPasswordInputRef.value,
+    true
+  );
+  return result;
+};
+const handlePasswordValidate = async () => {
+  const result = await passwordValidate(
+    userInfo.value.password,
+    passwordInputErrorMessageRef.value,
+    passwordInputRef.value,
+    true
   );
   return result;
 };
@@ -96,7 +110,59 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
     input.type = "password";
   }
 };
-const handleSendSignInfo = async () => {};
+const handleGetUserInfo = async () => {
+  if (process.client) {
+    userId.value = localStorage.getItem("userId") ?? "";
+  }
+  if (userId.value) {
+    const res = await getUserInfo(userId.value);
+    console.log("res", res);
+    if (res.status) {
+      const { username, birthday, gender, address, tel, email } = res.data;
+      userInfo.value.address = address;
+      userInfo.value.birthday = new Date(birthday);
+      userInfo.value.email = email;
+      userInfo.value.username = username;
+      userInfo.value.tel = tel;
+      userInfo.value.gender = gender;
+    } else {
+      addToast({ type: "danger", message: "取得資料失敗" });
+    }
+  } else {
+    addToast({ type: "danger", message: "尚未登入" });
+  }
+};
+const handleSendSignInfo = async () => {
+  try {
+    const isValid = await Promise.all([
+      handleNameValidate(),
+      handleEmailValidate(),
+      handleTelValidate(),
+      handleAddressValidate(),
+      handlePasswordValidate(),
+      handleNwePasswordValidate(),
+      handleConfirmPasswordValidate()
+    ]).then((results) => results.every(Boolean));
+
+    if (isValid) {
+      userInfo.value.birthday = new Date(userInfo.value.birthday).getTime();
+      isLoading.value = true;
+      const res = await updateUserInfo(userInfo.value);
+      console.log("res", res);
+      if (res.status) {
+        addToast({ type: "success", message: res.message });
+        await handleGetUserInfo();
+        isLoading.value = false;
+      } else {
+        addToast({ type: "danger", message: "註冊失敗" });
+      }
+    }
+  } catch (error) {
+    console.error("資料驗證失敗", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 const isEdit = ref(false);
 const nameInputRef = ref();
 const nameInputErrorMessageRef = ref();
@@ -106,10 +172,15 @@ const telInputRef = ref();
 const telInputErrorMessageRef = ref();
 const addressInputRef = ref();
 const addressInputErrorMessageRef = ref();
-const passwordInputRef = ref();
-const passwordInputErrorMessageRef = ref();
+const newPasswordInputRef = ref();
+const newPasswordInputErrorMessageRef = ref();
 const confirmPasswordInputRef = ref();
 const confirmPasswordInputErrorMessageRef = ref();
+const passwordInputRef = ref();
+const passwordInputErrorMessageRef = ref();
+onMounted(async () => {
+  await handleGetUserInfo();
+});
 </script>
 <template>
   <div class="flex justify-between">
@@ -244,22 +315,22 @@ const confirmPasswordInputErrorMessageRef = ref();
         </option>
       </select>
     </div>
-    <!-- 密碼欄位 -->
+    <!-- 新密碼欄位 -->
     <div class="relative mb-4">
-      <label class="block text-gray-700 dark:text-white" for="password">密碼</label>
+      <label class="block text-gray-700 dark:text-white" for="password">新密碼</label>
       <input
-        ref="passwordInputRef"
+        ref="newPasswordInputRef"
         type="password"
         class="inputStyle"
-        placeholder="請輸入密碼"
+        placeholder="請輸入新密碼"
         :disabled="!isEdit"
-        v-model.trim="userInfo.password"
-        @input="(event) => handleInputStopTextValidate(event, handlePasswordValidate)"
+        v-model.trim="userInfo.newPassword"
+        @input="(event) => handleInputStopTextValidate(event, handleNwePasswordValidate)"
       />
-      <InputToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
+      <InputToggle @emitToggleShowPassWord="toggleShowPassWord(newPasswordInputRef)" />
 
       <p
-        ref="passwordInputErrorMessageRef"
+        ref="newPasswordInputErrorMessageRef"
         class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
       ></p>
     </div>
@@ -271,13 +342,30 @@ const confirmPasswordInputErrorMessageRef = ref();
         type="password"
         :disabled="!isEdit"
         class="inputStyle"
-        placeholder="請再次輸入密碼"
+        placeholder="請輸入確認密碼"
         v-model.trim="userInfo.confirmPassword"
         @input="(event) => handleInputStopTextValidate(event, handleConfirmPasswordValidate)"
       />
       <InputToggle @emitToggleShowPassWord="toggleShowPassWord(confirmPasswordInputRef)" />
       <p
-        ref="confirmPasswordInputErrorMessageRef"
+        ref="passwordInputErrorMessageRef"
+        class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
+      ></p>
+    </div>
+    <div class="relative mb-4">
+      <label class="block text-gray-700 dark:text-white" for="oldPassword">原有密碼</label>
+      <input
+        ref="passwordInputRef"
+        type="password"
+        :disabled="!isEdit"
+        class="inputStyle"
+        placeholder="請輸入原有密碼"
+        v-model.trim="userInfo.password"
+        @input="(event) => handleInputStopTextValidate(event, handlePasswordValidate)"
+      />
+      <InputToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
+      <p
+        ref="passwordInputErrorMessageRef"
         class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
       ></p>
     </div>

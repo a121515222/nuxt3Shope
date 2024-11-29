@@ -183,13 +183,17 @@ export function useFormValidate() {
   const passwordValidate = async (
     password: string,
     errorMessageRef: HTMLParagraphElement | null,
-    inputRef: HTMLInputElement | null
+    inputRef: HTMLInputElement | null,
+    isAllowBlank: boolean = false
   ): Promise<boolean> => {
     if (errorMessageRef === null || inputRef === null) {
       console.warn("errorMessageRef 或 inputRef 為 null");
       return Promise.resolve(false);
     }
     try {
+      if (isAllowBlank && password === "") {
+        return true;
+      }
       const result = await validateInput(
         passwordValidateRuleConfig(password),
         errorMessageRef,
@@ -205,12 +209,16 @@ export function useFormValidate() {
     confirmPassword: string,
     password: string,
     errorMessageRef: HTMLParagraphElement | null,
-    inputRef: HTMLInputElement | null
+    inputRef: HTMLInputElement | null,
+    isAllowBlank: boolean = false
   ): Promise<boolean> => {
     if (errorMessageRef === null || inputRef === null) {
       return Promise.resolve(false);
     }
     try {
+      if (isAllowBlank && password === "" && confirmPassword === "") {
+        return true;
+      }
       const result = await validateInput(
         confirmPasswordValidateRuleConfig(confirmPassword, password),
         errorMessageRef,
