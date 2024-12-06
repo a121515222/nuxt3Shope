@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import {
-  getAdminProducts,
-  postAdminProduct,
-  putAdminProduct,
-  deleteAdminProduct
+  getUserProducts,
+  postUserProduct,
+  putUserProduct,
+  deleteUserProduct
 } from "@/apis/adminProduct";
-import { postAdminImageUpload } from "@/apis/adminUpload";
-import { type AdminProduct } from "@/types/adminProductTypes";
+import { postAdminImageUpload, postImageUpload } from "@/apis/adminUpload";
+import type { AdminProduct } from "@/types/adminProductTypes";
 
 const messageBoxStore = useMessageBoxStore();
 const indexStore = useIndexStore();
@@ -14,50 +14,62 @@ const { isLoading } = storeToRefs(indexStore);
 const { showConfirm } = messageBoxStore;
 const { addToast } = useToastStore();
 const isAddNewProduct = ref(false);
-const products = ref<AdminProduct[]>([]);
+const productsList = ref<AdminProduct[]>([]);
 const postId = ref("");
 const productTemp = ref<AdminProduct>({
-  id: "",
+  _id: "",
   title: "",
-  origin_price: 0,
-  price: 0,
+  price: null,
   unit: "",
-  is_enabled: 0,
-  category: "",
+  productStatus: 0,
+  category: [],
   description: "",
   content: "",
   imageUrl: "",
   imagesUrl: [],
-  num: 0
+  tag: [],
+  num: null,
+  userId: "",
+  discount: null,
+  createdAt: new Date(),
+  updatedAt: new Date()
 });
 const modalData = ref<AdminProduct>({
-  id: "",
+  _id: "",
   title: "",
-  origin_price: 0,
-  price: 0,
+  price: null,
   unit: "",
-  is_enabled: 0,
-  category: "",
+  productStatus: 0,
+  category: [],
   description: "",
   content: "",
   imageUrl: "",
   imagesUrl: [],
-  num: 0
+  tag: [],
+  num: null,
+  userId: "",
+  discount: null,
+  createdAt: new Date(),
+  updatedAt: new Date()
 });
 const resetModalData = () => {
   modalData.value = {
-    id: "",
+    _id: "",
     title: "",
-    origin_price: 0,
-    price: 0,
+    price: null,
     unit: "",
-    is_enabled: 0,
-    category: "",
+    productStatus: 0,
+    category: [],
     description: "",
     content: "",
     imageUrl: "",
     imagesUrl: [],
-    num: 0
+    tag: [],
+    num: null,
+    userId: "",
+    discount: null,
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 };
 const productStatus = ref([
@@ -76,10 +88,12 @@ const shouldProductActive = (isEnabled: number) => {
   return productStatus.value.find((status) => status.value === isEnabled)?.status || "";
 };
 const paginationData = ref();
-const handleGetAdminProducts = async (page: number = 1) => {
-  const res = await getAdminProducts(page);
-  products.value = res.products;
-  paginationData.value = res.pagination;
+const handleGetAdminProducts = async (page: number = 1, limit: number = 10) => {
+  const userId = localStorage.getItem("userId") ?? "";
+  const res = await getUserProducts(page, limit, userId);
+  const { products, pagination } = res.data;
+  productsList.value = products;
+  paginationData.value = pagination;
 };
 const handleModalConfirm = async () => {
   if (isAddNewProduct.value) {
@@ -93,8 +107,11 @@ const handleModalConfirm = async () => {
 const handleAddProduct = async () => {
   try {
     isLoading.value = true;
-    const res = await postAdminProduct(modalData.value);
-    if (res.success) {
+    if (process.client) {
+      modalData.value.userId = localStorage.getItem("userId") ?? "";
+    }
+    const res = await postUserProduct(modalData.value);
+    if (res.status) {
       addToast({ type: "success", message: "新增成功" });
       await handleGetAdminProducts();
     } else {
@@ -109,8 +126,11 @@ const handleAddProduct = async () => {
 const handleEditProduct = async () => {
   try {
     isLoading.value = true;
-    const res = await putAdminProduct(modalData.value);
-    if (res.success) {
+    if (process.client) {
+      modalData.value.userId = localStorage.getItem("userId") ?? "";
+    }
+    const res = await putUserProduct(modalData.value);
+    if (res.status) {
       addToast({ type: "success", message: "編輯成功" });
       await handleGetAdminProducts();
     } else {
@@ -125,8 +145,8 @@ const handleEditProduct = async () => {
 const handleDeleteAdminProduct = async (id: string) => {
   const result = await showConfirm("確定要刪除產品嗎?", "刪除商品");
   if (result) {
-    const res = await deleteAdminProduct(id);
-    if (res.success) {
+    const res = await deleteUserProduct(id);
+    if (res.status) {
       addToast({ type: "success", message: "刪除成功" });
       await handleGetAdminProducts();
     } else {
@@ -143,7 +163,7 @@ const showProduct = (item: AdminProduct) => {
 const openModal = (item: string | AdminProduct = "") => {
   if (modalRef.value) {
     modalRef.value.modalShow();
-    if (typeof item !== "string" && item.id) {
+    if (typeof item !== "string" && item._id) {
       modalData.value = item;
     }
   }
@@ -157,25 +177,27 @@ const uploadImg = async () => {
       return;
     }
     const file = files[0];
-    const res = await postAdminImageUpload(file);
-    if (res.success) {
+    const userId = localStorage.getItem("userId") ?? "";
+    const res = await postImageUpload(file, userId);
+    if (res.status) {
       if (!modalData.value.imagesUrl) {
         modalData.value.imagesUrl = [];
       }
-      if (res.imageUrl) {
+      if (res.data.imageUrl) {
         if (!modalData.value.imageUrl) {
-          modalData.value.imageUrl = res.imageUrl;
+          modalData.value.imageUrl = res.data.imageUrl;
         } else {
           if (!modalData.value.imagesUrl) {
             modalData.value.imagesUrl = [];
           }
-          modalData.value.imagesUrl.push(res.imageUrl);
+          modalData.value.imagesUrl.push(res.data.imageUrl);
         }
         addToast({ type: "success", message: "上傳成功" });
       }
     } else {
       addToast({ type: "danger", message: "上傳失敗" });
     }
+    uploadFileRef.value.value = "";
   }
 };
 const addImg = () => {
@@ -233,17 +255,19 @@ onMounted(async () => {
           </thead>
           <tbody>
             <tr
-              v-for="(item, index) in products"
-              :key="item.id + index"
+              v-for="(item, index) in productsList"
+              :key="item._id + index"
               class="hover:bg-gray-500 hover:text-white dark:hover:bg-gray-800 text-nowrap"
               :class="{ 'bg-gray-300 dark:bg-gray-400': index % 2 === 0 }"
             >
               <td class="border px-4 py-2 text-center">{{ item.title }}</td>
-              <td class="border px-4 py-2 text-center">{{ item.origin_price }}</td>
               <td class="border px-4 py-2 text-center">{{ item.price }}</td>
+              <td class="border px-4 py-2 text-center">
+                {{ (item.price ?? 0) * (item.discount ?? 1) }}
+              </td>
               <td class="border px-4 py-2 text-center">{{ item.unit }}</td>
               <td class="border px-4 py-2 text-center">
-                {{ shouldProductActive(item.is_enabled) }}
+                {{ shouldProductActive(item.productStatus) }}
               </td>
               <td class="border px-4 py-2 text-center">
                 <button class="btn btn-outline-primary" type="button" @click="showProduct(item)">
@@ -257,7 +281,7 @@ onMounted(async () => {
                   :disabled="isLoading"
                   :class="{ 'cursor-not-allowed': isLoading }"
                   @click="
-                    postId = item.id;
+                    postId = item._id;
                     isAddNewProduct = false;
                     openModal(item);
                   "
@@ -271,8 +295,8 @@ onMounted(async () => {
                   :disabled="isLoading"
                   :class="{ 'cursor-not-allowed': isLoading }"
                   @click="
-                    postId = item.id;
-                    handleDeleteAdminProduct(item.id);
+                    postId = item._id;
+                    handleDeleteAdminProduct(item._id);
                   "
                 >
                   <span v-if="isLoading" class="spinner-border spinner-border-sm"></span>
@@ -282,7 +306,7 @@ onMounted(async () => {
             </tr>
           </tbody>
         </table>
-        <p class="p-1">一共有 {{ products.length }} 項產品</p>
+        <p class="p-1">一共有 {{ productsList.length }} 項產品</p>
       </div>
 
       <Pagination :pagination="paginationData" @changePage="handleChangePage" />
@@ -290,7 +314,7 @@ onMounted(async () => {
 
     <h2 class="text-2xl font-semibold mt-6">單一產品細節</h2>
     <div class="w-full lg:w-2/3 mx-auto py-3">
-      <template v-if="productTemp.id">
+      <template v-if="productTemp._id">
         <div class="card">
           <div class="card-body">
             <div class="img">
@@ -312,7 +336,7 @@ onMounted(async () => {
             <p>商品內容: {{ productTemp.content }}</p>
             <div class="flex items-center space-x-2">
               <span class="text-xl">{{ productTemp.price }} 元</span>
-              <span class="line-through text-gray-500">{{ productTemp.origin_price }}</span>
+              <span class="line-through text-gray-500">{{ productTemp.price }}</span>
               <span>元/{{ productTemp.unit }}</span>
             </div>
           </div>
@@ -456,28 +480,56 @@ onMounted(async () => {
             <input
               class="block inputStyle"
               type="number"
-              id="productOrigin_price"
+              id="productPrice"
               placeholder="請輸入產品原價"
               min="0"
-              v-model.number="modalData.origin_price"
+              v-model.number="modalData.price"
             />
           </div>
           <div class="mb-3">
-            <label class="block text-gray-700 dark:text-white" for="productPrice">產品售價</label>
+            <label class="block text-gray-700 dark:text-white" for="productPrice">產品折扣</label>
             <input
               class="block inputStyle"
               type="number"
-              id="productPrice"
+              id="productDiscount"
               placeholder="請輸入產品售價"
               min="0"
-              v-model.number="modalData.price"
+              v-model.number="modalData.discount"
             />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div class="mb-3">
-            <label class="block text-gray-700 dark:text-white" for="is_enabled">產品狀態</label>
-            <select class="block inputStyle" id="is_enabled" v-model.number="modalData.is_enabled">
+            <label class="block text-gray-700 dark:text-white" for="productNum">產品數量</label>
+            <input
+              class="block inputStyle"
+              type="number"
+              id="productNum"
+              placeholder="請輸入產品數量"
+              min="0"
+              v-model.number="modalData.num"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="block text-gray-700 dark:text-white" for="productTag">產品售價</label>
+            <input
+              class="block inputStyle"
+              type="number"
+              id="productSellPrice"
+              placeholder="請輸入產品數量"
+              disabled
+              :value="((modalData.price ?? 0) * (modalData.discount ?? 1)) / 100"
+            />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="mb-3">
+            <label class="block text-gray-700 dark:text-white" for="productStatus">產品狀態</label>
+            <select
+              class="block inputStyle"
+              id="productStatus"
+              v-model.number="modalData.productStatus"
+            >
               <option value="" disabled>請選擇產品狀態</option>
               <option v-for="status in productStatus" :key="status.value" :value="status.value">
                 {{ status.status }}

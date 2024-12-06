@@ -44,7 +44,7 @@ export function postCheckLoginNew(id: string) {
         "Content-Type": "application/json",
         Authorization: `${api_token}`
       },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ userId: id })
     },
     "newClient"
   );
