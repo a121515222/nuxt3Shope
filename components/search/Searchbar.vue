@@ -143,7 +143,6 @@ const handleMinPriceBlurValidation = async () => {
     );
     emitValidateResult(result);
   } catch (error) {
-    console.log("minPrice驗證失敗", error);
     emitValidateResult(false);
   }
 };
@@ -157,7 +156,6 @@ const handleMaxPriceBlurValidation = async () => {
 
     emitValidateResult(result);
   } catch (error) {
-    console.log("maxPrice驗證失敗", error);
     emitValidateResult(false);
   }
 };

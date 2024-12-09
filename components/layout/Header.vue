@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { postLogOut, postLogOutNew } from "@/apis/login";
+import { clearCookie } from "@/utils/cookie";
 const headerRef = ref(null);
 const navbarRef = ref<HTMLElement | null>(null);
 const indexStore = useIndexStore();
@@ -26,7 +27,8 @@ const getHeight = (ref: Ref<HTMLElement | null>, height: Ref<number>) => {
 const handleLogout = async () => {
   const res = await postLogOutNew(userId.value);
   if (process.client) {
-    document.cookie = `authorization=; `;
+    clearCookie("authorization");
+    localStorage.removeItem("userId");
   }
   if (res.status) {
     addToast({ type: "success", message: "成功登出" });

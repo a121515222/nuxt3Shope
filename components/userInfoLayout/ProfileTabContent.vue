@@ -116,7 +116,6 @@ const handleGetUserInfo = async () => {
   }
   if (userId.value) {
     const res = await getUserInfo(userId.value);
-    console.log("res", res);
     if (res.status) {
       const { username, birthday, gender, address, tel, email } = res.data;
       userInfo.value.address = address;
@@ -148,7 +147,6 @@ const handleSendSignInfo = async () => {
       userInfo.value.birthday = new Date(userInfo.value.birthday).getTime();
       isLoading.value = true;
       const res = await updateUserInfo(userInfo.value);
-      console.log("res", res);
       if (res.status) {
         addToast({ type: "success", message: res.message });
         await handleGetUserInfo();

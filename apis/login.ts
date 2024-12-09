@@ -19,7 +19,7 @@ export function postLoginNew(data: UserLogin) {
     "newClient"
   );
 }
-export function postLogOutNew(id: string) {
+export function postLogOutNew(userId: string) {
   const api_token = getCookie("authorization");
   return useBaseFetch<LogOutResponse>(
     "logOut",
@@ -29,7 +29,7 @@ export function postLogOutNew(id: string) {
         "Content-Type": "application/json",
         Authorization: `${api_token}`
       },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ userId })
     },
     "newClient"
   );

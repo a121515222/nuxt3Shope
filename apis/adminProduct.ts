@@ -4,7 +4,7 @@ import {
   type AdminProductResponse
 } from "@/types/adminProductTypes";
 import { useBaseFetch } from "@/utils/fetch";
-
+import { getCookie } from "@/utils/auth";
 export function getUserProducts(page: number | string, limit: number | string, userId: string) {
   const api_token = getCookie("authorization");
   return useBaseFetch<FetchAdminProduct>(

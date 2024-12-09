@@ -1,12 +1,13 @@
 <script lang="ts" setup>
+import type { AdminProduct } from "@/types/adminProductTypes";
 import {
   getUserProducts,
   postUserProduct,
   putUserProduct,
   deleteUserProduct
 } from "@/apis/adminProduct";
+import { handleImageError } from "@/utils/imageHandler";
 import { postAdminImageUpload, postImageUpload } from "@/apis/adminUpload";
-import type { AdminProduct } from "@/types/adminProductTypes";
 
 const messageBoxStore = useMessageBoxStore();
 const indexStore = useIndexStore();
@@ -81,8 +82,9 @@ const productStatus = ref([
   { value: 5, status: "待下架" }
 ]);
 const modalRef = ref<{ modalShow: () => void } | null>(null);
-
-const editorData = ref("");
+const sellPrice = computed(() => {
+  return ((modalData.value.price ?? 0) * (modalData.value.discount ?? 100)) / 100;
+});
 // #todo isEnabled 自己做後端的時候命名要改
 const shouldProductActive = (isEnabled: number) => {
   return productStatus.value.find((status) => status.value === isEnabled)?.status || "";
@@ -320,24 +322,45 @@ onMounted(async () => {
             <div class="img">
               <img
                 class="w-full object-cover"
-                :src="productTemp.imageUrl || '../../public/defaultImg/image-1@2x.jpg'"
+                :src="productTemp.imageUrl"
                 :alt="productTemp.title"
+                @error="handleImageError"
                 loading="lazy"
               />
             </div>
-            <div class="flex items-center">
-              <p class="text-lg">
-                {{ productTemp.title }}
-                <span class="badge bg-primary">{{ productTemp.category }}</span>
-              </p>
+            <h3 class="text-lg font-semibold mt-2">商品標題:</h3>
+            <p class="text-lg">
+              {{ productTemp.title }}
+            </p>
+            <h3 class="text-lg font-semibold mt-2">商品分類:</h3>
+            <div class="flex items-center space-x-2">
+              <span
+                v-for="(item, index) in productTemp.category"
+                :key="item + index"
+                class="badge bg-primary"
+              >
+                {{ item }}
+              </span>
             </div>
+            <h3 class="text-lg font-semibold mt-2">商品標籤:</h3>
+            <div class="flex items-center space-x-2">
+              <span
+                v-for="(tag, index) in productTemp.tag"
+                :key="tag + index"
+                class="badge bg-primary"
+              >
+                {{ tag }}
+              </span>
+            </div>
+
             <h3 class="text-lg font-semibold mt-2">商品描述:</h3>
             <p v-html="productTemp.description"></p>
-            <p>商品內容: {{ productTemp.content }}</p>
+            <h3 class="text-lg font-semibold mt-2">商品內容:</h3>
+            <p v-html="productTemp.content"></p>
             <div class="flex items-center space-x-2">
               <span class="text-xl">{{ productTemp.price }} 元</span>
               <span class="line-through text-gray-500">{{ productTemp.price }}</span>
-              <span>元/{{ productTemp.unit }}</span>
+              <span>元{{ productTemp.unit }}</span>
             </div>
           </div>
         </div>
@@ -345,7 +368,8 @@ onMounted(async () => {
           <div class="w-1/4" v-for="(img, index) in productTemp.imagesUrl" :key="img + index">
             <img
               class="w-full object-cover"
-              :src="img || '../../public/defaultImg/image-1@2x.jpg'"
+              :src="img"
+              @error="handleImageError"
               :alt="productTemp.title"
               loading="lazy"
             />
@@ -390,6 +414,7 @@ onMounted(async () => {
           <img
             class="w-full h-auto"
             :src="modalData.imageUrl || '/defaultImg/image-1@2x.jpg'"
+            @error="handleImageError"
             :alt="modalData.title + ' picture'"
             :title="modalData.title"
             loading="lazy"
@@ -413,6 +438,7 @@ onMounted(async () => {
             <img
               class="w-full h-auto"
               :src="item || '/defaultImg/image-1@2x.jpg'"
+              @error="handleImageError"
               :alt="modalData.title"
               loading="lazy"
             />
@@ -463,13 +489,17 @@ onMounted(async () => {
           />
         </div>
         <div class="mb-3">
-          <label class="block text-gray-700 dark:text-white" for="productContent">產品內容</label>
+          <label class="block text-gray-700 dark:text-white" for="productCategory">產品標籤</label>
+          <AddTag v-model="modalData.tag"></AddTag>
+        </div>
+        <div class="mb-3">
+          <label class="block text-gray-700 dark:text-white" for="productContent">產品描述</label>
           <input
             class="block inputStyle"
             type="text"
             id="productContent"
             placeholder="請輸入產品內容"
-            v-model.trim="modalData.content"
+            v-model.trim="modalData.description"
           />
         </div>
         <div class="grid grid-cols-2 gap-4">
@@ -492,8 +522,9 @@ onMounted(async () => {
               class="block inputStyle"
               type="number"
               id="productDiscount"
-              placeholder="請輸入產品售價"
+              placeholder="請輸入產品折扣100為原價，80為原價的80%"
               min="0"
+              max="100"
               v-model.number="modalData.discount"
             />
           </div>
@@ -518,7 +549,7 @@ onMounted(async () => {
               id="productSellPrice"
               placeholder="請輸入產品數量"
               disabled
-              :value="((modalData.price ?? 0) * (modalData.discount ?? 1)) / 100"
+              :value="sellPrice"
             />
           </div>
         </div>
@@ -549,9 +580,9 @@ onMounted(async () => {
         </div>
         <div class="mb-3">
           <label class="block text-gray-700 dark:text-white" for="productDescription"
-            >產品描述</label
+            >產品內容</label
           >
-          <TheCkeditor v-model="editorData"></TheCkeditor>
+          <TheCkeditor v-model="modalData.content"></TheCkeditor>
         </div>
       </div>
     </div>

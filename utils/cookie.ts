@@ -15,3 +15,6 @@ export function getAuthorizationCookie() {
   // 如果找到了，返回值，否則返回 null
   return match ? match[1] : null;
 }
+export function clearCookie(name: string, path = "/") {
+  document.cookie = `${name}=; path=${path}; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+}

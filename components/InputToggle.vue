@@ -1,5 +1,41 @@
+<script lang="ts" setup>
+// 接收父组件传递的右侧和底部位置参数
+interface Props {
+  right?: string;
+  bottom?: string;
+  operate?: string;
+}
+// const props = withDefaults(defineProps<Props>(), {
+//   right: "2",
+//   bottom: "4",
+//   operate: "password"
+// });
+
+const { right = "2", bottom = "4", operate = "password" } = defineProps<Props>();
+
+const emit = defineEmits(["emitToggleShowPassWord", "emitToggleEdit"]);
+const isShowPassword = ref(false);
+const toggleIcon = ref(false);
+// 切换密码显示/隐藏状态
+const toggleShowPassWord = () => {
+  isShowPassword.value = !isShowPassword.value;
+  emit("emitToggleShowPassWord");
+};
+// 切换编辑状态
+const toggleEdit = () => {
+  toggleIcon.value = !toggleIcon.value;
+  emit("emitToggleEdit");
+};
+const tailwindSpaceUnit = 2; // 1 space unit = 2px
+const dynamicStyle = computed(() => {
+  const rightValue = Number(right) || 0; // 如果轉換失敗，設置為 0
+  const bottomValue = Number(bottom) || 0; // 如果轉換失敗，設置為 0
+  return `right:${rightValue * tailwindSpaceUnit}px; bottom:${bottomValue * tailwindSpaceUnit}px;`;
+});
+</script>
+
 <template>
-  <div v-if="props.operate === 'password'">
+  <div v-if="operate === 'password'">
     <svg
       v-if="!isShowPassword"
       class="w-6 h-6 text-gray-800 dark:text-white absolute cursor-pointer z-10"
@@ -41,7 +77,7 @@
       />
     </svg>
   </div>
-  <div v-else-if="props.operate === 'edit'">
+  <div v-else-if="operate === 'edit'">
     <svg
       v-if="!toggleIcon"
       class="w-6 h-6 text-gray-800 dark:text-white absolute cursor-pointer z-10"
@@ -87,39 +123,6 @@
     </svg>
   </div>
 </template>
-
-<script lang="ts" setup>
-// 接收父组件传递的右侧和底部位置参数
-interface Props {
-  right?: string;
-  bottom?: string;
-  operate?: string;
-}
-const props = withDefaults(defineProps<Props>(), {
-  right: "2",
-  bottom: "4",
-  operate: "password"
-});
-const emit = defineEmits(["emitToggleShowPassWord", "emitToggleEdit"]);
-const isShowPassword = ref(false);
-const toggleIcon = ref(false);
-// 切换密码显示/隐藏状态
-const toggleShowPassWord = () => {
-  isShowPassword.value = !isShowPassword.value;
-  emit("emitToggleShowPassWord");
-};
-// 切换编辑状态
-const toggleEdit = () => {
-  toggleIcon.value = !toggleIcon.value;
-  emit("emitToggleEdit");
-};
-const tailwindSpaceUnit = 2; // 1 space unit = 2px
-const dynamicStyle = computed(() => {
-  const rightValue = Number(props.right) || 0; // 如果轉換失敗，設置為 0
-  const bottomValue = Number(props.bottom) || 0; // 如果轉換失敗，設置為 0
-  return `right:${rightValue * tailwindSpaceUnit}px; bottom:${bottomValue * tailwindSpaceUnit}px;`;
-});
-</script>
 
 <style scoped>
 /* 你可以添加自定义的样式 */

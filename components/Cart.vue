@@ -134,9 +134,7 @@ const handleCouponInputValidation = async () => {
       couponInputErrorMessageRef.value as HTMLParagraphElement
     );
     return result;
-  } catch (error) {
-    console.log("coupon驗證失敗", error);
-  }
+  } catch (error) {}
 };
 const handleCoupon = async () => {
   const result = await handleCouponInputValidation();
@@ -145,17 +143,14 @@ const handleCoupon = async () => {
       return;
     } else {
       const res = await postCoupon({ code: coupon.value });
-      console.log("coupon", res);
 
       const { final_total } = res.data;
       const { message } = res;
       finalTotal.value = final_total || "金額異常";
       if (res?.success) {
         addToast({ type: "success", message });
-        console.log("coupon", coupon.value);
       } else {
         addToast({ type: "danger", message: "優惠券驗證失敗" });
-        console.log("coupon", coupon.value);
       }
     }
   }

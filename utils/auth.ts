@@ -1,12 +1,6 @@
-export function getCookie(name: string) {
-  const cookieArr = document.cookie.split("; ");
-  for (let i = 0; i < cookieArr.length; i++) {
-    const cookiePair = cookieArr[i].split("=");
-    if (name === cookiePair[0]) {
-      return decodeURIComponent(cookiePair[1]);
-    }
-  }
-  return null; // 如果找不到 cookie，則返回 null
+export function getCookie(name: string): string | null {
+  const cookie = document.cookie.split("; ").find((row) => row.startsWith(`${name}=`));
+  return cookie ? decodeURIComponent(cookie.split("=")[1]) : null;
 }
 
 export function getCookieExpires() {
@@ -18,9 +12,8 @@ export function getCookieExpires() {
 export function isTokenExpired(): boolean {
   const token = getCookie("token");
   if (!token) return true;
-  console.log("expires", getCookie("expired"));
   const expired = Number(getCookie("expired"));
   const now = Date.now();
-  console.log("now", now, "expires", expired);
+  console.warn("now", now, "expires", expired, "cookie過期");
   return now > expired;
 }
