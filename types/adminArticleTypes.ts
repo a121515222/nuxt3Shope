@@ -1,17 +1,17 @@
 import type { Pagination } from "@/types/paginationTypes";
 export interface AdminArticle {
+  userId: string;
   author: string;
-  create_at: number | Date;
+  articleDate: number | Date;
+  updatedAt?: number | Date;
   description: string;
-  id: string;
+  _id: string;
   // #todo image重寫後端的時候改imageUrl
-  image: string;
+  imageUrl: string;
   isPublic: boolean;
-  tag?: string[];
+  tag: string[];
   title: string;
   content: string;
-  // #todo num重寫後端的時候可以拿掉
-  num: number;
 }
 export interface AdminSignalArticleShowInModal {
   success: boolean;
@@ -19,12 +19,20 @@ export interface AdminSignalArticleShowInModal {
 }
 export interface AdminArticleResponse {
   message: string;
-  success: boolean;
+  status: boolean;
+  data: AdminArticle;
 }
 
 export interface FetchAdminArticle {
-  success: boolean;
-  articles: AdminArticle[];
-  pagination: Pagination;
-  messages: string[];
+  status: boolean;
+  data: {
+    articles: AdminArticle[];
+    pagination: Pagination;
+  };
+  messages: string;
+}
+export interface FetchAdminArticleById {
+  status: boolean;
+  data: AdminArticle;
+  messages: string;
 }

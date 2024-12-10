@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 // #todo image 與 imageUrl 變數名稱可以選一個使用
 import {
-  getAdminArticles,
-  getAdminArticle,
-  postAdminArticle,
-  putAdminArticle,
-  deleteAdminArticle
+  getUserArticles,
+  getUserArticleById,
+  postUserArticle,
+  putUserArticle,
+  deleteUserArticle
 } from "@/apis/adminArticle";
-import { postAdminImageUpload } from "@/apis/adminUpload";
-import { type AdminArticle } from "@/types/adminArticleTypes";
+import { postImageUpload } from "@/apis/adminUpload";
+import { handleImageError } from "@/utils/imageHandler";
+import type { AdminArticle } from "@/types/adminArticleTypes";
 const indexStore = useIndexStore();
 const { isLoading } = storeToRefs(indexStore);
 const { addToast } = useToastStore();
@@ -24,39 +25,40 @@ const postId = ref("");
 const modalData = ref<AdminArticle>({
   title: "",
   author: "",
-  create_at: new Date(),
+  articleDate: new Date(),
   description: "",
-  id: "",
-  image: "",
+  _id: "",
+  imageUrl: "",
   isPublic: false,
   tag: [],
   content: "",
-  num: 0
+  userId: ""
 });
 
 const modalRef = ref<{ modalShow: () => void } | null>(null);
 const openModal = async (item: string | AdminArticle = "") => {
   if (modalRef.value) {
     modalRef.value.modalShow();
-    if (typeof item !== "string" && item.id) {
-      const res = await getAdminArticle(item.id);
+    if (typeof item !== "string" && item._id) {
+      const res = await getUserArticleById(item._id);
       modalData.value = {
         ...item,
-        content: res.article.content,
-        create_at: new Date(item.create_at)
+        content: res.data.content,
+        articleDate: new Date(item.articleDate)
       };
     } else {
       modalData.value = {
         title: "",
         author: "",
-        create_at: new Date().getTime(),
+        articleDate: new Date().getTime(),
         description: "",
-        id: "",
-        image: "",
+        _id: "",
+        imageUrl: "",
         isPublic: false,
         tag: [],
         content: "",
-        num: 0
+        updatedAt: new Date().getTime(),
+        userId: ""
       };
     }
   }
@@ -69,21 +71,22 @@ const handleAdminArticleModalData = async () => {
   if (!modalData.value?.tag) {
     modalData.value.tag = [];
   }
-  modalData.value.create_at = new Date(modalData.value.create_at).getTime();
+  modalData.value.articleDate = new Date(modalData.value.articleDate).getTime();
 };
-const handleGetAdminArticles = async (page: number = 1) => {
-  const res = await getAdminArticles(page);
-  if (res.success) {
-    articles.value = res.articles;
-    paginationData.value = res.pagination;
+const handleGetAdminArticles = async (page: number = 1, limit: number = 10) => {
+  const res = await getUserArticles(page, limit);
+  if (res.status) {
+    articles.value = res.data.articles;
+    paginationData.value = res.data.pagination;
   }
 };
 const handleAddAdminArticle = async () => {
   await handleAdminArticleModalData();
   try {
     isLoading.value = true;
-    const res = await postAdminArticle(modalData.value);
-    if (res.success) {
+    modalData.value.userId = localStorage.getItem("userId") ?? "";
+    const res = await postUserArticle(modalData.value);
+    if (res.status) {
       addToast({ type: "success", message: "新增成功" });
       await handleGetAdminArticles();
     } else {
@@ -99,8 +102,8 @@ const handleEditAdminArticle = async () => {
   await handleAdminArticleModalData();
   try {
     isLoading.value = true;
-    const res = await putAdminArticle(modalData.value);
-    if (res.success) {
+    const res = await putUserArticle(modalData.value);
+    if (res.status) {
       addToast({ type: "success", message: "編輯成功" });
       await handleGetAdminArticles();
     } else {
@@ -114,8 +117,8 @@ const handleEditAdminArticle = async () => {
 };
 const handleDeleteAdminArticle = async (id: string) => {
   isLoading.value = true;
-  const res = await deleteAdminArticle(id);
-  if (res.success) {
+  const res = await deleteUserArticle(id);
+  if (res.status) {
     addToast({ type: "success", message: "刪除成功" });
     await handleGetAdminArticles();
   } else {
@@ -139,24 +142,22 @@ const uploadImg = async () => {
       return;
     }
     const file = files[0];
-    const res = await postAdminImageUpload(file);
-    if (res.success) {
-      if (res.imageUrl) {
-        if (!modalData.value.image) {
-          modalData.value.image = res.imageUrl;
-        }
-        addToast({ type: "success", message: "上傳成功" });
-      }
+    const userId = localStorage.getItem("userId") ?? "";
+    const res = await postImageUpload(file, userId);
+    if (res.status) {
+      modalData.value.imageUrl = res.data.imageUrl;
+      addToast({ type: "success", message: "上傳成功" });
     } else {
       addToast({ type: "danger", message: "上傳失敗" });
     }
+    uploadFileRef.value.value = "";
   }
 };
 const deleteImg = () => {
-  modalData.value.image = "";
+  modalData.value.imageUrl = "";
 };
 const formateDate = computed(() => {
-  return formateShowDate(modalData.value.create_at);
+  return formateShowDate(modalData.value.articleDate);
 });
 
 const handleTagDelete = (index: number) => {
@@ -215,11 +216,11 @@ onUnmounted(() => {});
             <tbody>
               <tr
                 v-for="(item, index) in articles"
-                :key="item.id + index"
+                :key="item._id + index"
                 class="hover:bg-gray-500 hover:text-white dark:hover:bg-gray-800 text-nowrap"
                 :class="{ 'bg-gray-300 dark:bg-gray-400': index % 2 === 0 }"
               >
-                <td class="border px-4 py-2 text-center" v-timeFormat="item.create_at"></td>
+                <td class="border px-4 py-2 text-center" v-timeFormat="item.articleDate"></td>
                 <td class="border px-4 py-2 text-center">{{ item.title }}</td>
                 <td class="border px-4 py-2 text-center">{{ item.author }}</td>
                 <td class="border px-4 py-2">
@@ -237,7 +238,7 @@ onUnmounted(() => {});
                     :disabled="isLoading"
                     :class="{ 'cursor-not-allowed': isLoading }"
                     @click="
-                      postId = item.id;
+                      postId = item._id;
                       isAddNewArticle = false;
                       openModal(item);
                     "
@@ -251,8 +252,8 @@ onUnmounted(() => {});
                     :disabled="isLoading"
                     :class="{ 'cursor-not-allowed': isLoading }"
                     @click="
-                      postId = item.id;
-                      handleDeleteAdminArticle(item.id);
+                      postId = item._id;
+                      handleDeleteAdminArticle(item._id);
                     "
                   >
                     <span v-if="isLoading" class="spinner-border spinner-border-sm"></span>
@@ -292,20 +293,21 @@ onUnmounted(() => {});
             type="file"
             name="file-to-upload"
             ref="uploadFileRef"
-            :disabled="isLoading || modalData.image !== ''"
+            :disabled="isLoading || modalData.imageUrl !== ''"
             @change="uploadImg"
             :class="{
-              'cursor-not-allowed opacity-50': isLoading || modalData.image !== ''
+              'cursor-not-allowed opacity-50': isLoading || modalData.imageUrl !== ''
             }"
           />
         </div>
         <div>
           <img
             class="w-full h-auto"
-            :src="modalData.image || '/defaultImg/image-1@2x.jpg'"
+            :src="modalData.imageUrl || '/defaultImg/image-1@2x.jpg'"
             :alt="modalData.title + ' picture'"
             :title="modalData.title"
             loading="lazy"
+            @error="handleImageError"
           />
         </div>
         <div class="mb-3">
@@ -315,7 +317,7 @@ onUnmounted(() => {});
             type="text"
             id="productImageUrl"
             placeholder="請輸入文章圖片網址"
-            v-model.trim.lazy="modalData.image"
+            v-model.trim.lazy="modalData.imageUrl"
           />
         </div>
 
@@ -329,7 +331,7 @@ onUnmounted(() => {});
         </button> -->
         <button
           class="btn btn-outline-danger rounded-lg w-full block bg-red-500 text-white hover:bg-red-600"
-          v-if="modalData.image"
+          v-if="modalData.imageUrl"
           @click="deleteImg()"
         >
           刪除圖片
@@ -390,7 +392,7 @@ onUnmounted(() => {});
               />
               <div ref="datePickerRef" class="absolute z-10 hidden">
                 <VDatePicker
-                  v-model="modalData.create_at"
+                  v-model="modalData.articleDate"
                   :is-dark="isDarkMode"
                   @dayclick="hideDatePicker"
                 />
@@ -419,7 +421,7 @@ onUnmounted(() => {});
                 id="search-dropdown"
                 class="inputStyle"
                 placeholder="請輸入文章標籤"
-                :value="t"
+                v-model="modalData.tag[index]"
               />
               <button
                 type="submit"
