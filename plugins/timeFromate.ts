@@ -4,6 +4,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     mounted(el, binding) {
       const time = dayjs(binding.value).format("YYYY-MM-DD");
       el.innerHTML = time;
+    },
+    updated(el, binding) {
+      const time = dayjs(binding.value).format("YYYY-MM-DD");
+      el.innerHTML = time;
     }
   });
 });

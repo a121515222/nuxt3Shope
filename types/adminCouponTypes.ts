@@ -1,27 +1,23 @@
-// #todo 要增加coupon的數量 couponAmount
+import type { Pagination } from "@/types/paginationTypes";
 export interface AdminCoupon {
-  code: string;
-  due_date: number | Date;
-  id: string;
-  is_enabled: number;
-  isPublic?: boolean;
-  percent: number;
   title: string;
-  num: number;
-  couponAmount?: number;
+  userId: string;
+  code: string;
+  discount: number;
+  expireDate: Date | string | number;
+  isPublic: boolean;
+  couponNum: number;
+  _id: string;
 }
 export interface FetchAdminCoupon {
-  success: boolean;
-  coupons: AdminCoupon[];
-  pagination: {
-    total_pages: number;
-    current_page: number;
-    has_pre: boolean;
-    has_next: boolean;
+  status: boolean;
+  data: {
+    coupons: AdminCoupon[];
+    pagination: Pagination;
   };
-  messages: string[];
+  messages: string;
 }
 export interface AdminCouponResponse {
   message: string;
-  success: boolean;
+  status: boolean;
 }

@@ -1,51 +1,52 @@
 <script lang="ts" setup>
-// #todo image 與 imageUrl 變數名稱可以選一個使用
+import { type AdminCoupon } from "@/types/adminCouponTypes";
 import dayjs from "dayjs";
 import {
   getAdminCoupons,
-  postAdminCoupon,
-  putAdminCoupon,
+  createCoupon,
+  editAdminCoupon,
   deleteAdminCoupon
 } from "@/apis/adminCoupon";
-import { type AdminCoupon } from "@/types/adminCouponTypes";
+
 const indexStore = useIndexStore();
 const { addToast } = useToastStore();
 const { isDarkMode } = storeToRefs(indexStore);
 const messageBoxStore = useMessageBoxStore();
-const { showAlert } = messageBoxStore;
+const { showAlert, showConfirm } = messageBoxStore;
 const datePickerRef = ref<HTMLElement | null>(null);
 const coupons = ref<AdminCoupon[]>([]);
 const isLoading = ref(false);
 const isAddNewCoupon = ref(false);
 const postId = ref("");
 const modalData = ref<AdminCoupon>({
-  code: "",
-  due_date: new Date().getTime(),
-  id: "",
-  is_enabled: 0,
-  isPublic: false,
-  percent: 100,
   title: "",
-  num: 0
+  code: "",
+  expireDate: new Date().getTime(),
+  _id: "",
+  isPublic: false,
+  discount: 100,
+  couponNum: 0,
+  userId: ""
 });
 
 const modalRef = ref<{ modalShow: () => void } | null>(null);
 const openModal = async (item: string | AdminCoupon = "") => {
   if (modalRef.value) {
     modalRef.value.modalShow();
-    if (typeof item !== "string" && item.id) {
+    if (typeof item !== "string" && item._id) {
       modalData.value = {
         ...item
       };
     } else {
       modalData.value = {
-        code: "",
-        due_date: new Date().getTime(),
-        id: "",
-        is_enabled: 0,
-        percent: 100,
         title: "",
-        num: 0
+        code: "",
+        expireDate: new Date().getTime(),
+        _id: "",
+        isPublic: false,
+        discount: 0,
+        couponNum: 0,
+        userId: ""
       };
     }
   }
@@ -55,47 +56,69 @@ const handleAdminCouponModalData = async () => {
     await showAlert("警告", "請輸入優惠碼");
     return;
   }
-  modalData.value.is_enabled = modalData.value.isPublic ? 1 : 0;
-  modalData.value.due_date = new Date(modalData.value.due_date).getTime();
+  modalData.value.expireDate = new Date(modalData.value.expireDate).getTime();
 };
-const handleGetAdminCoupons = async (page: number = 1) => {
-  const res = await getAdminCoupons(page);
-  if (res.success) {
-    coupons.value = res.coupons;
-    paginationData.value = res.pagination;
+const handleGetAdminCoupons = async (page: number = 1, limit: number = 10) => {
+  const res = await getAdminCoupons(page, limit);
+  if (res.status) {
+    coupons.value = res.data.coupons;
+    paginationData.value = res.data.pagination;
   }
 };
 const handleAddAdminCoupon = async () => {
-  await handleAdminCouponModalData();
-  const res = await postAdminCoupon(modalData.value);
-  if (res.success) {
-    addToast({ type: "success", message: "新增成功" });
-    await handleGetAdminCoupons();
-  } else {
-    addToast({ type: "danger", message: "新增失敗" });
+  try {
+    isLoading.value = true;
+    await handleAdminCouponModalData();
+    const res = await createCoupon(modalData.value);
+    if (res.status) {
+      addToast({ type: "success", message: "新增成功" });
+      await handleGetAdminCoupons();
+    } else {
+      addToast({ type: "danger", message: "新增失敗" });
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    isLoading.value = false;
   }
-  [];
 };
 const handleEditAdminCoupon = async () => {
-  await handleAdminCouponModalData();
-  const res = await putAdminCoupon(modalData.value);
-  if (res.success) {
-    addToast({ type: "success", message: "編輯成功" });
-    await handleGetAdminCoupons();
-  } else {
-    addToast({ type: "danger", message: "編輯失敗" });
+  try {
+    isLoading.value = true;
+    await handleAdminCouponModalData();
+    const res = await editAdminCoupon(modalData.value);
+    if (res.status) {
+      addToast({ type: "success", message: "編輯成功" });
+      await handleGetAdminCoupons();
+    } else {
+      addToast({ type: "danger", message: "編輯失敗" });
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    isLoading.value = false;
   }
 };
 const handleDeleteAdminCoupon = async (id: string) => {
-  isLoading.value = true;
-  const res = await deleteAdminCoupon(id);
-  if (res.success) {
-    addToast({ type: "success", message: "刪除成功" });
-    await handleGetAdminCoupons();
+  const confirm = await showConfirm("警告", "確定要刪除嗎?");
+  if (confirm) {
+    try {
+      isLoading.value = true;
+      const res = await deleteAdminCoupon(id);
+      if (res.status) {
+        addToast({ type: "success", message: "刪除成功" });
+        await handleGetAdminCoupons();
+      } else {
+        addToast({ type: "danger", message: "刪除失敗" });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      isLoading.value = false;
+    }
   } else {
-    addToast({ type: "danger", message: "刪除失敗" });
+    addToast({ type: "warning", message: "取消刪除" });
   }
-  isLoading.value = false;
 };
 const handleModalConfirm = async (id: string) => {
   if (isAddNewCoupon.value) {
@@ -105,7 +128,7 @@ const handleModalConfirm = async (id: string) => {
   }
 };
 const showDate = computed(() => {
-  return dayjs(modalData.value.due_date).format("YYYY-MM-DD");
+  return dayjs(modalData.value.expireDate).format("YYYY-MM-DD");
 });
 const showDatePicker = () => {
   if (datePickerRef.value) {
@@ -162,30 +185,31 @@ onUnmounted(() => {
             <thead>
               <tr class="text-nowrap">
                 <th class="px-4 py-2">名稱</th>
-                <th class="px-4 py-2">折扣幅度</th>
+                <th class="px-4 py-2">折扣價格</th>
                 <th class="px-4 py-2">使用期限</th>
                 <th class="px-4 py-2">優惠碼</th>
-                <th class="px-4 py-2">是否起用</th>
-                <!-- <th class="px-4 py-2">剩於數量</th> -->
+                <th class="px-4 py-2">優惠券數量</th>
+                <th class="px-4 py-2">是否啟用</th>
                 <th class="px-4 py-2">編輯</th>
               </tr>
             </thead>
             <tbody>
               <tr
                 v-for="(item, index) in coupons"
-                :key="item.id + index"
+                :key="item._id + index"
                 class="hover:bg-gray-500 hover:text-white dark:hover:bg-gray-800 text-nowrap"
                 :class="{ 'bg-gray-300 dark:bg-gray-400': index % 2 === 0 }"
               >
                 <td class="border px-4 py-2 text-center">{{ item.title }}</td>
-                <td class="border px-4 py-2 text-center">{{ item.percent }}</td>
-                <td class="border px-4 py-2 text-center" v-timeFormat="item.due_date"></td>
+                <td class="border px-4 py-2 text-center">{{ item.discount }}</td>
+                <td class="border px-4 py-2 text-center" v-timeFormat="item.expireDate"></td>
                 <td class="border px-4 py-2 text-center">{{ item.code }}</td>
+                <td class="border px-4 py-2 text-center">{{ item.couponNum }}</td>
                 <td
                   class="border text-center px-4 py-2 text-green-500 dark:text-green-200"
-                  :class="{ 'text-red-500 dark:text-red-600': item.is_enabled === 0 }"
+                  :class="{ 'text-red-500 dark:text-red-600': !item.isPublic }"
                 >
-                  {{ item.is_enabled === 0 ? "不啟用" : "啟用" }}
+                  {{ item.isPublic ? "啟用" : "不啟用" }}
                 </td>
 
                 <td class="border px-4 py-2 flex justify-center gap-4">
@@ -195,7 +219,7 @@ onUnmounted(() => {
                     :disabled="isLoading"
                     :class="{ 'cursor-not-allowed': isLoading }"
                     @click="
-                      postId = item.id;
+                      postId = item._id;
                       isAddNewCoupon = false;
                       openModal(item);
                     "
@@ -209,8 +233,8 @@ onUnmounted(() => {
                     :disabled="isLoading"
                     :class="{ 'cursor-not-allowed': isLoading }"
                     @click="
-                      postId = item.id;
-                      handleDeleteAdminCoupon(item.id);
+                      postId = item._id;
+                      handleDeleteAdminCoupon(item._id);
                     "
                   >
                     <span v-if="isLoading" class="spinner-border spinner-border-sm"></span>
@@ -235,41 +259,52 @@ onUnmounted(() => {
   >
     <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4 my-3">
       <div class="mb-3">
-        <label class="block col-span-1 text-gray-700 dark:text-white" for="articleTitle"
+        <label class="block col-span-1 text-gray-700 dark:text-white" for="couponTitle"
           >優惠券名稱</label
         >
         <input
           class="block inputStyle"
-          id="productName"
+          id="couponTitle"
           placeholder="請輸入優惠券名稱"
           v-model.trim="modalData.title"
         />
       </div>
       <div class="mb-3">
-        <label class="block col-span-1 text-gray-700 dark:text-white" for="articleTitle"
+        <label class="block col-span-1 text-gray-700 dark:text-white" for="couponCode"
           >優惠碼</label
         >
         <input
           class="block inputStyle"
-          id="productName"
+          id="couponCode"
           placeholder="請輸入優惠碼"
           v-model.trim="modalData.code"
         />
       </div>
       <div class="mb-3">
-        <label class="block text-gray-700 dark:text-white" for="articleAuthor">優惠折扣</label>
+        <label class="block text-gray-700 dark:text-white" for="couponDiscount">優惠折扣</label>
         <input
           class="block inputStyle"
           type="number"
-          id="productContent"
+          id="couponDiscount"
           max="100"
           min="0"
           placeholder="請輸入折扣幅度"
-          v-model.trim="modalData.percent"
+          v-model.trim="modalData.discount"
         />
       </div>
       <div class="mb-3">
-        <label class="block text-gray-700 dark:text-white" for="articleCreateDate">文章日期</label>
+        <label class="block text-gray-700 dark:text-white" for="couponNum">優惠券數量</label>
+        <input
+          class="block inputStyle"
+          type="number"
+          id="couponNum"
+          min="0"
+          placeholder="請輸入折扣幅度"
+          v-model.trim="modalData.couponNum"
+        />
+      </div>
+      <div class="mb-3">
+        <label class="block text-gray-700 dark:text-white" for="couponExpireDate">優惠券期限</label>
         <div class="relative w-full">
           <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
             <svg
@@ -297,7 +332,8 @@ onUnmounted(() => {
           />
           <div ref="datePickerRef" class="absolute z-10 hidden">
             <VDatePicker
-              v-model="modalData.due_date"
+              id="couponExpireDate"
+              v-model="modalData.expireDate"
               :is-dark="isDarkMode"
               @dayclick="hideDatePicker"
             />
@@ -305,8 +341,8 @@ onUnmounted(() => {
         </div>
       </div>
       <div class="mb-3">
-        <label class="block text-gray-700 dark:text-white" for="articleCreateDate">是否公開</label>
-        <label class="inline-flex items-center mb-5 cursor-pointer">
+        <label class="block text-gray-700 dark:text-white">是否公開</label>
+        <label class="inline-flex items-center cursor-pointer pt-1">
           <input type="checkbox" value="" class="sr-only peer" v-model="modalData.isPublic" />
           <div
             class="relative w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
