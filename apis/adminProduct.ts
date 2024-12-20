@@ -5,10 +5,10 @@ import {
 } from "@/types/adminProductTypes";
 import { useBaseFetch } from "@/utils/fetch";
 import { getCookie } from "@/utils/auth";
-export function getUserProducts(page: number | string, limit: number | string, userId: string) {
+export function getUserProducts(page: number | string, limit: number | string) {
   const api_token = getCookie("authorization");
   return useBaseFetch<FetchAdminProduct>(
-    `products/${userId}?page=${page}&limit=${limit}`,
+    `products?page=${page}&limit=${limit}`,
     {
       method: "GET",
       headers: {
@@ -90,17 +90,7 @@ export function postAdminProduct(info: AdminProduct) {
     body: JSON.stringify({ data: { ...info } })
   });
 }
-// export function putAdminProduct(info: AdminProduct) {
-//   const api_token = getCookie("token");
-//   return useBaseFetch<AdminProductResponse>(`admin/product/${info.id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `${api_token}`
-//     },
-//     body: JSON.stringify({ data: { ...info } })
-//   });
-// }
+
 export function deleteAdminProduct(id: string) {
   const api_token = getCookie("token");
   return useBaseFetch<AdminProductResponse>(`admin/product/${id}`, {

@@ -1,44 +1,67 @@
 import { useBaseFetch } from "@/utils/fetch";
 import { type FetchCartData } from "@/types/cartTypes";
 export function getCart() {
-  return useBaseFetch<FetchCartData>("cart", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-}
-export function postCart(productId: string, qty: number) {
-  return useBaseFetch<FetchCartData>("cart", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
+  const api_token = getCookie("authorization");
+  return useBaseFetch<FetchCartData>(
+    "cart",
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      }
     },
-    body: JSON.stringify({ data: { qty, product_id: productId } })
-  });
+    "newClient"
+  );
 }
-export function putCart(itemId: string, productId: string, qty: number) {
-  return useBaseFetch<FetchCartData>(`cart/${itemId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
+// #todo 等完成product的顯示完成後再測試
+export function postCart(productId: string, sellerId: string, num: number) {
+  const api_token = getCookie("authorization");
+  return useBaseFetch<FetchCartData>(
+    "cart",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      },
+      body: JSON.stringify({ num, productId, sellerId })
     },
-    body: JSON.stringify({ data: { qty, product_id: productId } })
-  });
+    "newClient"
+  );
+}
+export function putCart(
+  cartId: string,
+  productId: string,
+  num: number,
+  isDeleteProduct: boolean = false
+) {
+  const api_token = getCookie("authorization");
+  return useBaseFetch<FetchCartData>(
+    `cart`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      },
+      body: JSON.stringify({
+        cartId,
+        num,
+        productId,
+        isDeleteProduct
+      })
+    },
+    "newClient"
+  );
 }
 export function deleteCart(id: string) {
+  const api_token = getCookie("authorization");
   return useBaseFetch<FetchCartData>(`cart/${id}`, {
     method: "DELETE",
     headers: {
-      "Content-Type": "application/json"
-    }
-  });
-}
-export function deleteAllCart() {
-  return useBaseFetch<FetchCartData>("carts", {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      Authorization: `${api_token}`
     }
   });
 }

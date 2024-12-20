@@ -9,9 +9,8 @@ import type {
 
 export function getUserArticles(page: number | string, limit: number | string) {
   const api_token = getCookie("authorization");
-  const userId = localStorage.getItem("userId");
   return useBaseFetch<FetchAdminArticle>(
-    `articles/${userId}?page=${page}&limit=${limit}`,
+    `articles?page=${page}&limit=${limit}`,
     {
       method: "GET",
       headers: {

@@ -19,6 +19,11 @@ const addTag = () => {
 const removeTag = (index: number) => {
   tags.value.splice(index, 1);
 };
+watch(tags, (newVal) => {
+  if (newVal) {
+    tagInput.value = "";
+  }
+});
 </script>
 <template>
   <div class="mx-auto space-y-4">

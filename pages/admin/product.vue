@@ -91,8 +91,7 @@ const shouldProductActive = (isEnabled: number) => {
 };
 const paginationData = ref();
 const handleGetAdminProducts = async (page: number = 1, limit: number = 10) => {
-  const userId = localStorage.getItem("userId") ?? "";
-  const res = await getUserProducts(page, limit, userId);
+  const res = await getUserProducts(page, limit);
   const { products, pagination } = res.data;
   productsList.value = products;
   paginationData.value = pagination;
@@ -106,6 +105,7 @@ const handleModalConfirm = async () => {
     await handleEditProduct();
   }
 };
+
 const handleAddProduct = async () => {
   try {
     isLoading.value = true;

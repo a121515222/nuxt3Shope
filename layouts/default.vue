@@ -8,24 +8,21 @@ const { footerHeight, windowHeight, isDarkMode, headerHeight, isLogin, userId } 
   storeToRefs(indexStore);
 const route = useRoute();
 const handleCheckLogin = async () => {
-  // 如果是admin的路由，就檢查是否登入
-  if (route.path.includes("/admin")) {
-    let id = "";
-    if (process.client) {
-      id = localStorage.getItem("userId") ?? "";
-    }
-    if (!id) {
-      router.push("/login");
-      return;
-    }
-    const res = await postCheckLoginNew(id);
-    if (res.status) {
-      isLogin.value = true;
-      userId.value = id;
-    } else {
-      isLogin.value = false;
-      router.push("/login");
-    }
+  let id = "";
+  if (process.client) {
+    id = localStorage.getItem("userId") ?? "";
+  }
+  if (!id) {
+    router.push("/login");
+    return;
+  }
+  const res = await postCheckLoginNew(id);
+  if (res.status) {
+    isLogin.value = true;
+    userId.value = id;
+  } else {
+    isLogin.value = false;
+    router.push("/login");
   }
 };
 

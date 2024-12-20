@@ -1,33 +1,41 @@
 import { defineStore } from "pinia";
 import { getCart, postCart } from "@/apis/cart";
-import { type Cart } from "@/types/cartTypes";
+import type { Cart } from "@/types/cartTypes";
 import { useThrottleFn } from "@vueuse/core";
 export const useCartStore = defineStore("cartStore", () => {
   const indexStore = useIndexStore();
   const { isLoading } = storeToRefs(indexStore);
   const cartDataList = ref<Cart[]>([]);
-  const finalTotal = ref<number | string>(0);
   const toastStore = useToastStore();
   const { addToast } = toastStore;
   const handleGetCart = async () => {
     const res = await getCart();
-    if (res.success) {
-      cartDataList.value = res.data.carts;
-      finalTotal.value = res.data.final_total;
+    if (res.status) {
+      cartDataList.value = res.data;
       return res;
     }
   };
-  const handleAddCart = async (productId: string, qty: number = 1, title: string = "") => {
+  const handleAddCart = async (
+    productId: string,
+    sellerId: string,
+    num: number = 1,
+    title: string = ""
+  ) => {
     const addCartFn = useThrottleFn(async () => {
-      return await addCart(productId, qty, title);
+      return await addCart(productId, sellerId, num, title);
     }, 500);
     await addCartFn();
   };
-  const addCart = async (productId: string, qty: number = 1, title: string = "") => {
+  const addCart = async (
+    productId: string,
+    sellerId: string,
+    num: number = 1,
+    title: string = ""
+  ) => {
     isLoading.value = true;
     try {
-      const res = await postCart(productId, qty);
-      if (res.success) {
+      const res = await postCart(productId, sellerId, num);
+      if (res.status) {
         const cartData = await handleGetCart();
         addToast({
           duration: 3000,
@@ -52,5 +60,5 @@ export const useCartStore = defineStore("cartStore", () => {
       isLoading.value = false;
     }
   };
-  return { cartDataList, finalTotal, handleGetCart, handleAddCart };
+  return { cartDataList, handleGetCart, handleAddCart };
 });

@@ -1,19 +1,17 @@
-import { type Product } from "./productTypes";
+import type { productCartType } from "./productTypes";
 
 export interface Cart {
-  final_total: number;
-  id: string;
-  product: Product;
-  product_id: string;
-  qty: number;
-  total: number;
+  _id: string;
+  userId: string;
+  sellerId: string;
+  totalPrice: number;
+  isUsedCoupon: boolean;
+  discountPriceWhitCoupon: number;
+  productList: productCartType[];
 }
 
 export interface FetchCartData {
-  data: {
-    carts: Cart[];
-    final_total: number;
-    total: number;
-  };
-  success: boolean;
+  data: Cart[];
+  status: boolean;
+  message: string;
 }

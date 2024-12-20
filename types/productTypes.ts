@@ -22,3 +22,14 @@ export interface FetchProductData {
   product: Product;
   success: boolean;
 }
+
+export interface productCartType {
+  productId: string;
+  num: number;
+  title: string;
+  price: number;
+  discount: number;
+  imageUrl: string;
+  productSellPrice: number;
+  _id: string;
+}
