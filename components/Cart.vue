@@ -116,16 +116,24 @@ const handleDeleteCartItem = async (cartId: string, productId: string, title: st
     }
   }
 };
-const handleDeleteCart = async (cartId: string) => {
-  const result = await showConfirm("確定要刪除所有商品嗎?", "刪除所有商品");
+const handleDeleteCart = async (cartId: string, content: string) => {
+  const result = await showConfirm("確定要刪除所有商品嗎?", `刪除${content}`);
   if (!result) {
     return;
   } else {
-    isCartLoading.value = true;
-    const res = await deleteCart(cartId);
-    if (res?.status) {
+    try {
+      isCartLoading.value = true;
+      isLoading.value = true;
+      const res = await deleteCart(cartId);
+      if (res.status) {
+        addToast({ type: "success", message: res.message });
+        await handleGetCart();
+      }
+    } catch (error) {
+      addToast({ type: "danger", message: "刪除失敗" });
+    } finally {
+      isLoading.value = false;
       isCartLoading.value = false;
-      await handleGetCart();
     }
   }
 };
@@ -275,7 +283,7 @@ onMounted(async () => {
             <button
               class="border border-red-500 rounded-lg text-red-500 px-2 py-1 hover:opacity-80 disabled:opacity-50"
               type="button"
-              @click=""
+              @click="handleDeleteCart(cart._id, `購物車${cartIndex + 1}`)"
               :disabled="cart.productList.length === 0"
               :class="{ 'cursor-not-allowed': cart.productList.length === 0 }"
             >

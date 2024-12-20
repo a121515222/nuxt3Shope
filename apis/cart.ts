@@ -57,11 +57,15 @@ export function putCart(
 }
 export function deleteCart(id: string) {
   const api_token = getCookie("authorization");
-  return useBaseFetch<FetchCartData>(`cart/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${api_token}`
-    }
-  });
+  return useBaseFetch<FetchCartData>(
+    `cart/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      }
+    },
+    "newClient"
+  );
 }
