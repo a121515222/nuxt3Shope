@@ -7,7 +7,21 @@ const { windowHeightListener, removeWindowHeightListener } = indexStore;
 const { footerHeight, windowHeight, isDarkMode, headerHeight, isLogin, userId } =
   storeToRefs(indexStore);
 const route = useRoute();
+const handleGoogleAuth = () => {
+  if (process.client) {
+    userId.value = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("userId="))
+      .split("=")[1];
+    if (process.client) {
+      if (userId.value) {
+        localStorage.setItem("userId", userId.value);
+      }
+    }
+  }
+};
 const handleCheckLogin = async () => {
+  handleGoogleAuth();
   let id = "";
   if (process.client) {
     id = localStorage.getItem("userId") ?? "";
