@@ -24,7 +24,7 @@ const selectTab = (tabName: string, event: Event) => {
 };
 </script>
 <template>
-  <div class="container mx-auto px-6 pt-6">
+  <div class="container mx-auto px-6 pt-6 mb-6">
     <div class="md:flex">
       <ul
         class="flex-column space-y space-y-4 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0"
