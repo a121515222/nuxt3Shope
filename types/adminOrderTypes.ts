@@ -95,9 +95,12 @@ export interface SellerOrderFetch {
     pagination: Pagination;
     orderList: SellerOrderList[];
   };
-  messages: string;
+  message: string;
 }
-export interface AdminOrderResponse {
-  success: boolean;
+export interface BuyerAddOrderResponse {
+  status: boolean;
+  data: {
+    _id: string;
+  };
   message: string;
 }

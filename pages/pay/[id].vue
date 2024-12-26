@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { getOrderData } from "@/apis/order";
+import { getBuyerOrder } from "@/apis/adminOrder";
 import { postPay } from "@/apis/pay";
 import type { OrderProduct } from "@/types/orderType";
 interface product {
@@ -9,14 +10,15 @@ interface product {
   total: number;
   id: string;
 }
-const handleGetOrderData = async (id: string) => {
-  const res = await getOrderData(id);
-  order.value = res.order;
-  handleOrderProducts(res.order.products);
-  user.value = res.order.user;
-  total.value = res.order.total;
-  is_paid.value = res.order.is_paid;
-  cerateDate.value = res.order.create_at;
+const handleBuyerGetOrderData = async (id: string) => {
+  const res = await getBuyerOrder(id);
+  console.log("handleBuyerGetOrderData", res);
+  // order.value = res.order;
+  // handleOrderProducts(res.order.products);
+  // user.value = res.order.user;
+  // total.value = res.order.total;
+  // is_paid.value = res.order.is_paid;
+  // cerateDate.value = res.order.create_at;
 };
 const handleOrderProducts = (orderProducts: OrderProduct) => {
   const convertedProducts = Object.keys(orderProducts).map((key) => {
@@ -63,7 +65,9 @@ const pay = async () => {
   }
 };
 onMounted(async () => {
-  await handleGetOrderData(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id);
+  await handleBuyerGetOrderData(
+    Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+  );
 });
 </script>
 <template>

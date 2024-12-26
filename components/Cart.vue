@@ -41,8 +41,8 @@ const shouldShowCartButton = () => {
 const isChangeNum = ref(false);
 const isCartLoading = ref(false);
 const router = useRouter();
-const toPayProcess = () => {
-  router.push("/pay/paymentUserInfoFrom");
+const toPayProcess = (cartId: string, sellerId: string) => {
+  router.push(`/pay/paymentUserInfoFrom/${cartId}?sellerId=${sellerId}`);
 };
 watch(
   [isMainBannerIntersection, () => route.path], // 監聽多個來源
@@ -398,7 +398,7 @@ onMounted(async () => {
               type="button"
               class="py-2 px-3 bg-third text-white border border-third px-4 rounded-lg hover:opacity-80 disabled:opacity-50"
               @click="
-                toPayProcess();
+                toPayProcess(cart._id, cart.sellerId);
                 cartClose();
               "
               :disabled="cartDataList.length === 0 || isCartLoading"

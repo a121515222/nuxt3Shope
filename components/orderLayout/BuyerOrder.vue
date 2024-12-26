@@ -1,11 +1,17 @@
 <script lang="ts" setup>
-import type { OrderProduct, BuyerOrderList } from "@/types/adminOrderTypes";
+import type { BuyerOrderList } from "@/types/adminOrderTypes";
 import { getBuyerOrdersData } from "@/apis/adminOrder";
+const paginationData = ref();
 const handleGetBuyerOrders = async () => {
   const res = await getBuyerOrdersData();
   orderList.value = res.data.orderList;
+  paginationData.value = res.data.pagination;
 };
 const orderList = ref<BuyerOrderList[]>([]);
+const handleChangePage = async (page: number) => {
+  await getBuyerOrdersData(page);
+};
+
 const goToPay = (id: string) => {
   console.log(id);
 };
@@ -15,7 +21,9 @@ onMounted(async () => {
 </script>
 <template>
   <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">買家訂單</h2>
-  <div class="overflow-x-auto border rounded-lg bg-gray-200 dark:bg-gray-500 dark:text-gray-200">
+  <div
+    class="overflow-x-auto border rounded-lg bg-gray-200 dark:bg-gray-500 dark:text-gray-200 mb-4"
+  >
     <table class="min-w-full table-auto">
       <thead>
         <tr class="text-nowrap">
@@ -62,6 +70,6 @@ onMounted(async () => {
       </tbody>
     </table>
   </div>
-  <!-- <Pagination :pagination="paginationData" @changePage="handleChangePage" /> -->
+  <Pagination :pagination="paginationData" @changePage="handleChangePage" />
 </template>
 <style></style>

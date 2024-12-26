@@ -1,16 +1,18 @@
 <script lang="ts" setup>
 import type { SellerOrderList } from "@/types/adminOrderTypes";
-import { getSellerOrdersData } from "@/apis/adminOrder";
+import { getSellerOrdersData, putSellerOderStatus } from "@/apis/adminOrder";
 import { handleImageError } from "@/utils/imageHandler";
 
 const indexStore = useIndexStore();
+const { addToast } = useToastStore();
 const { isLoading } = storeToRefs(indexStore);
-
-const handleGetBuyerOrders = async () => {
-  const res = await getSellerOrdersData();
-  orderList.value = res.data.orderList;
-};
 const paginationData = ref();
+const handleGetBuyerOrders = async (page: number = 1) => {
+  const res = await getSellerOrdersData(page);
+  orderList.value = res.data.orderList;
+  paginationData.value = res.data.pagination;
+};
+
 const orderList = ref<SellerOrderList[]>([]);
 const currentOpenOrderId = ref("");
 const handleCollapse = (id: string) => {
@@ -20,10 +22,28 @@ const handleCollapse = (id: string) => {
     currentOpenOrderId.value = id;
   }
 };
+const handleChangePage = async (page: number) => {
+  await handleGetBuyerOrders(page);
+};
+const handleSellerOrderStatus = async (orderId: string, orderListIndex: number) => {
+  try {
+    isLoading.value = true;
+    const res = await putSellerOderStatus(orderId, orderList.value[orderListIndex].status);
+    const { message } = res;
+    if (res.status) {
+      addToast({ type: "success", message });
+      await handleGetBuyerOrders();
+    } else {
+      addToast({ type: "danger", message: "更新訂單失敗" });
+    }
+  } catch (error) {
+    addToast({ type: "danger", message: "更新訂單失敗" });
+  } finally {
+    isLoading.value = false;
+  }
+};
+const orderStatusConfig = ["unpaid", "paid", "shipped", "confirmed", "completed", "cancelled"];
 onMounted(async () => {
-  // useFlowbite(({ initCollapses }) => {
-  //   initCollapses();
-  // });
   await handleGetBuyerOrders();
 });
 </script>
@@ -151,31 +171,24 @@ onMounted(async () => {
                             <td class="py-2"></td>
                           </tr>
                           <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">
-                            <th class="py-2 text-gray-700 dark:text-gray-300">付款狀態</th>
-                            <td
-                              :class="{
-                                'text-green-500 dark:text-green-400': item.isPaid,
-                                'text-red-500 dark:text-red-400': !item.isPaid
-                              }"
-                            >
-                              {{ item.isPaid ? "已付款" : "未付款" }}
+                            <th class="py-2 text-gray-700 dark:text-gray-300">訂單狀態</th>
+                            <td class="py-2 text-gray-900 dark:text-white">
+                              <select
+                                :disabled="isLoading"
+                                v-model="item.status"
+                                class="block inputStyle"
+                                @change="handleSellerOrderStatus(item._id, index)"
+                              >
+                                <option
+                                  v-for="option in orderStatusConfig"
+                                  :key="option"
+                                  :value="option"
+                                >
+                                  {{ option }}
+                                </option>
+                              </select>
                             </td>
-                            <td class="py-2">
-                              <label class="inline-flex items-center cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  value=""
-                                  class="sr-only peer"
-                                  v-model="item.isPaid"
-                                />
-                                <div
-                                  class="relative w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
-                                ></div>
-                                <span
-                                  class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
-                                ></span>
-                              </label>
-                            </td>
+                            <td class="py-2"></td>
                           </tr>
                           <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">
                             <th class="py-2 text-gray-700 dark:text-gray-300">總金額</th>
@@ -253,7 +266,7 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <!-- <Pagination :pagination="paginationData" @changePage="handleChangePage" /> -->
+    <Pagination :pagination="paginationData" @changePage="handleChangePage" />
   </div>
 </template>
 <style></style>

@@ -5,10 +5,9 @@ import { setCookie } from "@/utils/cookie";
 import type { UserLogin } from "@/types/loginTypes";
 import { googleAuth } from "@/apis/login";
 const indexStore = useIndexStore();
-const { userId } = storeToRefs(indexStore);
 const messageStore = useMessageBoxStore();
 const { showAlert } = messageStore;
-const { isLogin, headerHeight, windowHeight } = storeToRefs(indexStore);
+const { userId, isLogin, headerHeight, windowHeight } = storeToRefs(indexStore);
 const user = ref<UserLogin>({
   account: "",
   password: ""

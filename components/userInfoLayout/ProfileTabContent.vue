@@ -1,21 +1,10 @@
 <script lang="ts" setup>
-import type { UserInfoDataType, userInfoUpdateDataType } from "@/types/userInfoTypes";
 import { genderConfig } from "@/utils/config";
 import { getUserInfo, updateUserInfo } from "@/apis/userInfo";
 const indexStore = useIndexStore();
 const { userId, isDarkMode, isLoading } = storeToRefs(indexStore);
-const userInfo = ref<userInfoUpdateDataType>({
-  username: "",
-  email: "",
-  tel: "",
-  address: "",
-  birthday: "",
-  password: "",
-  newPassword: "",
-  confirmPassword: "",
-  gender: null,
-  id: userId.value
-});
+const userStore = useUserStore();
+const { userInfo } = storeToRefs(userStore);
 const messageBoxStore = useMessageBoxStore();
 const { showConfirm } = messageBoxStore;
 const { addToast } = useToastStore();

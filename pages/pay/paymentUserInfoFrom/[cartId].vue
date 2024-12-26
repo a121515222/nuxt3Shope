@@ -6,20 +6,31 @@ import {
   addressValidatePattern,
   noBlankValidatePattern
 } from "@/utils/validatePattern";
-import { postOrderData } from "@/apis/order";
+import { buyerAddOrder } from "@/apis/adminOrder";
 
-const userInfo = ref({
-  name: "",
+const userStore = useUserStore();
+const { userInfo } = storeToRefs(userStore);
+const route = useRoute();
+const buyerInfo = ref({
+  username: "",
   tel: "",
   email: "",
   address: "",
-  message: ""
+  buyerMessage: "",
+  cartId: route.params.cartId,
+  sellerId: route.query.sellerId
 });
+const handleBuyerAsUserInfo = () => {
+  buyerInfo.value.username = userInfo.value.username;
+  buyerInfo.value.tel = userInfo.value.tel;
+  buyerInfo.value.email = userInfo.value.email;
+  buyerInfo.value.address = userInfo.value.address;
+};
 const { addToast } = useToastStore();
 const { nameValidate, emailValidate, telValidate, addressValidate } = useFormValidate();
 const handleNameValidate = async () => {
   const result = await nameValidate(
-    userInfo.value.name,
+    buyerInfo.value.username,
     nameInputErrorMessageRef.value,
     nameInputRef.value
   );
@@ -27,7 +38,7 @@ const handleNameValidate = async () => {
 };
 const handleEmailValidate = async () => {
   const result = await emailValidate(
-    userInfo.value.email,
+    buyerInfo.value.email,
     emailInputErrorMessageRef.value,
     emailInputRef.value
   );
@@ -35,7 +46,7 @@ const handleEmailValidate = async () => {
 };
 const handleTelValidate = async () => {
   const result = await telValidate(
-    userInfo.value.tel,
+    buyerInfo.value.tel,
     telInputErrorMessageRef.value,
     telInputRef.value
   );
@@ -43,7 +54,7 @@ const handleTelValidate = async () => {
 };
 const handleAddressValidate = async () => {
   const result = await addressValidate(
-    userInfo.value.address,
+    buyerInfo.value.address,
     addressInputErrorMessageRef.value,
     addressInputRef.value
   );
@@ -60,11 +71,11 @@ const handleSendUserInfo = async () => {
     ]).then((results) => results.every(Boolean));
 
     if (isValid) {
-      const res = await postOrderData(userInfo.value);
-      const { message, orderId } = res;
-      if (res.success) {
-        addToast({ type: "success", message });
-        toPayPage(orderId);
+      const res = await buyerAddOrder(buyerInfo.value);
+      const { _id } = res.data;
+      if (res.status) {
+        addToast({ type: "success", message: res.message });
+        toPayPage(_id);
       } else {
         addToast({ type: "danger", message: "訂單建立失敗" });
       }
@@ -89,6 +100,16 @@ const addressInputErrorMessageRef = ref();
 </script>
 <template>
   <div class="container mx-auto px-6 py-6 bg-gray-300 dark:bg-gray-800 dark:text-white">
+    <div class="flex justify-between">
+      <h2 class="text-2xl font-bold mb-4">訂購人資料</h2>
+      <button
+        class="bg-secondary text-white py-2 px-4 rounded-lg hover:opacity-80"
+        @click="handleBuyerAsUserInfo"
+      >
+        購買人同使用者
+      </button>
+    </div>
+
     <div class="grid grid-cols-2 gap-4">
       <div class="col-span-2 lg:col-span-1">
         <div class="relative mb-6">
@@ -98,7 +119,7 @@ const addressInputErrorMessageRef = ref();
             :pattern="nameValidatePattern.source"
             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
             placeholder="請輸入姓名"
-            v-model.trim="userInfo.name"
+            v-model.trim="buyerInfo.username"
             @blur="handleNameValidate"
           />
           <p
@@ -115,7 +136,7 @@ const addressInputErrorMessageRef = ref();
             :pattern="emailValidatePattern.source"
             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
             placeholder="請輸入電子郵件"
-            v-model.trim="userInfo.email"
+            v-model.trim="buyerInfo.email"
             @blur="handleEmailValidate"
           />
           <p
@@ -132,7 +153,7 @@ const addressInputErrorMessageRef = ref();
             :pattern="telValidatePattern.source"
             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
             placeholder="請輸入電話"
-            v-model.trim="userInfo.tel"
+            v-model.trim="buyerInfo.tel"
             @blur="handleTelValidate"
           />
           <p
@@ -149,7 +170,7 @@ const addressInputErrorMessageRef = ref();
             :pattern="addressValidatePattern.source"
             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
             placeholder="請輸入地址"
-            v-model.trim="userInfo.address"
+            v-model.trim="buyerInfo.address"
             @blur="handleAddressValidate"
           />
           <p
@@ -164,11 +185,14 @@ const addressInputErrorMessageRef = ref();
       <textarea
         class="rounded-lg w-full focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
         style="height: 100px"
-        v-model="userInfo.message"
+        v-model="buyerInfo.buyerMessage"
       ></textarea>
     </div>
     <div class="flex justify-end mt-6">
-      <button class="bg-primary text-white py-2 px-4 rounded-lg" @click="handleSendUserInfo">
+      <button
+        class="bg-primary text-white py-2 px-4 rounded-lg hover:opacity-80"
+        @click="handleSendUserInfo"
+      >
         送出資料
       </button>
     </div>
