@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { SellerOrderList } from "@/types/adminOrderTypes";
+import type { SellerOrder } from "@/types/adminOrderTypes";
 import { getSellerOrdersData, putSellerOderStatus } from "@/apis/adminOrder";
 import { handleImageError } from "@/utils/imageHandler";
 
@@ -13,7 +13,7 @@ const handleGetBuyerOrders = async (page: number = 1) => {
   paginationData.value = res.data.pagination;
 };
 
-const orderList = ref<SellerOrderList[]>([]);
+const orderList = ref<SellerOrder[]>([]);
 const currentOpenOrderId = ref("");
 const handleCollapse = (id: string) => {
   if (currentOpenOrderId.value === id) {

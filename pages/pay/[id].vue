@@ -1,41 +1,37 @@
 <script lang="ts" setup>
-import { getOrderData } from "@/apis/order";
+import type { BuyerOrder } from "@/types/adminOrderTypes";
 import { getBuyerOrder } from "@/apis/adminOrder";
 import { postPay } from "@/apis/pay";
-import type { OrderProduct } from "@/types/orderType";
-interface product {
-  title: string;
-  qty: number;
-  unit: string;
-  total: number;
-  id: string;
-}
+const indexStore = useIndexStore();
+const { isLoading } = storeToRefs(indexStore);
 const handleBuyerGetOrderData = async (id: string) => {
   const res = await getBuyerOrder(id);
-  console.log("handleBuyerGetOrderData", res);
-  // order.value = res.order;
-  // handleOrderProducts(res.order.products);
-  // user.value = res.order.user;
-  // total.value = res.order.total;
-  // is_paid.value = res.order.is_paid;
-  // cerateDate.value = res.order.create_at;
+  order.value = res.data;
 };
-const handleOrderProducts = (orderProducts: OrderProduct) => {
-  const convertedProducts = Object.keys(orderProducts).map((key) => {
-    return {
-      title: orderProducts[key].product.title,
-      qty: orderProducts[key].qty,
-      unit: orderProducts[key].product.unit,
-      total: orderProducts[key].total,
-      id: orderProducts[key].product.id
-    };
-  });
-  products.value = convertedProducts;
-};
-const isLoading = ref(false);
+
 const route = useRoute();
-const order = ref();
-const products = ref<product[]>([]);
+const order = ref<BuyerOrder>({
+  _id: "",
+  totalPrice: 0,
+  productList: [],
+  sellerInfo: {
+    username: "",
+    tel: "",
+    email: ""
+  },
+  useCoupon: {
+    isUsedCoupon: false,
+    couponCode: "",
+    discountPriceWhitCoupon: 0,
+    couponExpiredDate: null,
+    title: ""
+  },
+  sellerId: "",
+  createdAt: new Date(),
+  paidDate: new Date(),
+  status: "",
+  isPaid: false
+});
 const coupon = ref({ due_date: new Date(), percent: 0, title: "", code: "" });
 const user = ref();
 const total = ref();
@@ -89,79 +85,83 @@ onMounted(async () => {
             </thead>
             <tbody>
               <tr
-                v-for="(item, index) in products"
-                :key="item.id"
+                v-for="(item, index) in order.productList"
+                :key="item.productId"
                 class="hover:bg-gray-500 hover:text-white dark:hover:bg-gray-800 text-nowrap"
                 :class="
                   index % 2 === 0 ? 'bg-gray-300 dark:bg-gray-400' : 'bg-gray-200 dark:bg-gray-600'
                 "
               >
                 <td class="px-4 py-2 text-center">{{ item.title }}</td>
-                <td class="px-4 py-2 text-center">{{ item.qty }}</td>
+                <td class="px-4 py-2 text-center">{{ item.num }}</td>
                 <td class="px-4 py-2 text-center">{{ item.unit }}</td>
-                <td class="px-4 py-2 text-center">{{ item.total }}</td>
+                <td class="px-4 py-2 text-center">{{ item.productSellPrice * item.num }}</td>
               </tr>
             </tbody>
           </table>
           <div class="flex justify-end w-full mt-4">
-            <span>小計: {{ total }}元</span>
+            <span>小計: {{ order.totalPrice }}元</span>
           </div>
         </div>
         <h2 class="mb-3 border-b-2 border-gray-600 dark:border-gray-400 font-bold text-xl">
-          訂購者資訊
+          賣家資訊
         </h2>
         <div class="overflow-x-auto">
           <table class="min-w-full table-auto">
             <tbody class="divide-y divide-gray-400 dark:divide-gray-600">
               <tr>
                 <th class="text-left px-4 py-2">姓名</th>
-                <td class="px-4 py-2">{{ user?.name }}</td>
+                <td class="px-4 py-2">{{ order.sellerInfo.username }}</td>
               </tr>
               <tr>
                 <th class="text-left px-4 py-2">電話</th>
-                <td class="px-4 py-2">{{ user?.tel }}</td>
-              </tr>
-              <tr>
-                <th class="text-left px-4 py-2">住址</th>
-                <td class="px-4 py-2">{{ user?.address }}</td>
+                <td class="px-4 py-2">{{ order.sellerInfo.tel }}</td>
               </tr>
               <tr>
                 <th class="text-left px-4 py-2">付款狀態</th>
                 <td
                   :class="{
-                    'text-green-600': is_paid,
-                    'text-red-600': !is_paid
+                    'text-green-600': order.isPaid,
+                    'text-red-600': !order.isPaid
                   }"
                   class="px-4 py-2"
                 >
-                  {{ is_paid ? "已付款" : "未付款" }}
+                  {{ order.isPaid ? "已付款" : "未付款" }}
                 </td>
+              </tr>
+              <tr v-if="!order.useCoupon.isUsedCoupon">
+                <th class="text-left px-4 py-2">是否使用優惠券</th>
+                <td class="px-4 py-2">否</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <!-- api 怪怪的之後使用自己後端在加入這個功能 -->
-        <!-- <h2 class="mb-3 border-b-2 mt-8 font-bold text-2xl">使用的優惠券</h2>
-        <table class="min-w-full table-auto">
+        <h2 v-if="order.useCoupon.isUsedCoupon" class="mb-3 border-b-2 mt-8 font-bold text-xl">
+          使用的優惠券
+        </h2>
+        <table v-if="order.useCoupon.isUsedCoupon" class="min-w-full table-auto">
           <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
             <tr>
               <th class="text-left px-4 py-2">優惠券名稱</th>
-              <td class="px-4 py-2 text-center">{{ coupon?.title }}</td>
+              <td class="px-4 py-2 text-center">{{ order.useCoupon.title }}</td>
             </tr>
             <tr>
               <th class="text-left px-4 py-2">優惠碼</th>
-              <td class="px-4 py-2 text-center">{{ coupon?.code }}</td>
+              <td class="px-4 py-2 text-center">{{ order.useCoupon.couponCode }}</td>
             </tr>
             <tr>
               <th class="text-left px-4 py-2">使用期限</th>
-              <td class="px-4 py-2 text-center"></td>
+              <td
+                class="px-4 py-2 text-center"
+                v-timeFormat="order.useCoupon.couponExpiredDate"
+              ></td>
             </tr>
             <tr>
               <th class="text-left px-4 py-2">折扣幅度</th>
-              <td class="px-4 py-2 text-center">{{ coupon?.percent }}</td>
+              <td class="px-4 py-2 text-center">{{ order.useCoupon.discountPriceWhitCoupon }}</td>
             </tr>
           </tbody>
-        </table> -->
+        </table>
       </div>
     </div>
     <template v-if="!is_paid">

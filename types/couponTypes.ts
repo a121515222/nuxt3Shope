@@ -13,3 +13,11 @@ export interface UsedCoupon {
   percent: number;
   title: string;
 }
+
+export interface OrderCouponType {
+  isUsedCoupon: boolean;
+  couponCode: string;
+  discountPriceWhitCoupon: number;
+  title: string;
+  couponExpiredDate: string | number | Date | null;
+}

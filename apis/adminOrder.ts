@@ -1,5 +1,6 @@
 import type {
   BuyerOrderFetch,
+  BuyerOrdersFetch,
   SellerOrderFetch,
   BuyerAddOrderResponse
 } from "@/types/adminOrderTypes";
@@ -7,7 +8,7 @@ import { useBaseFetch } from "@/utils/fetch";
 
 export function getBuyerOrdersData(page: number = 1, limit: number = 10) {
   const api_token = getCookie("authorization");
-  return useBaseFetch<BuyerOrderFetch>(
+  return useBaseFetch<BuyerOrdersFetch>(
     `buyerGetOrderList?page=${page}?limit=${limit}`,
     {
       method: "GET",

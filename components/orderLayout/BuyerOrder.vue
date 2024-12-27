@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { BuyerOrderList } from "@/types/adminOrderTypes";
+import type { BuyerOrder } from "@/types/adminOrderTypes";
 import { getBuyerOrdersData } from "@/apis/adminOrder";
 const paginationData = ref();
 const handleGetBuyerOrders = async () => {
@@ -7,7 +7,7 @@ const handleGetBuyerOrders = async () => {
   orderList.value = res.data.orderList;
   paginationData.value = res.data.pagination;
 };
-const orderList = ref<BuyerOrderList[]>([]);
+const orderList = ref<BuyerOrder[]>([]);
 const handleChangePage = async (page: number) => {
   await getBuyerOrdersData(page);
 };
