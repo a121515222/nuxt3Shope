@@ -19,12 +19,12 @@ const order = ref<BuyerOrder>({
     tel: "",
     email: ""
   },
-  useCoupon: {
-    isUsedCoupon: false,
-    couponCode: "",
-    discountPriceWhitCoupon: 0,
-    couponExpiredDate: null,
-    title: ""
+  couponInfo: {
+    code: "",
+    discount: 0,
+    expireDate: null,
+    title: "",
+    couponId: ""
   },
   sellerId: "",
   createdAt: new Date(),
@@ -129,36 +129,33 @@ onMounted(async () => {
                   {{ order.isPaid ? "已付款" : "未付款" }}
                 </td>
               </tr>
-              <tr v-if="!order.useCoupon.isUsedCoupon">
+              <tr v-if="order.couponInfo.couponId">
                 <th class="text-left px-4 py-2">是否使用優惠券</th>
                 <td class="px-4 py-2">否</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <h2 v-if="order.useCoupon.isUsedCoupon" class="mb-3 border-b-2 mt-8 font-bold text-xl">
+        <h2 v-if="order.couponInfo.couponId" class="mb-3 border-b-2 mt-8 font-bold text-xl">
           使用的優惠券
         </h2>
-        <table v-if="order.useCoupon.isUsedCoupon" class="min-w-full table-auto">
+        <table v-if="order.couponInfo.couponId" class="min-w-full table-auto">
           <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
             <tr>
               <th class="text-left px-4 py-2">優惠券名稱</th>
-              <td class="px-4 py-2 text-center">{{ order.useCoupon.title }}</td>
+              <td class="px-4 py-2 text-center">{{ order.couponInfo.title }}</td>
             </tr>
             <tr>
               <th class="text-left px-4 py-2">優惠碼</th>
-              <td class="px-4 py-2 text-center">{{ order.useCoupon.couponCode }}</td>
+              <td class="px-4 py-2 text-center">{{ order.couponInfo.code }}</td>
             </tr>
             <tr>
               <th class="text-left px-4 py-2">使用期限</th>
-              <td
-                class="px-4 py-2 text-center"
-                v-timeFormat="order.useCoupon.couponExpiredDate"
-              ></td>
+              <td class="px-4 py-2 text-center" v-timeFormat="order.couponInfo.expireDate"></td>
             </tr>
             <tr>
               <th class="text-left px-4 py-2">折扣幅度</th>
-              <td class="px-4 py-2 text-center">{{ order.useCoupon.discountPriceWhitCoupon }}</td>
+              <td class="px-4 py-2 text-center">{{ order.couponInfo.discount }}</td>
             </tr>
           </tbody>
         </table>

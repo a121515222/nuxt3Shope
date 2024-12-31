@@ -1,13 +1,12 @@
 import type { productCartType } from "./productTypes";
-
+import type { OrderCouponType } from "@/types/couponTypes";
 export interface Cart {
   _id: string;
   userId: string;
   sellerId: string;
   totalPrice: number;
-  isUsedCoupon: boolean;
-  discountPriceWhitCoupon: number;
   productList: productCartType[];
+  couponInfo: OrderCouponType;
 }
 
 export interface FetchCartData {

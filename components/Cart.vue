@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { getCart, putCart, deleteCart } from "@/apis/cart";
 import { couponValidatePattern } from "@/utils/validatePattern";
-import { useCoupon } from "~/apis/coupon";
+import { useCoupon } from "@/apis/coupon";
 import { handleImageError } from "@/utils/imageHandler";
 const indexStore = useIndexStore();
 const { isMainBannerIntersection, isLogin, isLoading } = storeToRefs(indexStore);
@@ -31,7 +31,7 @@ const route = useRoute();
 const shouldShowCartButton = () => {
   if (route.name === "index") {
     isShowCartButton.value = !isMainBannerIntersection.value;
-  } else if (/product(List)?/.test(route.path) || /pay/.test(route.path)) {
+  } else if (/product(List)?/.test(route.path)) {
     isShowCartButton.value = true;
   } else {
     isShowCartButton.value = false;
@@ -325,10 +325,10 @@ onMounted(async () => {
                     />
                   </td>
                   <td>{{ item.title }}</td>
-                  <td class="hidden sm:table-cell text-center">
+                  <td class="hidden sm:table-cell">
                     {{ item.productSellPrice * item.num }}
                   </td>
-                  <td class="text-center" v-if="!isChangeNum || item.productId !== tempProductId">
+                  <td class="" v-if="!isChangeNum || item.productId !== tempProductId">
                     {{ item.num }}
                   </td>
                   <td v-if="isChangeNum && item.productId === tempProductId" class="min-w-[48px]">
@@ -340,7 +340,7 @@ onMounted(async () => {
                       v-model="changeNum"
                     />
                   </td>
-                  <td class="text-center">
+                  <td class="">
                     {{
                       item.price > item.price === false
                         ? (item.price * item.discount) / 100
@@ -386,8 +386,11 @@ onMounted(async () => {
           </table>
 
           <div class="self-end dark:text-white flex gap-5 px-3">
-            <span class="my-1 px-1 bg-third rounded-lg" v-if="cart.isUsedCoupon"
-              >已使用優惠券折{{ cart.discountPriceWhitCoupon }}元</span
+            <span class="my-1 px-1 bg-third rounded-lg" v-if="cart.couponInfo.couponId"
+              >已使用優惠券:{{ cart.couponInfo.code }}</span
+            >
+            <span class="my-1 px-1 bg-third rounded-lg" v-if="cart.couponInfo.couponId"
+              >已折{{ cart.couponInfo.discount }}元</span
             >
             <p class="my-1 text-center font-bold">小計</p>
             <p class="my-1 text-center">{{ cart.totalPrice }}元</p>

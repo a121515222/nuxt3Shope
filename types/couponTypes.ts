@@ -15,9 +15,9 @@ export interface UsedCoupon {
 }
 
 export interface OrderCouponType {
-  isUsedCoupon: boolean;
-  couponCode: string;
-  discountPriceWhitCoupon: number;
+  code: string;
+  discount: number;
   title: string;
-  couponExpiredDate: string | number | Date | null;
+  expireDate: string | number | Date | null;
+  couponId: string;
 }

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { BuyerOrder } from "@/types/adminOrderTypes";
 import { getBuyerOrdersData } from "@/apis/adminOrder";
+const router = useRouter();
 const paginationData = ref();
 const handleGetBuyerOrders = async () => {
   const res = await getBuyerOrdersData();
@@ -13,7 +14,7 @@ const handleChangePage = async (page: number) => {
 };
 
 const goToPay = (id: string) => {
-  console.log(id);
+  router.push(`/pay/${id}`);
 };
 onMounted(async () => {
   await handleGetBuyerOrders();

@@ -32,7 +32,7 @@ export interface BuyerOrder {
   totalPrice: number; // 總價，例如：180
   status: string; // 狀態，
   isPaid: boolean; // 是否已付款，例如：true
-  useCoupon: OrderCouponType;
+  couponInfo: OrderCouponType;
 }
 
 export interface BuyerOrdersFetch {
@@ -58,7 +58,7 @@ export interface SellerOrder {
   totalPrice: number; // 總價，例如：180
   status: string; // 狀態，
   isPaid: boolean; // 是否已付款，例如：true
-  useCoupon: OrderCouponType;
+  couponInfo: OrderCouponType;
 }
 export interface SellerOrderFetch {
   status: boolean;
