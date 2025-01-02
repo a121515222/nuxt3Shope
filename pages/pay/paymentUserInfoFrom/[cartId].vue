@@ -3,8 +3,7 @@ import {
   nameValidatePattern,
   emailValidatePattern,
   telValidatePattern,
-  addressValidatePattern,
-  noBlankValidatePattern
+  addressValidatePattern
 } from "@/utils/validatePattern";
 import { buyerAddOrder } from "@/apis/adminOrder";
 

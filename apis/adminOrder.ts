@@ -36,6 +36,28 @@ export function getBuyerOrder(id: string) {
   );
 }
 
+interface PutBuyerInfo {
+  orderId: string;
+  address: string;
+  tel: string;
+  buyerMessage: string;
+}
+export function putBuyerOrder(putBuyInfo: PutBuyerInfo) {
+  const api_token = getCookie("authorization");
+  return useBaseFetch<BuyerOrderFetch>(
+    `buyerEditOrder`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      },
+      body: JSON.stringify(putBuyInfo)
+    },
+    "newClient"
+  );
+}
+
 export function getSellerOrdersData(page: number = 1, limit: number = 10) {
   const api_token = getCookie("authorization");
   return useBaseFetch<SellerOrderFetch>(
@@ -65,15 +87,6 @@ export function putSellerOderStatus(orderId: string, status: string) {
     },
     "newClient"
   );
-}
-
-interface BuyerInfoType {
-  address: string;
-  email: string;
-  tel: string;
-  username: string;
-  cartId: string;
-  sellerId: string;
 }
 
 export function buyerAddOrder(data: any) {

@@ -21,11 +21,13 @@ interface BuyerInfo {
   email: string; // 電子郵件，例如："
   tel: string; // 電話，例如："0912345678"
   username: string; // 名稱，例如："buyer"
+  buyerMessage: string; // 買家留言，例如："請送到門口"
 }
 export interface BuyerOrder {
   _id: string; // 唯一標識符，例如："676a59ae752d68bc1a3b5d46"
   sellerId: string; // 賣家 ID，例如："674ecd448d091f0024c8a70a"
   sellerInfo: SellerInfo;
+  buyerInfo: BuyerInfo;
   createdAt: string | number | Date; // 建立時間，例如："2021-09-01T07:00:00.000Z"
   paidDate: string | number | Date | null; // 付款時間，例如："2021-09-01T07:00:00.000Z"
   productList: OrderProduct[];

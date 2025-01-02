@@ -8,13 +8,19 @@ const { footerHeight, windowHeight, isDarkMode, headerHeight, isLogin, userId } 
   storeToRefs(indexStore);
 const route = useRoute();
 const handleGoogleAuth = () => {
+  let cookieUserId;
   if (process.client) {
-    userId.value = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("userId="))
-      .split("=")[1];
+    console.log("handleGoogleAuth", document.cookie);
+    const cookieData = document.cookie.split("; ");
+    if (cookieData.length > 1) {
+      cookieUserId = cookieData.find((row) => row.startsWith("userId=")).split("=")[1];
+    } else {
+      return;
+    }
+
     if (process.client) {
-      if (userId.value) {
+      if (cookieUserId) {
+        userId.value = cookieUserId;
         localStorage.setItem("userId", userId.value);
       }
     }
