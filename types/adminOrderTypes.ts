@@ -35,6 +35,7 @@ export interface BuyerOrder {
   status: string; // 狀態，
   isPaid: boolean; // 是否已付款，例如：true
   couponInfo: OrderCouponType;
+  paidMethod: string; // 付款方式，例如："信用卡"
 }
 
 export interface BuyerOrdersFetch {
@@ -61,6 +62,7 @@ export interface SellerOrder {
   status: string; // 狀態，
   isPaid: boolean; // 是否已付款，例如：true
   couponInfo: OrderCouponType;
+  paidMethod: string; // 付款方式，例如："信用卡"
 }
 export interface SellerOrderFetch {
   status: boolean;

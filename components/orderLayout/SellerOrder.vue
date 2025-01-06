@@ -129,6 +129,12 @@ onMounted(async () => {
                               {{ item.buyerInfo.email }}
                             </td>
                           </tr>
+                          <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">
+                            <th class="py-2 text-gray-700 dark:text-gray-300">訂單備註</th>
+                            <td class="py-2 text-gray-900 dark:text-white">
+                              {{ item.buyerInfo.buyerMessage }}
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
@@ -168,6 +174,13 @@ onMounted(async () => {
                               class="py-2 text-gray-900 dark:text-white"
                               v-timeFormat="item.paidDate"
                             ></td>
+                            <td class="py-2"></td>
+                          </tr>
+                          <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">
+                            <th class="py-2 text-gray-700 dark:text-gray-300">付款方式</th>
+                            <td class="py-2 text-gray-900 dark:text-white">
+                              {{ item.paidMethod }}
+                            </td>
                             <td class="py-2"></td>
                           </tr>
                           <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">

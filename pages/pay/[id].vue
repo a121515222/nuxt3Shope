@@ -10,9 +10,12 @@ import {
 const { addToast } = useToastStore();
 const indexStore = useIndexStore();
 const { isLoading } = storeToRefs(indexStore);
+const orderStore = useOrderStore();
+const { isFinishedPayment } = storeToRefs(orderStore);
 const handleBuyerGetOrderData = async (id: string) => {
   const res = await getBuyerOrder(id);
   order.value = res.data;
+  isFinishedPayment.value = order.value.isPaid;
 };
 const isEditBuyerInfo = ref(false);
 const route = useRoute();
@@ -41,9 +44,10 @@ const order = ref<BuyerOrder>({
   },
   sellerId: "",
   createdAt: new Date(),
-  paidDate: new Date(),
+  paidDate: "",
   status: "",
-  isPaid: false
+  isPaid: false,
+  paidMethod: ""
 });
 const coupon = ref({ due_date: new Date(), percent: 0, title: "", code: "" });
 const user = ref();
@@ -272,6 +276,7 @@ onMounted(async () => {
                   ></p>
                 </td>
               </tr>
+
               <tr>
                 <th class="text-left px-4 py-2">訂單備註</th>
                 <td v-if="!isEditBuyerInfo" class="px-4 py-2">
@@ -296,6 +301,14 @@ onMounted(async () => {
                 >
                   {{ order.isPaid ? "已付款" : "未付款" }}
                 </td>
+              </tr>
+              <tr>
+                <th class="text-left px-4 py-2">付款日期</th>
+                <td class="px-4 py-2" v-timeFormat="order.paidDate"></td>
+              </tr>
+              <tr>
+                <th class="text-left px-4 py-2">付款方式</th>
+                <td class="px-4 py-2">{{ order.paidMethod }}</td>
               </tr>
               <tr v-if="order.couponInfo.couponId === '' || order.couponInfo.couponId === null">
                 <th class="text-left px-4 py-2">是否使用優惠券</th>
@@ -376,7 +389,7 @@ onMounted(async () => {
               class="ml-4 bg-primary text-white px-4 py-2 rounded hover:opacity-80 disabled:opacity-50 text-nowrap"
               type="button"
               @click="pay()"
-              :disabled="isLoading || paymentMethod === 0"
+              :disabled="isLoading || paymentMethod === 0 || order.isPaid"
             >
               確認付款
             </button>

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const orderStore = useOrderStore();
+const { isFinishedPayment: isFinishPay } = storeToRefs(orderStore);
 const route = useRoute();
 const path = ref(route.path);
 
@@ -8,7 +10,7 @@ const isConfirmPayment = computed(() => {
 
 // 判斷是否為步驟 3 (付款完成頁面)
 const isFinishedPayment = computed(() => {
-  return route.path === "/pay/finishedPayment";
+  return route.path === "/pay/finishedPayment" || isFinishPay.value;
 });
 </script>
 <template>

@@ -104,3 +104,24 @@ export function buyerAddOrder(data: any) {
     "newClient"
   );
 }
+
+interface BuyerPayData {
+  orderId: string;
+  paymentMethod: string;
+}
+
+export function buyerPayOrder(buyerPayOrderData: BuyerPayData) {
+  const api_token = getCookie("authorization");
+  return useBaseFetch<BuyerAddOrderResponse>(
+    `buyerPayOrder`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      },
+      body: JSON.stringify(buyerPayOrderData)
+    },
+    "newClient"
+  );
+}
