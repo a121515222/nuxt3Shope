@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { BuyerOrder } from "@/types/adminOrderTypes";
-import { getBuyerOrder, putBuyerOrder } from "@/apis/adminOrder";
+import { getBuyerOrder, putBuyerOrder, buyerPayOrder } from "@/apis/adminOrder";
 import { postPay } from "@/apis/pay";
 import {
   nameValidatePattern,
@@ -49,18 +49,11 @@ const order = ref<BuyerOrder>({
   isPaid: false,
   paidMethod: ""
 });
-const coupon = ref({ due_date: new Date(), percent: 0, title: "", code: "" });
-const user = ref();
-const total = ref();
-const is_paid = ref();
-const cerateDate = ref();
-// #todo payment 用自己的後端需要傳到後端
-const paymentMethod = ref(0);
-const currentStatus = ref("");
 const paymentOptionsConfig = [
-  { value: 1, text: "信用卡" },
-  { value: 2, text: "ATM" },
-  { value: 3, text: "超商繳款" }
+  { value: "", text: "請選擇付款方式" },
+  { value: "creditCard", text: "信用卡" },
+  { value: "transfer", text: "轉帳" },
+  { value: "cashOnDelivery", text: "貨到付款" }
 ];
 const router = useRouter();
 const pay = async () => {
@@ -140,6 +133,15 @@ const handleFinishEditBuyerInfo = async () => {
     isLoading.value = false;
     isEditBuyerInfo.value = false;
     isAbleSendBuyerInfo.value = true;
+  }
+};
+const handleBuyerPayOrder = async (orderId: string, paidMethod: string) => {
+  const res = await buyerPayOrder(orderId, paidMethod);
+  if (res.status) {
+    addToast({ type: "success", message: "付款成功" });
+    router.push("/pay/finishedPayment");
+  } else {
+    addToast({ type: "danger", message: "付款失敗" });
   }
 };
 const nameInputRef = ref();
@@ -368,18 +370,18 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <template v-if="!is_paid">
+    <template v-if="!order.isPaid">
       <div class="flex justify-center mt-6">
         <div class="w-full lg:w-2/3">
           <h2 class="mb-3 border-b-2 border-gray-600 dark:border-gray-400 font-bold text-xl">
             選擇付款方式
           </h2>
           <div class="flex mb-3">
-            <select v-model="paymentMethod" class="block inputStyle">
-              <option value="0" selected disabled>請選擇付款方式</option>
+            <select v-model="order.paidMethod" class="block inputStyle">
+              <option value="" selected disabled>請選擇付款方式</option>
               <option
-                v-for="option in paymentOptionsConfig"
-                :key="option.value"
+                v-for="(option, index) in paymentOptionsConfig"
+                :key="option.value + index"
                 :value="option.value"
               >
                 {{ option.text }}
@@ -388,8 +390,8 @@ onMounted(async () => {
             <button
               class="ml-4 bg-primary text-white px-4 py-2 rounded hover:opacity-80 disabled:opacity-50 text-nowrap"
               type="button"
-              @click="pay()"
-              :disabled="isLoading || paymentMethod === 0 || order.isPaid"
+              @click="handleBuyerPayOrder(order._id, order.paidMethod)"
+              :disabled="isLoading || order.isPaid || !order.paidMethod"
             >
               確認付款
             </button>

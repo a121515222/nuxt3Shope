@@ -10,7 +10,6 @@ const route = useRoute();
 const handleGoogleAuth = () => {
   let cookieUserId;
   if (process.client) {
-    console.log("handleGoogleAuth", document.cookie);
     const cookieData = document.cookie.split("; ");
     if (cookieData.length > 1) {
       cookieUserId = cookieData.find((row) => row.startsWith("userId=")).split("=")[1];

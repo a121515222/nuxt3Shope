@@ -105,12 +105,7 @@ export function buyerAddOrder(data: any) {
   );
 }
 
-interface BuyerPayData {
-  orderId: string;
-  paymentMethod: string;
-}
-
-export function buyerPayOrder(buyerPayOrderData: BuyerPayData) {
+export function buyerPayOrder(orderId: string, paidMethod: string) {
   const api_token = getCookie("authorization");
   return useBaseFetch<BuyerAddOrderResponse>(
     `buyerPayOrder`,
@@ -120,7 +115,7 @@ export function buyerPayOrder(buyerPayOrderData: BuyerPayData) {
         "Content-Type": "application/json",
         Authorization: `${api_token}`
       },
-      body: JSON.stringify(buyerPayOrderData)
+      body: JSON.stringify({ orderId, paidMethod })
     },
     "newClient"
   );
