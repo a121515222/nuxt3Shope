@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { postLogin, postLoginNew } from "@/apis/login";
+import { postLoginNew } from "@/apis/login";
 import { resentVerifyMail } from "@/apis/resentVerifyMail";
 import { setCookie } from "@/utils/cookie";
 import type { UserLogin } from "@/types/loginTypes";
-import { googleAuth } from "@/apis/login";
 const indexStore = useIndexStore();
 const messageStore = useMessageBoxStore();
 const { showAlert } = messageStore;
@@ -112,7 +111,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
               v-if="!isForgotPassword"
             >
               <svg
-                class="w-6 h-6 text-gray-800 dark:text-white"
+                class="w-6 h-6 text-gray-800 text-white"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"

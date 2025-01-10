@@ -2,7 +2,7 @@
 import type { SellerOrder } from "@/types/adminOrderTypes";
 import { getSellerOrdersData, putSellerOderStatus } from "@/apis/adminOrder";
 import { handleImageError } from "@/utils/imageHandler";
-
+import { orderStatusConfig } from "@/utils/config";
 const indexStore = useIndexStore();
 const { addToast } = useToastStore();
 const { isLoading } = storeToRefs(indexStore);
@@ -42,7 +42,9 @@ const handleSellerOrderStatus = async (orderId: string, orderListIndex: number) 
     isLoading.value = false;
   }
 };
-const orderStatusConfig = ["unpaid", "paid", "shipped", "confirmed", "completed", "cancelled"];
+const getOrderStatusText = (status: keyof typeof orderStatusConfig) => {
+  return orderStatusConfig[status]?.showText || "狀態異常";
+};
 onMounted(async () => {
   await handleGetBuyerOrders();
 });
@@ -60,31 +62,47 @@ onMounted(async () => {
           <!-- Accordion Header -->
           <button
             type="button"
-            class="flex items-center justify-between w-full p-5 font-medium text-gray-500 bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 gap-3"
+            class="flex items-center justify-between w-full p-5 font-medium text-gray-500 bg-gray-200 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:hover:text-white dark:text-gray-200 gap-3"
             :class="[
               index === 0 ? 'rounded-t-lg ' : '',
-              currentOpenOrderId === item._id ? 'bg-gray-400 dark:bg-gray-900' : ''
+              currentOpenOrderId === item._id
+                ? 'bg-gray-400 dark:bg-gray-300 text-white dark:text-gray-700'
+                : ''
             ]"
             @click="handleCollapse(item._id)"
           >
-            <span>訂單編號{{ item._id }}</span>
-            <svg
-              data-accordion-icon
-              class="w-3 h-3 shrink-0 transition-transform text-gray-600 dark:text-gray-400"
-              :class="{ 'rotate-180': index === 0 }"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 10 6"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5 5 1 1 5"
-              />
-            </svg>
+            <span>訂單編號{{ item._id }} </span>
+            <div class="flex items-center gap-2">
+              <span
+                :class="{
+                  'text-green-800  dark:text-green-500':
+                    item.status === 'completed' ||
+                    item.status === 'shipped' ||
+                    item.status === 'confirmed' ||
+                    item.status === 'inProcessed',
+                  'text-red-700 dark:text-red-500':
+                    item.status === 'buyerCancelled' || item.status === 'sellerCancelled'
+                }"
+                >{{ getOrderStatusText(item.status) }}</span
+              >
+              <svg
+                data-accordion-icon
+                class="w-3 h-3 shrink-0 transition-transform text-gray-600 dark:text-gray-400"
+                :class="{ 'rotate-180': index === 0 }"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 10 6"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5 5 1 1 5"
+                />
+              </svg>
+            </div>
           </button>
 
           <!-- Accordion Content -->
@@ -145,13 +163,13 @@ onMounted(async () => {
                         <h5 class="text-lg font-semibold text-gray-900 dark:text-white">
                           訂單細節
                         </h5>
-                        <button
+                        <!-- <button
                           class="px-4 py-2 text-sm border border-red-300 dark:border-red-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-red-100 dark:hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           :disabled="isLoading"
                           @click=""
                         >
                           刪除訂單
-                        </button>
+                        </button>   #todo 還沒接api  -->
                       </div>
                       <table class="w-full">
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
@@ -194,10 +212,11 @@ onMounted(async () => {
                               >
                                 <option
                                   v-for="option in orderStatusConfig"
-                                  :key="option"
-                                  :value="option"
+                                  :key="option.value"
+                                  :value="option.value"
+                                  :disabled="option.value === 'buyerCancelled'"
                                 >
-                                  {{ option }}
+                                  {{ option.showText }}
                                 </option>
                               </select>
                             </td>

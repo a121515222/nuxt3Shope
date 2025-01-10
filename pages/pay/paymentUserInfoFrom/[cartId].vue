@@ -182,7 +182,7 @@ const addressInputErrorMessageRef = ref();
     <div class="fromGroup">
       <label class="form-label" for="message">留言</label>
       <textarea
-        class="rounded-lg w-full focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
+        class="rounded-lg w-full focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white bg-gray-100 dark:bg-gray-700 dark:text-white"
         style="height: 100px"
         v-model="buyerInfo.buyerMessage"
       ></textarea>

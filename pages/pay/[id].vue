@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { BuyerOrder } from "@/types/adminOrderTypes";
+import { paidMethodConfig, orderStatusConfig } from "@/utils/config";
 import { getBuyerOrder, putBuyerOrder, buyerPayOrder } from "@/apis/adminOrder";
-import { postPay } from "@/apis/pay";
+import { postComment } from "@/apis/commentAPI";
 import {
   nameValidatePattern,
   telValidatePattern,
@@ -47,31 +48,17 @@ const order = ref<BuyerOrder>({
   paidDate: "",
   status: "",
   isPaid: false,
-  paidMethod: ""
-});
-const paymentOptionsConfig = [
-  { value: "", text: "請選擇付款方式" },
-  { value: "creditCard", text: "信用卡" },
-  { value: "transfer", text: "轉帳" },
-  { value: "cashOnDelivery", text: "貨到付款" }
-];
-const router = useRouter();
-const pay = async () => {
-  console.log("pay");
-  isLoading.value = true;
-  const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-  if (!id) {
-    return;
-  } else {
-    const res = await postPay(id);
-    if (res.success) {
-      isLoading.value = false;
-      router.push("/pay/finishedPayment");
-    }
+  paidMethod: "",
+  commentInfo: {
+    comment: "",
+    score: 0,
+    _id: ""
   }
-};
+});
+
+const router = useRouter();
 const isAbleSendBuyerInfo = ref(true);
-const { nameValidate, emailValidate, telValidate, addressValidate } = useFormValidate();
+const { nameValidate, telValidate, addressValidate } = useFormValidate();
 const handleNameValidate = async () => {
   const result = await nameValidate(
     order.value.buyerInfo.username,
@@ -144,6 +131,39 @@ const handleBuyerPayOrder = async (orderId: string, paidMethod: string) => {
     addToast({ type: "danger", message: "付款失敗" });
   }
 };
+const handleCommit = async () => {
+  const data = {
+    orderId: order.value._id,
+    comment: order.value.commentInfo.comment,
+    score: order.value.commentInfo.score,
+    sellerId: order.value.sellerId
+  };
+  try {
+    const res = await postComment(data);
+    if (res.status) {
+      addToast({ type: "success", message: "評價成功" });
+      await handleBuyerGetOrderData(
+        Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+      );
+    } else {
+      addToast({ type: "danger", message: "評價失敗" });
+    }
+  } catch (error) {
+    addToast({ type: "danger", message: "評價失敗" });
+  }
+};
+const getOrderStatusText = (status: keyof typeof orderStatusConfig | "") => {
+  if (status === "") {
+    return ""; // 如果是空字串，直接返回
+  }
+  return orderStatusConfig[status]?.showText || "未知狀態";
+};
+const getPaidMethodText = (paidMethod: keyof typeof paidMethodConfig | "") => {
+  if (paidMethod === "") {
+    return ""; // 如果是空字串，直接返回
+  }
+  return paidMethodConfig[paidMethod]?.showText || "未知付款方式";
+};
 const nameInputRef = ref();
 const nameInputErrorMessageRef = ref();
 const telInputRef = ref();
@@ -199,7 +219,7 @@ onMounted(async () => {
           </h2>
           <div class="absolute top-[-16px] right-0">
             <button
-              v-if="!isEditBuyerInfo"
+              v-if="!isEditBuyerInfo && !order.isPaid && order.status !== 'completed'"
               type="button"
               class="bg-primary hover:opacity-80 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               @click="isEditBuyerInfo = !isEditBuyerInfo"
@@ -286,7 +306,7 @@ onMounted(async () => {
                 </td>
                 <td v-else class="px-4 py-6">
                   <textarea
-                    class="w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white"
+                    class="w-full border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white bg-gray-100 dark:bg-gray-700 dark:text-white"
                     placeholder="請輸入訂單備註"
                     v-model="order.buyerInfo.buyerMessage"
                   ></textarea>
@@ -296,12 +316,31 @@ onMounted(async () => {
                 <th class="text-left px-4 py-2">付款狀態</th>
                 <td
                   :class="{
-                    'text-green-600': order.isPaid,
-                    'text-red-600': !order.isPaid
+                    'text-green-800  dark:text-green-400': order.isPaid,
+                    'text-red-700 dark:text-red-500': !order.isPaid
                   }"
                   class="px-4 py-2"
                 >
                   {{ order.isPaid ? "已付款" : "未付款" }}
+                </td>
+              </tr>
+              <tr>
+                <th class="text-left px-4 py-2">訂單狀態</th>
+                <td
+                  :class="{
+                    'text-green-800  dark:text-green-400':
+                      order.status === 'completed' ||
+                      order.status === 'shipped' ||
+                      order.status === 'confirmed' ||
+                      order.status === 'inProcessed',
+                    'text-red-700 dark:text-red-500':
+                      order.status === 'buyerCancelled' ||
+                      order.status === 'sellerCancelled' ||
+                      order.status === ''
+                  }"
+                  class="px-4 py-2"
+                >
+                  {{ getOrderStatusText(order.status) }}
                 </td>
               </tr>
               <tr>
@@ -310,7 +349,7 @@ onMounted(async () => {
               </tr>
               <tr>
                 <th class="text-left px-4 py-2">付款方式</th>
-                <td class="px-4 py-2">{{ order.paidMethod }}</td>
+                <td class="px-4 py-2">{{ getPaidMethodText(order.paidMethod) }}</td>
               </tr>
               <tr v-if="order.couponInfo.couponId === '' || order.couponInfo.couponId === null">
                 <th class="text-left px-4 py-2">是否使用優惠券</th>
@@ -371,7 +410,7 @@ onMounted(async () => {
       </div>
     </div>
     <template v-if="!order.isPaid">
-      <div class="flex justify-center mt-6">
+      <div class="flex justify-center my-6">
         <div class="w-full lg:w-2/3">
           <h2 class="mb-3 border-b-2 border-gray-600 dark:border-gray-400 font-bold text-xl">
             選擇付款方式
@@ -380,11 +419,11 @@ onMounted(async () => {
             <select v-model="order.paidMethod" class="block inputStyle">
               <option value="" selected disabled>請選擇付款方式</option>
               <option
-                v-for="(option, index) in paymentOptionsConfig"
-                :key="option.value + index"
+                v-for="(option, index) in paidMethodConfig"
+                :key="option.value"
                 :value="option.value"
               >
-                {{ option.text }}
+                {{ option.showText }}
               </option>
             </select>
             <button
@@ -399,6 +438,12 @@ onMounted(async () => {
         </div>
       </div>
     </template>
+    <div class="flex justify-center" v-if="order.status === 'completed'">
+      <div class="w-full lg:w-2/3">
+        <h2 class="mb-3 border-b-2 border-gray-600 dark:border-gray-400 font-bold text-xl">評價</h2>
+        <OrderComment v-model="order.commentInfo" @sendComment="handleCommit"></OrderComment>
+      </div>
+    </div>
   </div>
 </template>
 <style>

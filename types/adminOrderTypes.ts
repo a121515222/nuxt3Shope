@@ -1,5 +1,6 @@
 import type { Pagination } from "@/types/paginationTypes";
 import type { OrderCouponType } from "@/types/couponTypes";
+import { orderStatusConfig, paidMethodConfig } from "@/utils/config";
 export interface OrderProduct {
   discount: number; // 折扣數量，例如：90
   imageUrl: string; // 產品圖片的 URL，例如：https://www.google.com
@@ -32,10 +33,15 @@ export interface BuyerOrder {
   paidDate: string | number | Date | null; // 付款時間，例如："2021-09-01T07:00:00.000Z"
   productList: OrderProduct[];
   totalPrice: number; // 總價，例如：180
-  status: string; // 狀態，
+  status: keyof typeof orderStatusConfig | ""; // 狀態，
   isPaid: boolean; // 是否已付款，例如：true
   couponInfo: OrderCouponType;
-  paidMethod: string; // 付款方式，例如："信用卡"
+  paidMethod: keyof typeof paidMethodConfig | ""; // 付款方式，例如："信用卡"
+  commentInfo: {
+    comment: string;
+    score: number;
+    _id: string;
+  };
 }
 
 export interface BuyerOrdersFetch {
@@ -59,10 +65,10 @@ export interface SellerOrder {
   paidDate: string | number | Date | null; // 付款時間，例如："2021-09-01T07:00:00.000Z"
   productList: OrderProduct[];
   totalPrice: number; // 總價，例如：180
-  status: string; // 狀態，
+  status: keyof typeof orderStatusConfig; // 狀態，
   isPaid: boolean; // 是否已付款，例如：true
   couponInfo: OrderCouponType;
-  paidMethod: string; // 付款方式，例如："信用卡"
+  paidMethod: keyof typeof paidMethodConfig; // 付款方式，例如："信用卡"
 }
 export interface SellerOrderFetch {
   status: boolean;
