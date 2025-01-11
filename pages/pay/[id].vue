@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { BuyerOrder } from "@/types/adminOrderTypes";
 import { paidMethodConfig, orderStatusConfig } from "@/utils/config";
-import { getBuyerOrder, putBuyerOrder, buyerPayOrder } from "@/apis/adminOrder";
+import { getBuyerOrder, putBuyerOrder, buyerPayOrder, buyerCancelOrder } from "@/apis/adminOrder";
 import { postComment } from "@/apis/commentAPI";
 import {
   nameValidatePattern,
@@ -18,6 +18,8 @@ const handleBuyerGetOrderData = async (id: string) => {
   order.value = res.data;
   isFinishedPayment.value = order.value.isPaid;
 };
+const messageBoxStore = useMessageBoxStore();
+const { showConfirm } = messageBoxStore;
 const isEditBuyerInfo = ref(false);
 const route = useRoute();
 const order = ref<BuyerOrder>({
@@ -152,6 +154,27 @@ const handleCommit = async () => {
     addToast({ type: "danger", message: "評價失敗" });
   }
 };
+const handleBuyerCancelOrder = async (orderId: string) => {
+  const result = await showConfirm("確定要取消訂單嗎?", `取消訂單${orderId}`);
+  if (result) {
+    try {
+      isLoading.value = true;
+      const res = await buyerCancelOrder(orderId);
+      if (res.status) {
+        addToast({ type: "success", message: "取消成功" });
+        await handleBuyerGetOrderData(
+          Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+        );
+      } else {
+        addToast({ type: "danger", message: "取消失敗" });
+      }
+    } catch (error) {
+      addToast({ type: "danger", message: "取消失敗" });
+    } finally {
+      isLoading.value = false;
+    }
+  }
+};
 const getOrderStatusText = (status: keyof typeof orderStatusConfig | "") => {
   if (status === "") {
     return ""; // 如果是空字串，直接返回
@@ -219,12 +242,20 @@ onMounted(async () => {
           </h2>
           <div class="absolute top-[-16px] right-0">
             <button
-              v-if="!isEditBuyerInfo && !order.isPaid && order.status !== 'completed'"
+              v-if="!isEditBuyerInfo && order.status === 'inProcessed'"
               type="button"
               class="bg-primary hover:opacity-80 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               @click="isEditBuyerInfo = !isEditBuyerInfo"
             >
               修改資料
+            </button>
+            <button
+              v-if="order.status === 'inProcessed'"
+              type="button"
+              class="shadow-inner-border dark:shadow-inner-border-dark ml-2 hover:opacity-80 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              @click="handleBuyerCancelOrder(order._id)"
+            >
+              取消訂單
             </button>
             <button
               v-if="isEditBuyerInfo"

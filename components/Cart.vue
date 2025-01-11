@@ -92,7 +92,6 @@ const handlePutCart = async (
   }
 };
 const handleDeleteCartItem = async (cartId: string, productId: string, title: string) => {
-  console.log("deleteCartItem");
   const result = await showConfirm("確定要刪除商品嗎?", `刪除${title}`);
   if (result) {
     try {

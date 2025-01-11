@@ -35,6 +35,10 @@ module.exports = {
       width: {
         "9/10": "90%"
       },
+      boxShadow: {
+        "inner-border": "inset 0 0 0 1px rgba(0, 0, 0, 0.2)", // 淺色內邊框
+        "inner-border-dark": "inset 0 0 0 1px rgba(255, 255, 255, 0.2)" // 深色內邊框
+      },
       textShadow: {
         DEFAULT: "0 2px 2px var(--tw-shadow-color)"
       },

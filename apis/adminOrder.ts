@@ -120,3 +120,19 @@ export function buyerPayOrder(orderId: string, paidMethod: string) {
     "newClient"
   );
 }
+
+export function buyerCancelOrder(orderId: string) {
+  const api_token = getCookie("authorization");
+  return useBaseFetch<BuyerAddOrderResponse>(
+    `buyerCancelOrder`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${api_token}`
+      },
+      body: JSON.stringify({ orderId })
+    },
+    "newClient"
+  );
+}
