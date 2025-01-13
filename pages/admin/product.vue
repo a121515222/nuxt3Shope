@@ -6,6 +6,7 @@ import {
   putUserProduct,
   deleteUserProduct
 } from "@/apis/adminProduct";
+import { productStatusConfig } from "@/utils/config";
 import { handleImageError } from "@/utils/imageHandler";
 import { postAdminImageUpload, postImageUpload } from "@/apis/adminUpload";
 
@@ -22,7 +23,7 @@ const productTemp = ref<AdminProduct>({
   title: "",
   price: null,
   unit: "",
-  productStatus: 0,
+  productStatus: "notListed",
   category: [],
   description: "",
   content: "",
@@ -40,7 +41,7 @@ const modalData = ref<AdminProduct>({
   title: "",
   price: null,
   unit: "",
-  productStatus: 0,
+  productStatus: "notListed",
   category: [],
   description: "",
   content: "",
@@ -59,7 +60,7 @@ const resetModalData = () => {
     title: "",
     price: null,
     unit: "",
-    productStatus: 0,
+    productStatus: "notListed",
     category: [],
     description: "",
     content: "",
@@ -73,22 +74,12 @@ const resetModalData = () => {
     updatedAt: new Date()
   };
 };
-const productStatus = ref([
-  { value: 0, status: "未上架" },
-  { value: 1, status: "已上架" },
-  { value: 2, status: "缺貨中" },
-  { value: 3, status: "補貨中" },
-  { value: 4, status: "促銷中" },
-  { value: 5, status: "待下架" }
-]);
 const modalRef = ref<{ modalShow: () => void } | null>(null);
 const sellPrice = computed(() => {
-  return ((modalData.value.price ?? 0) * (modalData.value.discount ?? 100)) / 100;
+  return (modalData.value.price ?? 0) - (modalData.value.discount ?? 0) === 0
+    ? "價格錯誤"
+    : (modalData.value.price ?? 0) - (modalData.value.discount ?? 0);
 });
-// #todo isEnabled 自己做後端的時候命名要改
-const shouldProductActive = (isEnabled: number) => {
-  return productStatus.value.find((status) => status.value === isEnabled)?.status || "";
-};
 const paginationData = ref();
 const handleGetAdminProducts = async (page: number = 1, limit: number = 10) => {
   const res = await getUserProducts(page, limit);
@@ -97,6 +88,14 @@ const handleGetAdminProducts = async (page: number = 1, limit: number = 10) => {
   paginationData.value = pagination;
 };
 const handleModalConfirm = async () => {
+  const isValid = await Promise.all([
+    handlePriceValidate(),
+    handleDiscountValidate(),
+    handleProductNumValidate()
+  ]).then((result) => result.every(Boolean));
+  if (!isValid) {
+    return;
+  }
   if (isAddNewProduct.value) {
     // #todo 可以塞驗證
     await handleAddProduct();
@@ -131,6 +130,7 @@ const handleEditProduct = async () => {
     if (process.client) {
       modalData.value.userId = localStorage.getItem("userId") ?? "";
     }
+
     const res = await putUserProduct(modalData.value);
     if (res.status) {
       addToast({ type: "success", message: "編輯成功" });
@@ -219,7 +219,92 @@ const deleteImg = () => {
 const handleChangePage = async (page: number) => {
   await handleGetAdminProducts(page);
 };
+const { validateInput } = useInputValidate();
 
+const priceValidateConfig = {
+  productPriceRule: {
+    fn: () => productPriceAndDiscountRule(modalData.value.price, modalData.value.discount),
+    errorMessage: "折扣價格不能大於原價"
+  },
+  productPriceCanNotBeZero: {
+    fn: () => productPriceAndBeZeroAndBelowZero(modalData.value.price),
+    errorMessage: "價格不能為0或小於0"
+  }
+};
+const discountValidateConfig = {
+  productPriceRule: {
+    fn: () => productPriceAndDiscountRule(modalData.value.price, modalData.value.discount),
+    errorMessage: "折扣價格不能大於原價"
+  },
+  discountCanNotBelowZero: {
+    fn: () => discountCanNotBelowZero(modalData.value.discount),
+    errorMessage: "折扣價格不能小於0"
+  }
+};
+const productNumValidateConfig = {
+  productNumRule: {
+    fn: () => productNumRule(),
+    errorMessage: "數量不能小於0"
+  }
+};
+const productNumRule = () => {
+  return modalData.value.num !== null && modalData.value.num >= 0;
+};
+const productPriceAndDiscountRule = (price: number | null, discount: number | null) => {
+  if (price === null) {
+    return true;
+  } else {
+    return price >= (discount ?? 0);
+  }
+};
+const productPriceAndBeZeroAndBelowZero = (price: number | null) => {
+  return price !== null && price !== 0;
+};
+const discountCanNotBelowZero = (discount: number | null) => {
+  return discount !== null && discount >= 0;
+};
+const handlePriceValidate = async () => {
+  try {
+    const result = await validateInput(
+      priceValidateConfig,
+      priceErrorMessageRef.value as HTMLParagraphElement,
+      priceRef.value as HTMLInputElement
+    );
+    return result;
+  } catch (error) {
+    console.warn("Validation failed:", error);
+  }
+};
+const handleDiscountValidate = async () => {
+  try {
+    const result = await validateInput(
+      discountValidateConfig,
+      discountErrorMessageRef.value as HTMLParagraphElement,
+      discountRef.value as HTMLInputElement
+    );
+    return result;
+  } catch (error) {
+    console.warn("Validation failed:", error);
+  }
+};
+const handleProductNumValidate = async () => {
+  try {
+    const result = await validateInput(
+      productNumValidateConfig,
+      productNumErrorMessageRef.value as HTMLParagraphElement,
+      productNumRef.value as HTMLInputElement
+    );
+    return result;
+  } catch (error) {
+    console.warn("Validation failed:", error);
+  }
+};
+const priceRef = ref();
+const priceErrorMessageRef = ref();
+const discountRef = ref();
+const discountErrorMessageRef = ref();
+const productNumRef = ref();
+const productNumErrorMessageRef = ref();
 onMounted(async () => {
   await handleGetAdminProducts();
 });
@@ -265,15 +350,19 @@ onMounted(async () => {
               <td class="border px-4 py-2 text-center">{{ item.title }}</td>
               <td class="border px-4 py-2 text-center">{{ item.price }}</td>
               <td class="border px-4 py-2 text-center">
-                {{ (item.price ?? 0) * (item.discount ?? 1) }}
+                {{
+                  (item.price ?? 0) - (item.discount ?? 0) === 0
+                    ? "價格錯誤"
+                    : (item.price ?? 0) - (item.discount ?? 0)
+                }}
               </td>
               <td class="border px-4 py-2 text-center">{{ item.unit }}</td>
               <td class="border px-4 py-2 text-center">
-                {{ shouldProductActive(item.productStatus) }}
+                {{ productStatusConfig[item.productStatus]?.showText || "" }}
               </td>
               <td class="border px-4 py-2 text-center">
                 <button class="btn btn-outline-primary" type="button" @click="showProduct(item)">
-                  查看細節
+                  預覽
                 </button>
               </td>
               <td class="border px-4 py-2 flex justify-center gap-4">
@@ -503,58 +592,76 @@ onMounted(async () => {
           />
         </div>
         <div class="grid grid-cols-2 gap-4">
-          <div class="mb-3">
+          <div class="mb-6 relative">
             <label class="block text-gray-700 dark:text-white" for="productOrigin_price"
               >產品原價</label
             >
             <input
+              ref="priceRef"
               class="block inputStyle"
               type="number"
               id="productPrice"
               placeholder="請輸入產品原價"
               min="0"
               v-model.number="modalData.price"
+              @blur="handlePriceValidate"
             />
+            <p
+              ref="priceErrorMessageRef"
+              class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
+            ></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-6 relative">
             <label class="block text-gray-700 dark:text-white" for="productPrice">產品折扣</label>
             <input
+              ref="discountRef"
               class="block inputStyle"
               type="number"
               id="productDiscount"
-              placeholder="請輸入產品折扣100為原價，80為原價的80%"
+              placeholder="請輸入產品折扣價格"
               min="0"
               max="100"
               v-model.number="modalData.discount"
+              @blur="handleDiscountValidate"
             />
+            <p
+              ref="discountErrorMessageRef"
+              class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
+            ></p>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
-          <div class="mb-3">
+          <div class="mb-6 relative">
             <label class="block text-gray-700 dark:text-white" for="productNum">產品數量</label>
             <input
+              ref="productNumRef"
               class="block inputStyle"
               type="number"
               id="productNum"
               placeholder="請輸入產品數量"
               min="0"
               v-model.number="modalData.num"
+              @blur="handleProductNumValidate"
             />
+            <p
+              ref="productNumErrorMessageRef"
+              class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
+            ></p>
           </div>
-          <div class="mb-3">
+          <div class="mb-6">
             <label class="block text-gray-700 dark:text-white" for="productTag">產品售價</label>
             <input
               class="block inputStyle"
               type="number"
               id="productSellPrice"
-              placeholder="請輸入產品數量"
+              placeholder=""
               disabled
               :value="sellPrice"
             />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
-          <div class="mb-3">
+          <div class="mb-6">
             <label class="block text-gray-700 dark:text-white" for="productStatus">產品狀態</label>
             <select
               class="block inputStyle"
@@ -562,12 +669,16 @@ onMounted(async () => {
               v-model.number="modalData.productStatus"
             >
               <option value="" disabled>請選擇產品狀態</option>
-              <option v-for="status in productStatus" :key="status.value" :value="status.value">
-                {{ status.status }}
+              <option
+                v-for="status in productStatusConfig"
+                :key="status.value"
+                :value="status.value"
+              >
+                {{ status.showText }}
               </option>
             </select>
           </div>
-          <div class="mb-3">
+          <div class="mb-6">
             <label class="block text-gray-700 dark:text-white" for="productUnit">產品單位</label>
             <input
               class="block inputStyle"
@@ -578,7 +689,7 @@ onMounted(async () => {
             />
           </div>
         </div>
-        <div class="mb-3">
+        <div class="mb-6">
           <label class="block text-gray-700 dark:text-white" for="productDescription"
             >產品內容</label
           >

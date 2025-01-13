@@ -2,10 +2,12 @@
 interface ModalProps {
   modalPropsId?: string;
   modalPropsTitle?: string;
+  isCloseModalAfterConfirm?: boolean;
 }
 const props = withDefaults(defineProps<ModalProps>(), {
   modalPropsId: "modal",
-  modalTitle: ""
+  modalTitle: "",
+  isCloseModalAfterConfirm: false
 });
 const overlayVisible = ref(false);
 const modalRef = ref<HTMLElement | null>(null);
@@ -45,7 +47,9 @@ defineExpose({
 const emits = defineEmits(["modalConfirm"]);
 const confirm = () => {
   emits("modalConfirm");
-  modalHide();
+  if (props.isCloseModalAfterConfirm) {
+    modalHide();
+  }
 };
 </script>
 <template>

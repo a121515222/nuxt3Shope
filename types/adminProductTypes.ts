@@ -1,4 +1,5 @@
 import type { Pagination } from "@/types/paginationTypes";
+import { productStatusConfig } from "~/utils/config";
 export interface AdminProduct {
   _id: string; // 對應到 API 的 id
   userId: string; // 用戶 ID
@@ -12,7 +13,7 @@ export interface AdminProduct {
   discount: number | null; // 折扣百分比
   unit: string; // 單位
   tag: string[]; // 標籤
-  productStatus: number; // 商品狀態
+  productStatus: keyof typeof productStatusConfig; // 商品狀態
   createdAt: string | Date; // 創建時間
   updatedAt: string | Date; // 更新時間
   num: number | null; // 商品數量

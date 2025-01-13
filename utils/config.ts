@@ -54,3 +54,31 @@ export const paidMethodConfig = {
     showText: "貨到付款"
   }
 };
+
+export const productStatusConfig = {
+  notListed: {
+    value: "notListed",
+    showText: "未上架"
+  },
+  listed: {
+    value: "listed",
+    showText: "已上架"
+  },
+
+  outOfStock: {
+    value: "outOfStock",
+    showText: "缺貨中"
+  },
+  restocking: {
+    value: "restocking",
+    showText: "補貨中"
+  },
+  onSale: {
+    value: "onSale",
+    showText: "促銷中"
+  },
+  pendingRemoval: {
+    value: "pendingRemoval",
+    showText: "待下架"
+  }
+};
