@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { getProduct } from "@/apis/products";
-import { postCart } from "@/apis/cart";
 import { type Product } from "@/types/productTypes";
+import { handleImageError } from "@/utils/imageHandler";
 const cartStore = useCartStore();
 const { handleAddCart } = cartStore;
 const route = useRoute();
@@ -26,8 +26,8 @@ const pictureShowIndex = ref(0);
 const changePicture = (index: number) => {
   pictureShowIndex.value = index;
 };
-const addCart = async (id: string, q: number) => {
-  const res = await handleAddCart(id, q);
+const addCart = async (productId: string, sellerId: string, num: number, productTitle: string) => {
+  const res = await handleAddCart(productId, sellerId, num, productTitle);
 };
 onMounted(async () => {
   if (!route.params.id) {
@@ -76,6 +76,7 @@ onMounted(async () => {
               :src="product.imageUrl"
               :alt="`${product.title} picture`"
               loading="lazy"
+              @error="handleImageError"
             />
           </div>
         </template>

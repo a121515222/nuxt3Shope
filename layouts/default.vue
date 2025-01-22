@@ -6,7 +6,7 @@ const indexStore = useIndexStore();
 const { windowHeightListener, removeWindowHeightListener } = indexStore;
 const { footerHeight, windowHeight, isDarkMode, headerHeight, isLogin, userId } =
   storeToRefs(indexStore);
-const route = useRoute();
+const router = useRouter();
 const handleGoogleAuth = () => {
   let cookieUserId;
   if (process.client) {
@@ -31,17 +31,20 @@ const handleCheckLogin = async () => {
   if (process.client) {
     id = localStorage.getItem("userId") ?? "";
   }
-  if (!id) {
-    router.push("/login");
-    return;
-  }
-  const res = await postCheckLoginNew(id);
-  if (res.status) {
-    isLogin.value = true;
-    userId.value = id;
-  } else {
-    isLogin.value = false;
-    router.push("/login");
+  if (process.client) {
+    const cookieData = document.cookie.split("; ");
+    if (!cookieData[0]) {
+      return;
+    } else {
+      const res = await postCheckLoginNew(id);
+      if (res.status) {
+        isLogin.value = true;
+        userId.value = id;
+      } else {
+        isLogin.value = false;
+        router.push("/login");
+      }
+    }
   }
 };
 

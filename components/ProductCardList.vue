@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { type Product } from "@/types/productTypes";
+import type { AdminProduct } from "@/types/adminProductTypes";
+import { handleImageError } from "@/utils/imageHandler";
 const cartStore = useCartStore();
 const { handleAddCart } = cartStore;
 interface ProductCardListProps {
-  productListProp: Product[];
+  productListProp: AdminProduct[];
   productIdProp?: string;
 }
 interface favoritesProduct {
@@ -11,12 +12,13 @@ interface favoritesProduct {
   title: string;
 }
 const props = withDefaults(defineProps<ProductCardListProps>(), {
-  productListProp: (): Product[] => [],
+  productListProp: (): AdminProduct[] => [],
   productIdProp: ""
 });
 const shouldShowLoading = (id: string) => {
   return id === props.productIdProp;
 };
+
 const favorites = ref<favoritesProduct[]>([]);
 const emits = defineEmits(["inspectId"]);
 const emitsInspectId = (id: string): void => {
@@ -36,6 +38,7 @@ const deleteFavorites = (id: string, title: string): void => {
 const guestProductDetail = (id: string): void => {
   console.log(id);
 };
+
 onMounted(() => {
   if (process.client) {
     favorites.value = JSON.parse(localStorage.getItem("favorites") || "[]");
@@ -46,25 +49,24 @@ onMounted(() => {
   <div class="pt-3">
     <div v-if="props.productListProp.length > 0">
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-3 mb-3">
-        <div v-for="item in props.productListProp" :key="item.id">
+        <div v-for="item in props.productListProp" :key="item._id">
           <NuxtLink
             class="text-black no-underline rounded-md overflow-hidden block hover:opacity-80"
-            @click.prevent="emitsInspectId(item.id)"
-            :to="`/product/${item.id}`"
+            @click.prevent="emitsInspectId(item._id)"
+            :to="`/product/${item._id}`"
           >
             <div
               class="relative cardHover rounded-md dark:text-white bg-gray-200 dark:bg-gray-700"
-              v-if="item.is_enabled === 1 || 4"
+              v-if="item.productStatus !== 'notListed'"
             >
-              <img
-                class="w-full h-52 object-cover rounded-t-md"
-                :src="item.imageUrl"
+              <ImageWithErrorHandler
                 :alt="item.title"
-                loading="lazy"
-              />
+                :src="item.imageUrl"
+                :class="'w-full h-52 object-cover rounded-t-md'"
+              ></ImageWithErrorHandler>
               <p
                 class="absolute top-0 left-0 bg-secondary text-primary p-1"
-                v-if="item.is_enabled === 4"
+                v-if="item.productStatus === 'onSale'"
               >
                 促銷中
               </p>
@@ -72,11 +74,11 @@ onMounted(() => {
                 class="absolute top-0 right-0 bg-third flex justify-center items-center rounded-md h-8 w-8"
               >
                 <button
-                  v-if="!favorites.some((fav) => fav.id === item.id)"
+                  v-if="!favorites.some((fav) => fav.id === item._id)"
                   class="text-red-500 text-xl"
                   title="加入我的最愛"
                   href="#"
-                  @click.stop.prevent="addFavorites(item.id, item.title)"
+                  @click.stop.prevent="addFavorites(item._id, item.title)"
                 >
                   <svg
                     class="w-6 h-6 text-secondary"
@@ -100,8 +102,8 @@ onMounted(() => {
                   class="text-red-500 text-xl"
                   title="移除我的最愛"
                   href="#"
-                  v-else-if="favorites.some((fav) => fav.id === item.id)"
-                  @click.stop.prevent="deleteFavorites(item.id, item.title)"
+                  v-else-if="favorites.some((fav) => fav.id === item._id)"
+                  @click.stop.prevent="deleteFavorites(item._id, item.title)"
                 >
                   <svg
                     class="w-6 h-6 text-secondary"
@@ -125,30 +127,32 @@ onMounted(() => {
                 </p>
               </div>
               <div class="border-t-0 px-3 pb-2">
-                <div v-if="item.origin_price === item.price">
-                  <span>售價{{ item.origin_price }}元</span>
+                <div v-if="item.price === (item.price ?? 0) - (item.discount ?? 0)">
+                  <span>售價{{ item.price }}元</span>
                   <span>/{{ item.unit }}</span>
                 </div>
                 <div v-else>
-                  <span class="line-through">原價{{ item.origin_price }}</span>
-                  <span class="text-red-500">特價{{ item.price }}元</span>
+                  <span class="line-through">原價{{ item.price }}</span>
+                  <span class="text-red-500"
+                    >特價{{ (item.price ?? 0) - (item.discount ?? 0) }}元</span
+                  >
                   <span>/{{ item.unit }}</span>
                 </div>
                 <button
                   class="btn btn-outline-secondary bg-secondary text-primary w-full mb-1 rounded-md hover:bg-third hover:text-primary"
                   type="button"
-                  @click.stop.prevent="guestProductDetail(item.id)"
-                  :disabled="shouldShowLoading(item.id)"
-                  :class="{ 'cursor-not-allowed': shouldShowLoading(item.id) }"
+                  @click.stop.prevent="guestProductDetail(item._id)"
+                  :disabled="shouldShowLoading(item._id)"
+                  :class="{ 'cursor-not-allowed': shouldShowLoading(item._id) }"
                 >
                   快速商品資訊
                 </button>
                 <button
                   class="btn btn-primary w-full bg-primary text-secondary rounded-md hover:bg-third hover:text-primary mb-1"
                   type="button"
-                  @click.stop.prevent="handleAddCart(item.id)"
-                  :disabled="shouldShowLoading(item.id)"
-                  :class="{ 'cursor-not-allowed': shouldShowLoading(item.id) }"
+                  @click.stop.prevent="handleAddCart(item._id, item.userId, 1, item.title)"
+                  :disabled="shouldShowLoading(item._id)"
+                  :class="{ 'cursor-not-allowed': shouldShowLoading(item._id) }"
                 >
                   加到購物車
                 </button>
