@@ -12,7 +12,7 @@ interface SearchBarProps<T> {
 const { validateInput } = useInputValidate();
 const { searchInfo, minPrice, maxPrice, favorites, isShowAutoComplete, handleCompleteListEmit } =
   useSearchbar();
-
+const searchInput = ref<HTMLInputElement | null>(null);
 // 定義 props 並設置預設值
 const props = withDefaults(defineProps<SearchBarProps<AdminProduct | Article>>(), {
   autoCompleteListProp: (): (AdminProduct | Article)[] => [],
@@ -33,7 +33,9 @@ const emits = defineEmits([
   "search",
   "clearSearch",
   "showFavorites",
-  "validateResult"
+  "validateResult",
+  "changeMinPrice",
+  "changeMaxPrice"
 ]);
 const emitPriceHighToLow = (): void => {
   emits("priceHighToLow");
@@ -142,6 +144,9 @@ const handleMinPriceBlurValidation = async () => {
       minPriceInputErrorMessageRef.value as HTMLParagraphElement
     );
     emitValidateResult(result);
+    if (result) {
+      emits("changeMinPrice", minPrice.value);
+    }
   } catch (error) {
     emitValidateResult(false);
   }
@@ -153,8 +158,10 @@ const handleMaxPriceBlurValidation = async () => {
       maxPriceValidateConfig,
       maxPriceInputErrorMessageRef.value as HTMLParagraphElement
     );
-
     emitValidateResult(result);
+    if (result) {
+      emits("changeMaxPrice", maxPrice.value);
+    }
   } catch (error) {
     emitValidateResult(false);
   }
@@ -187,13 +194,16 @@ const test2 = "https://vue3-course-api.hexschool.io/v2/admin/signin";
         type="text"
         v-model="searchInfo"
         placeholder="請輸入關鍵字"
+        @focus="isShowAutoComplete = true"
       />
       <AutoComplete
         class="absolute w-full left-0 z-10"
         :autoCompleteListProp="autoCompleteList"
         :isShowAutoCompleteProp="isShowAutoComplete"
         :searchInfoProp="searchInfo"
+        :searchInputRefProp="searchInput"
         @autoCompleteListEmit="handleCompleteListEmit"
+        @hideAutoComplete="isShowAutoComplete = false"
       />
       <p
         class="w-full text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-0"
@@ -214,6 +224,7 @@ const test2 = "https://vue3-course-api.hexschool.io/v2/admin/signin";
         placeholder="請輸入最低價格"
         v-model="minPrice"
         min="0"
+        type="number"
         @input="handleMinPriceBlurValidation"
       />
       <p
@@ -234,6 +245,7 @@ const test2 = "https://vue3-course-api.hexschool.io/v2/admin/signin";
         placeholder="請輸入最高價格"
         v-model="maxPrice"
         min="0"
+        type="number"
         @input="handleMaxPriceBlurValidation"
       />
       <p

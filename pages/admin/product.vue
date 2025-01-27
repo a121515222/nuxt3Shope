@@ -74,6 +74,7 @@ const resetModalData = () => {
     updatedAt: new Date()
   };
 };
+const currentPagination = ref({ page: 1, limit: 10 });
 const modalRef = ref<{ modalShow: () => void } | null>(null);
 const sellPrice = computed(() => {
   return (modalData.value.price ?? 0) - (modalData.value.discount ?? 0) === 0
@@ -134,7 +135,7 @@ const handleEditProduct = async () => {
     const res = await putUserProduct(modalData.value);
     if (res.status) {
       addToast({ type: "success", message: "編輯成功" });
-      await handleGetAdminProducts();
+      await handleGetAdminProducts(currentPagination.value.page);
     } else {
       addToast({ type: "danger", message: "編輯失敗" });
     }
@@ -217,6 +218,7 @@ const deleteImg = () => {
   modalData.value.imagesUrl.pop();
 };
 const handleChangePage = async (page: number) => {
+  currentPagination.value.page = page;
   await handleGetAdminProducts(page);
 };
 const { validateInput } = useInputValidate();
@@ -620,7 +622,6 @@ onMounted(async () => {
               id="productDiscount"
               placeholder="請輸入產品折扣價格"
               min="0"
-              max="100"
               v-model.number="modalData.discount"
               @blur="handleDiscountValidate"
             />

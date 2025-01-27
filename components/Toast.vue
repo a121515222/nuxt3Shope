@@ -53,7 +53,7 @@ onUnmounted(() => {
 });
 </script>
 <template>
-  <div class="w-full fixed top-5 md:w-auto md:right-5 z-50 flex flex-col">
+  <div class="w-full fixed top-5 md:w-auto md:right-5 z-100 flex flex-col">
     <div
       v-for="(item, index) in toastList"
       :key="index"

@@ -1,61 +1,87 @@
 <script lang="ts" setup>
-import { type SearchBarEmitInfo } from "@/types/searchBarTypes";
+import type { SearchBarEmitInfo } from "@/types/searchBarTypes";
 import { searchProducts } from "@/apis/products";
 
 const indexStore = useIndexStore();
 const { isLoading } = storeToRefs(indexStore);
 const productStore = useProductStore();
-const { productDataList } = storeToRefs(productStore);
-const { data } = await useAsyncData("searchProducts", async () => {
-  if (productDataList.value.length === 0) {
-    const res = await searchProducts();
-    return res.data.products;
-  }
+const { productDataList, productPaginationData } = storeToRefs(productStore);
+const { data } = await useAsyncData(`searchProducts`, () => {
+  return searchProducts();
 });
-if (data.value) {
-  productDataList.value = data.value;
+if (data.value?.status && process.server) {
+  productDataList.value = data.value.data.products;
+  productPaginationData.value = data.value.data.pagination;
 }
+
 const searchButtonConfig = {
   priceHighToLow: true,
   priceLowToHigh: true,
   search: true,
   clearSearch: true
 };
-const showProductList = ref(productDataList.value);
 const handlePriceHighToLow = () => {
-  showProductList.value = showProductList.value.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+  productDataList.value = productDataList.value.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
 };
 const handlePriceLowToHigh = () => {
-  showProductList.value = showProductList.value.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+  productDataList.value = productDataList.value.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
 };
+const handleMaxPrice = (maxPrice: string | number) => {
+  console.log("maxPrice", maxPrice);
+  console.log("typeof maxPrice", typeof maxPrice);
+  currentSearchData.value.maxPrice = maxPrice;
+};
+const handleMinPrice = (minPrice: string | number) => {
+  console.log("minPrice", minPrice);
+  console.log("typeof minPrice", typeof minPrice);
+  currentSearchData.value.minPrice = minPrice;
+};
+const currentSearchData = ref<SearchBarEmitInfo>({
+  searchInfo: "",
+  minPrice: "",
+  maxPrice: ""
+});
+const handleCleanSearch = () => {
+  currentSearchData.value.searchInfo = "";
+  currentSearchData.value.minPrice = "";
+  currentSearchData.value.maxPrice = "";
+};
+const handleChangePage = async (page: number) => {
+  console.log("page", page);
+  await handleSearch(null, page);
+};
+const handleSearch = async (searchData?: SearchBarEmitInfo | null, page: number = 1) => {
+  console.log("searchData", searchData);
+  if (searchData) {
+    const { searchInfo, minPrice, maxPrice } = searchData;
+    if (searchInfo) {
+      currentSearchData.value.searchInfo = searchInfo;
+    }
+    if (minPrice) {
+      currentSearchData.value.minPrice = minPrice;
+    }
+    if (maxPrice) {
+      currentSearchData.value.maxPrice = maxPrice;
+    }
+  }
 
-const handleSearch = (searchData: SearchBarEmitInfo) => {
-  const { searchInfo, minPrice, maxPrice } = searchData;
-  isLoading.value = true;
-  // 篩選商品列表
-  // showProductList.value = productDataList.value.filter((product) => {
-  //   // 檢查搜尋字串
-  //   const matchSearchInfo =
-  //     product.title.includes(searchInfo) ||
-  //     product.category.includes(searchInfo) ||
-  //     product.content.includes(searchInfo) ||
-  //     product.description.includes(searchInfo);
-  //   return matchSearchInfo;
-  // });
-  // showProductList.value = showProductList.value.filter((product) => {
-  //   // 檢查價格區間
-  //   if (minPrice === "" && maxPrice === "") return true;
-  //   else if (minPrice && maxPrice === "") {
-  //     return product.price >= Number(minPrice);
-  //   } else if (maxPrice && minPrice === "") {
-  //     return product.price <= Number(maxPrice);
-  //   } else {
-  //     return product.price >= Number(minPrice) && product.price <= Number(maxPrice);
-  //   }
-  // });
-  // // 移除重複的產品
-  // showProductList.value = [...new Set(showProductList.value)];
-  // isLoading.value = false;
+  try {
+    isLoading.value = true;
+
+    const res = await searchProducts(
+      currentSearchData.value.searchInfo,
+      page,
+      10,
+      currentSearchData.value.minPrice === "" ? null : Number(currentSearchData.value.minPrice),
+      currentSearchData.value.maxPrice === "" ? null : Number(currentSearchData.value.maxPrice)
+    );
+    productPaginationData.value = res.data.pagination;
+    productDataList.value = res.data.products;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 <template>
@@ -65,9 +91,13 @@ const handleSearch = (searchData: SearchBarEmitInfo) => {
     @priceHighToLow="handlePriceHighToLow"
     @priceLowToHigh="handlePriceLowToHigh"
     @search="handleSearch"
+    @changeMinPrice="handleMinPrice"
+    @changeMaxPrice="handleMaxPrice"
+    @clearSearch="handleCleanSearch"
   ></SearchSearchbar>
   <div class="container mx-auto">
-    <ProductCardList class="px-2 md:px-0" :productListProp="showProductList"> </ProductCardList>
+    <ProductCardList class="px-2 md:px-0" :productListProp="productDataList"> </ProductCardList>
+    <Pagination :pagination="productPaginationData" @changePage="handleChangePage" />
   </div>
 </template>
 <style></style>
