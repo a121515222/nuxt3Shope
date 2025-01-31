@@ -90,7 +90,7 @@ onUnmounted(() => {});
       </div>
     </template>
   </LayoutBanner>
-  <div class="container mx-auto">
+  <div class="container mx-auto max-w-7xl">
     <LayoutCrossCard :cardProductsDataProps="productDataList"> </LayoutCrossCard>
   </div>
   <LayoutBanner :bannerConfigProp="subBannerConfig">
@@ -112,7 +112,7 @@ onUnmounted(() => {});
       </div>
     </template>
   </LayoutBanner>
-  <div class="container mx-auto">
+  <div class="container mx-auto max-w-7xl">
     <LayoutArticleCard
       class="pt-4"
       :articleDataProps="articleDataList"
@@ -128,7 +128,7 @@ onUnmounted(() => {});
       </p>
     </template>
   </LayoutBanner>
-  <div class="container mx-auto">
+  <div class="container mx-auto max-w-7xl">
     <LayoutCrossCard :cardProductsDataProps="specialProductDataList"> </LayoutCrossCard>
   </div>
 </template>

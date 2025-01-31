@@ -27,13 +27,9 @@ const handlePriceLowToHigh = () => {
   productDataList.value = productDataList.value.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
 };
 const handleMaxPrice = (maxPrice: string | number) => {
-  console.log("maxPrice", maxPrice);
-  console.log("typeof maxPrice", typeof maxPrice);
   currentSearchData.value.maxPrice = maxPrice;
 };
 const handleMinPrice = (minPrice: string | number) => {
-  console.log("minPrice", minPrice);
-  console.log("typeof minPrice", typeof minPrice);
   currentSearchData.value.minPrice = minPrice;
 };
 const currentSearchData = ref<SearchBarEmitInfo>({
@@ -47,11 +43,9 @@ const handleCleanSearch = () => {
   currentSearchData.value.maxPrice = "";
 };
 const handleChangePage = async (page: number) => {
-  console.log("page", page);
   await handleSearch(null, page);
 };
 const handleSearch = async (searchData?: SearchBarEmitInfo | null, page: number = 1) => {
-  console.log("searchData", searchData);
   if (searchData) {
     const { searchInfo, minPrice, maxPrice } = searchData;
     if (searchInfo) {
@@ -85,19 +79,21 @@ const handleSearch = async (searchData?: SearchBarEmitInfo | null, page: number 
 };
 </script>
 <template>
-  <SearchSearchbar
-    :autoCompleteListProp="productDataList"
-    :searchButtonConfigProp="searchButtonConfig"
-    @priceHighToLow="handlePriceHighToLow"
-    @priceLowToHigh="handlePriceLowToHigh"
-    @search="handleSearch"
-    @changeMinPrice="handleMinPrice"
-    @changeMaxPrice="handleMaxPrice"
-    @clearSearch="handleCleanSearch"
-  ></SearchSearchbar>
-  <div class="container mx-auto">
-    <ProductCardList class="px-2 md:px-0" :productListProp="productDataList"> </ProductCardList>
-    <Pagination :pagination="productPaginationData" @changePage="handleChangePage" />
+  <div class="container mx-auto max-w-7xl">
+    <SearchSearchbar
+      :autoCompleteListProp="productDataList"
+      :searchButtonConfigProp="searchButtonConfig"
+      @priceHighToLow="handlePriceHighToLow"
+      @priceLowToHigh="handlePriceLowToHigh"
+      @search="handleSearch"
+      @changeMinPrice="handleMinPrice"
+      @changeMaxPrice="handleMaxPrice"
+      @clearSearch="handleCleanSearch"
+    ></SearchSearchbar>
+    <div class="container mx-auto max-w-7xl">
+      <ProductCardList class="px-2 md:px-0" :productListProp="productDataList"> </ProductCardList>
+      <Pagination :pagination="productPaginationData" @changePage="handleChangePage" />
+    </div>
   </div>
 </template>
 <style></style>

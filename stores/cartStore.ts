@@ -2,12 +2,16 @@ import { defineStore } from "pinia";
 import { getCart, postCart } from "@/apis/cart";
 import type { Cart } from "@/types/cartTypes";
 import { useThrottleFn } from "@vueuse/core";
+
 export const useCartStore = defineStore("cartStore", () => {
   const indexStore = useIndexStore();
   const { isLoading } = storeToRefs(indexStore);
   const cartDataList = ref<Cart[]>([]);
   const toastStore = useToastStore();
+  const messageBoxStore = useMessageBoxStore();
+  const { showConfirm } = messageBoxStore;
   const { addToast } = toastStore;
+  const router = useRouter();
   const handleGetCart = async () => {
     const res = await getCart();
     if (res.status) {
@@ -56,6 +60,14 @@ export const useCartStore = defineStore("cartStore", () => {
         type: "danger",
         message: `加入購物車錯誤: ${error}`
       });
+      const errorMessage = (error as Error).toString();
+      isLoading.value = false;
+      if (errorMessage.includes("Unauthorized")) {
+        const result = await showConfirm("請先登入", "是否前往登入頁面？");
+        if (result) {
+          router.push({ name: "login" });
+        }
+      }
     } finally {
       isLoading.value = false;
     }

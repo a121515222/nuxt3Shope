@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { AdminProduct } from "@/types/adminProductTypes";
-import { handleImageError } from "@/utils/imageHandler";
 const cartStore = useCartStore();
 const { handleAddCart } = cartStore;
 interface ProductCardListProps {
@@ -34,11 +33,81 @@ const deleteFavorites = (id: string, title: string): void => {
     favorites.value.splice(removeIndex, 1);
   }
 };
-
-const guestProductDetail = (id: string): void => {
-  console.log(id);
+interface ProductModalDataType {
+  _id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  price: number | null;
+  discount: number | null;
+  unit: string;
+  userId: string;
+  content: string;
+  imagesUrl: string[];
+  tag: string[];
+  num: number;
+}
+const productModalData = ref<ProductModalDataType>({
+  _id: "",
+  title: "",
+  description: "",
+  imageUrl: "",
+  price: 0,
+  discount: 0,
+  unit: "",
+  userId: "",
+  content: "",
+  imagesUrl: [],
+  tag: [],
+  num: 0
+});
+const productModalRef = ref<{ modalShow: () => void } | null>(null);
+const openModal = () => {
+  if (productModalRef.value) {
+    productModalRef.value.modalShow();
+  }
 };
-
+const openProductModal = (index: number): void => {
+  const {
+    _id,
+    title,
+    description,
+    imageUrl,
+    imagesUrl,
+    price,
+    discount,
+    unit,
+    userId,
+    content,
+    tag
+  } = props.productListProp[index];
+  productModalData.value = {
+    _id,
+    title,
+    description,
+    imageUrl,
+    imagesUrl,
+    price,
+    discount,
+    unit,
+    userId,
+    content,
+    tag,
+    num: 1
+  };
+  openModal();
+};
+const addNum = () => {
+  if (productModalData.value.num >= 99) return;
+  productModalData.value.num += 1;
+};
+const minusNum = () => {
+  if (productModalData.value.num <= 1) return;
+  productModalData.value.num -= 1;
+};
+const handleModalConfirm = async () => {
+  console.log("handleModalConfirm");
+};
 onMounted(() => {
   if (process.client) {
     favorites.value = JSON.parse(localStorage.getItem("favorites") || "[]");
@@ -49,7 +118,7 @@ onMounted(() => {
   <div class="pt-3">
     <div v-if="props.productListProp.length > 0">
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-3 mb-3">
-        <div v-for="item in props.productListProp" :key="item._id">
+        <div v-for="(item, index) in props.productListProp" :key="item._id">
           <NuxtLink
             class="text-black no-underline rounded-md overflow-hidden block hover:opacity-80"
             @click.prevent="emitsInspectId(item._id)"
@@ -141,7 +210,7 @@ onMounted(() => {
                 <button
                   class="btn btn-outline-secondary bg-secondary text-primary w-full mb-1 rounded-md hover:bg-third hover:text-primary"
                   type="button"
-                  @click.stop.prevent="guestProductDetail(item._id)"
+                  @click.stop.prevent="openProductModal(index)"
                   :disabled="shouldShowLoading(item._id)"
                   :class="{ 'cursor-not-allowed': shouldShowLoading(item._id) }"
                 >
@@ -165,6 +234,123 @@ onMounted(() => {
     <div v-else-if="props.productListProp.length === 0">
       <h2 class="mx-auto">搜尋不到東西</h2>
     </div>
+    <Modal
+      ref="productModalRef"
+      :modalPropsId="'adminProductModal'"
+      :modalPropsTitle="productModalData.title"
+      :modalIsShowConfirmButton="false"
+      @modalConfirm="handleModalConfirm"
+    >
+      <div class="grid grid-cols-3 gap-4">
+        <div class="md:col-span-2 col-span-3">
+          <ImageWithErrorHandler
+            :alt="productModalData.title"
+            :src="productModalData.imageUrl"
+            :class="'w-full  object-cover rounded-md'"
+          ></ImageWithErrorHandler>
+        </div>
+        <div class="md:col-span-1 col-span-3 dark:text-white flex flex-col justify-between">
+          <div>
+            <div class="flex gap-4">
+              <h3 class="text-2xl">{{ productModalData.title }}</h3>
+
+              <div class="flex gap-2">
+                <span
+                  v-for="(tag, index) in productModalData.tag"
+                  :key="tag + index"
+                  class="badge bg-primary px-2 py-1 rounded-full text-secondary"
+                >
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+            <p v-html="productModalData.content"></p>
+            <div
+              class="py-2"
+              v-if="
+                productModalData.price ===
+                (productModalData.price ?? 0) - (productModalData.discount ?? 0)
+              "
+            >
+              <span class="dark:text-secondary text-primary"
+                >售價{{ productModalData.price }}元</span
+              >
+              <span>/{{ productModalData.unit }}</span>
+            </div>
+            <div class="py-2" v-else>
+              <span class="line-through">原價{{ productModalData.price }}</span>
+              <span class="text-red-500"
+                >特價{{ (productModalData.price ?? 0) - (productModalData.discount ?? 0) }}元</span
+              >
+              <span>/{{ productModalData.unit }}</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center text-white">
+            <button
+              class="px-2 py-2 bg-primary rounded-md hover:bg-third hover:text-primary"
+              @click="minusNum"
+            >
+              <svg
+                class="w-6 h-6"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 12h14"
+                />
+              </svg>
+            </button>
+            <p class="text-gray-800 dark:text-white">{{ productModalData.num }}</p>
+            <button
+              class="px-2 py-2 bg-primary rounded-md hover:bg-third hover:text-primary"
+              @click="addNum"
+            >
+              <svg
+                class="w-6 h-6"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 12h14m-7 7V5"
+                />
+              </svg>
+            </button>
+            <button
+              class="btn btn-primary py-2 px-2 bg-primary text-secondary rounded-md hover:bg-third hover:text-primary"
+              type="button"
+              @click="
+                handleAddCart(
+                  productModalData._id,
+                  productModalData.userId,
+                  productModalData.num,
+                  productModalData.title
+                )
+              "
+              :disabled="shouldShowLoading(productModalData._id)"
+              :class="{ 'cursor-not-allowed': shouldShowLoading(productModalData._id) }"
+            >
+              加到購物車
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 <style></style>

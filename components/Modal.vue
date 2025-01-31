@@ -3,11 +3,15 @@ interface ModalProps {
   modalPropsId?: string;
   modalPropsTitle?: string;
   isCloseModalAfterConfirm?: boolean;
+  modalIsShowConfirmButton?: boolean;
+  modalIsShowCloseButton?: boolean;
 }
 const props = withDefaults(defineProps<ModalProps>(), {
   modalPropsId: "modal",
   modalTitle: "",
-  isCloseModalAfterConfirm: false
+  isCloseModalAfterConfirm: false,
+  modalIsShowConfirmButton: true,
+  modalIsShowCloseButton: true
 });
 const overlayVisible = ref(false);
 const modalRef = ref<HTMLElement | null>(null);
@@ -99,6 +103,7 @@ const confirm = () => {
           class="flex justify-end items-center p-6 space-x-2 border-t border-gray-200 rounded-b bg-gray-300 dark:bg-gray-500"
         >
           <button
+            v-if="props.modalIsShowCloseButton"
             type="button"
             class="text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
             @click="modalHide"
@@ -106,6 +111,7 @@ const confirm = () => {
             關閉
           </button>
           <button
+            v-if="props.modalIsShowConfirmButton"
             type="button"
             class="text-secondary bg-primary hover:opacity-80 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
             @click="confirm"

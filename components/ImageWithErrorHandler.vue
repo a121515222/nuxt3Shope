@@ -19,6 +19,19 @@ onMounted(() => {
   img.onerror = handleError;
   img.src = props.src;
 });
+watch(
+  () => props.src,
+  (newSrc) => {
+    if (newSrc) {
+      const img = new Image();
+      img.onload = () => {
+        imgSrc.value = newSrc;
+      };
+      img.onerror = handleError;
+      img.src = newSrc;
+    }
+  }
+);
 </script>
 <template>
   <img :src="imgSrc" :alt="alt" :class="className" @error="handleError" />
