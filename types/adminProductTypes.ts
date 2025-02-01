@@ -26,6 +26,11 @@ export interface FetchAdminProduct {
     pagination: Pagination; // 分頁數據
   };
 }
+export interface FetchAdminProductById {
+  message: string; // 返回訊息
+  status: boolean; // 查詢是否成功
+  data: AdminProduct; // 商品詳情
+}
 // export interface AdminProduct {
 //   id: string;
 //   title: string;

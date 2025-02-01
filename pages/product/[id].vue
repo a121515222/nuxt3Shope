@@ -1,24 +1,27 @@
 <script lang="ts" setup>
-import { getProduct } from "@/apis/products";
-import { type Product } from "@/types/productTypes";
+import { getProductById } from "@/apis/products";
+import type { AdminProduct } from "@/types/adminProductTypes";
 import { handleImageError } from "@/utils/imageHandler";
 const cartStore = useCartStore();
 const { handleAddCart } = cartStore;
 const route = useRoute();
-const product = ref<Product>({
-  id: "",
+const product = ref<AdminProduct>({
+  _id: "",
   title: "",
-  category: "",
+  category: [],
   content: "",
   description: "",
   imageUrl: "",
   imagesUrl: [],
-  origin_price: 0,
   price: 0,
   unit: "",
-  is_enabled: 0,
   updatedAt: "",
-  createdAt: ""
+  createdAt: "",
+  userId: "",
+  discount: 0,
+  tag: [],
+  productStatus: "outOfStock",
+  num: 0
 });
 const images = ref<string[]>([]);
 const qty = ref(1);
@@ -33,8 +36,8 @@ onMounted(async () => {
   if (!route.params.id) {
     return;
   } else {
-    const res = await getProduct(route.params.id as string);
-    product.value = res?.product || {
+    const res = await getProductById(route.params.id as string);
+    product.value = res.data || {
       id: "",
       title: "",
       category: "",
@@ -49,12 +52,12 @@ onMounted(async () => {
       createdAt: "",
       updatedAt: ""
     };
-    images.value = res?.product.imagesUrl || [];
+    images.value = res.data.imagesUrl || [];
   }
 });
 </script>
 <template>
-  <div class="container mx-auto py-8">
+  <div class="container mx-auto max-w-7xl py-8">
     <div
       class="flex flex-col md:flex-row mx-0 card bg-gray-200 dark:bg-gray-700 rounded-lg dark:text-white"
     >
@@ -87,16 +90,18 @@ onMounted(async () => {
           <p class="text-lg">{{ removePTag(product.description) }}</p>
         </div>
         <div class="from-group pr-2 pb-2">
-          <template v-if="product.origin_price === product.price">
+          <template v-if="product.discount === 0">
             <div class="flex justify-end gap-2 pr-2">
-              <span>售價{{ product.origin_price }}元</span>
+              <span>售價{{ product.price }}元</span>
               <span>/{{ product.unit }}</span>
             </div>
           </template>
-          <template v-else-if="product.origin_price > product.price">
+          <template v-else-if="product.discount ?? 0 > 0">
             <div class="flex justify-end gap-2 pr-2">
-              <span class="line-through">原價{{ product.origin_price }}</span>
-              <span class="text-red-500">特價{{ product.price }}元</span>
+              <span class="line-through">原價{{ product.price }}</span>
+              <span class="text-red-500"
+                >特價{{ (product.price ?? 0) - (product.discount ?? 0) }}元</span
+              >
               <span>/{{ product.unit }}</span>
             </div>
           </template>
@@ -155,7 +160,7 @@ onMounted(async () => {
             <button
               type="button"
               class="text-primary dark:text-secondary text-nowrap bg-secondary dark:bg-primary rounded-lg px-4 py-2 hover:opacity-80"
-              @click="addCart(product.id, qty)"
+              @click="addCart(product._id, product.userId, qty, product.title)"
               :disabled="qty < 1"
               :class="{ 'cursor-not-allowed': qty < 1 }"
             >
