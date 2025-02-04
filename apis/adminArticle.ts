@@ -3,10 +3,9 @@ import type {
   AdminArticle,
   AdminSignalArticleShowInModal,
   AdminArticleResponse,
-  FetchAdminArticle,
-  FetchAdminArticleById
+  FetchAdminArticle
 } from "@/types/adminArticleTypes";
-
+import type { FetchArticleData } from "@/types/articleTypes";
 export function getUserArticles(page: number | string, limit: number | string) {
   const api_token = getCookie("authorization");
   return useBaseFetch<FetchAdminArticle>(
@@ -23,7 +22,7 @@ export function getUserArticles(page: number | string, limit: number | string) {
 }
 
 export function getUserArticleById(id: string) {
-  return useBaseFetch<FetchAdminArticleById>(
+  return useBaseFetch<FetchArticleData>(
     `articleById/${id}`,
     {
       method: "GET",
@@ -93,46 +92,3 @@ export function getAdminArticles(page: number = 1) {
     }
   });
 }
-// export function getAdminArticle(id: string) {
-//   const api_token = getCookie("token");
-//   return useBaseFetch<AdminSignalArticleShowInModal>(`admin/article/${id}`, {
-//     method: "GET",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `${api_token}`
-//     }
-//   });
-// }
-// export function postAdminArticle(info: AdminArticle) {
-//   const api_token = getCookie("token");
-//   return useBaseFetch<AdminArticleResponse>("admin/article", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `${api_token}`
-//     },
-//     body: JSON.stringify({ data: { ...info } })
-//   });
-// }
-// export function putAdminArticle(info: AdminArticle) {
-//   const api_token = getCookie("token");
-//   return useBaseFetch<AdminArticleResponse>(`admin/article/${info.id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `${api_token}`
-//     },
-//     body: JSON.stringify({ data: { ...info } })
-//   });
-// }
-
-// export function deleteAdminArticle(id: string) {
-//   const api_token = getCookie("token");
-//   return useBaseFetch<AdminArticleResponse>(`admin/article/${id}`, {
-//     method: "DELETE",
-//     headers: {
-//       "Content-Type": "application/json",
-//       Authorization: `${api_token}`
-//     }
-//   });
-// }

@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import { type FetchArticlesData } from "@/types/articleTypes";
-import { type SearchBarEmitInfo } from "@/types/searchBarTypes";
-import { getArticles } from "@/apis/articles";
+import type { FetchArticlesData } from "@/types/articleTypes";
+import type { SearchBarEmitInfo } from "@/types/searchBarTypes";
+import { searchArticles } from "@/apis/articles";
+const indexStore = useIndexStore();
+const { isLoading } = storeToRefs(indexStore);
 const articleStore = useArticleStore();
-const { articleDataList } = storeToRefs(articleStore);
-const { data } = await useAsyncData("getArticle", async () => {
-  if (articleDataList.value.length === 0) {
-    const res = await getArticles();
-    return (res as FetchArticlesData).articles;
-  }
+const { articleDataList, articlePagination } = storeToRefs(articleStore);
+const { data } = await useAsyncData("searchArticle", () => {
+  return searchArticles();
 });
-if (data.value) {
-  articleDataList.value = data.value;
+if (data.value?.status && process.server) {
+  articleDataList.value = data.value.data.articles;
+  articlePagination.value = data.value.data.pagination;
 }
 const searchButtonConfig = {
   search: true,
@@ -19,28 +19,45 @@ const searchButtonConfig = {
   dateOldToNew: true,
   dateNewToOld: true
 };
-
-const handleSearch = (searchData: SearchBarEmitInfo) => {
-  const { searchInfo } = searchData;
-  showArticleList.value = articleDataList.value.filter((article) => {
-    const matchSearchInfo =
-      article.title.includes(searchInfo) ||
-      article.tag?.includes(searchInfo) ||
-      article.description.includes(searchInfo);
-    return matchSearchInfo;
-  });
-  showArticleList.value = [...new Set(showArticleList.value)];
+const currentSearchData = ref<SearchBarEmitInfo>({
+  searchInfo: ""
+});
+const handleChangePage = async (page: number) => {
+  await handleSearch(null, page);
+};
+const handleSearch = async (searchData?: SearchBarEmitInfo | null, page: number = 1) => {
+  if (searchData) {
+    const { searchInfo } = searchData;
+    currentSearchData.value.searchInfo = searchInfo.trim();
+  }
+  try {
+    isLoading.value = true;
+    const res = await searchArticles(currentSearchData.value.searchInfo, page);
+    articleDataList.value = res.data.articles;
+    articlePagination.value = res.data.pagination;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 const handleClearSearch = () => {
-  showArticleList.value = articleDataList.value;
+  currentSearchData.value.searchInfo = "";
 };
 const handleDateOldToNew = () => {
-  showArticleList.value = showArticleList.value.sort((a, b) => a.create_at - b.create_at);
+  articleDataList.value = articleDataList.value.sort((a, b) => {
+    const timeA = isNaN(new Date(a.createdAt).getTime()) ? 0 : new Date(a.createdAt).getTime();
+    const timeB = isNaN(new Date(b.createdAt).getTime()) ? 0 : new Date(b.createdAt).getTime();
+    return timeA - timeB;
+  });
 };
 const handleDateNewToOld = () => {
-  showArticleList.value = showArticleList.value.sort((a, b) => b.create_at - a.create_at);
+  articleDataList.value = articleDataList.value.sort((a, b) => {
+    const timeA = isNaN(new Date(a.createdAt).getTime()) ? 0 : new Date(a.createdAt).getTime();
+    const timeB = isNaN(new Date(b.createdAt).getTime()) ? 0 : new Date(b.createdAt).getTime();
+    return timeB - timeA;
+  });
 };
-const showArticleList = ref(articleDataList.value);
 </script>
 <template>
   <div class="min-h-screen">
@@ -52,8 +69,9 @@ const showArticleList = ref(articleDataList.value);
       @dateOldToNew="handleDateOldToNew"
       @dateNewToOld="handleDateNewToOld"
     ></SearchSearchbar>
-    <div class="container mx-auto">
-      <ArticleCardList :articleListProp="showArticleList"></ArticleCardList>
+    <div class="container mx-auto max-w-7xl">
+      <ArticleCardList :articleListProp="articleDataList"></ArticleCardList>
+      <Pagination :pagination="articlePagination" @changePage="handleChangePage" />
     </div>
   </div>
 </template>

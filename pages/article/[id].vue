@@ -1,34 +1,27 @@
 <script lang="ts" setup>
-import { type ArticleSingle } from "@/types/articleTypes";
-import { getArticle } from "@/apis/articles";
-const article = ref<ArticleSingle>({
+import type { Article } from "@/types/articleTypes";
+import { getUserArticleById } from "@/apis/adminArticle";
+const article = ref<Article>({
   author: "",
   content: "",
-  create_at: 0,
-  id: "",
+  createdAt: "",
+  _id: "",
   title: "",
   description: "",
-  image: "",
+  imageUrl: "",
   isPublic: true,
-  tag: []
+  tag: [],
+  userId: "",
+  updatedAt: "",
+  articleDate: ""
 });
 onMounted(async () => {
   const route = useRoute();
   if (!route.params.id) {
     return;
   } else {
-    const res = await getArticle(route.params.id as string);
-    article.value = res?.article || {
-      author: "",
-      content: "",
-      create_at: 0,
-      id: "",
-      title: "",
-      description: "",
-      image: "",
-      isPublic: true,
-      tag: []
-    };
+    const res = await getUserArticleById(route.params.id as string);
+    article.value = res.data;
   }
 });
 </script>
@@ -41,17 +34,16 @@ onMounted(async () => {
         class="w-full lg:w-1/2 px-0 rounded-lg overflow-hidden"
         style="min-height: 45vh; max-height: 45vh"
       >
-        <img
-          class="w-full h-full object-cover rounded-lg"
-          :src="article.image"
-          :alt="article.title + ' picture'"
-          loading="lazy"
-        />
+        <ImageWithErrorHandler
+          :alt="article.title"
+          :src="article.imageUrl"
+          :class="'w-full h-full object-cover rounded-t-md'"
+        ></ImageWithErrorHandler>
       </div>
       <div class="w-full lg:w-1/2 mt-3 px-4">
         <h2 class="font-bold text-2xl mb-2">{{ article.title }}</h2>
         <p class="text-xl mb-2">作者: {{ article.author }}</p>
-        <p class="text-xl mb-2">發布時間: {{ formatTimestamp(article.create_at || 0) }}</p>
+        <p class="text-xl mb-2">發布時間:<span v-timeFormat="article.articleDate"></span></p>
         <p class="mb-2" v-html="article.content"></p>
       </div>
     </div>

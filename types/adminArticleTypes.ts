@@ -6,7 +6,6 @@ export interface AdminArticle {
   updatedAt?: number | Date;
   description: string;
   _id: string;
-  // #todo image重寫後端的時候改imageUrl
   imageUrl: string;
   isPublic: boolean;
   tag: string[];
@@ -29,10 +28,5 @@ export interface FetchAdminArticle {
     articles: AdminArticle[];
     pagination: Pagination;
   };
-  messages: string;
-}
-export interface FetchAdminArticleById {
-  status: boolean;
-  data: AdminArticle;
   messages: string;
 }

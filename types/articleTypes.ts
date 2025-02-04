@@ -1,29 +1,43 @@
+import type { Pagination } from "@/types/paginationTypes";
+
 export interface Article {
-  author?: string;
-  id: string;
-  create_at: number;
+  _id: string;
+  userId: string;
   title: string;
   description: string;
-  image: string;
+  content: string;
+  tag: string[];
+  imageUrl: string;
+  author: string;
+  createdAt: string;
+  updatedAt: string;
+  articleDate: string;
   isPublic: boolean;
-  tag?: string[];
-  num: number;
 }
 
 export interface FetchArticlesData {
-  articles: Article[];
-  success: boolean;
+  data: {
+    articles: Article[];
+    pagination: Pagination;
+  };
+  status: boolean;
+  message: string;
+}
+export interface FetchArticleData {
+  data: Article;
+  status: boolean;
+  message: string;
 }
 // 文章列表資料type與單筆文章資料type不一樣，先分開寫
 export interface ArticleSingle {
   author: string;
   content: string;
-  create_at: number; // UNIX 时间戳
+  create_at: number;
   description: string;
   id: string;
   image: string;
   isPublic: boolean;
-  tag: string[]; // 标签数组
+  tag: string[];
   title: string;
 }
 
