@@ -1,19 +1,42 @@
 <script lang="ts" setup>
-import { type Product } from "@/types/productTypes";
-import { type Article } from "@/types/articleTypes";
-import { type FetchProductsData } from "@/types/productTypes";
-import { type FetchArticlesData } from "@/types/articleTypes";
+import type { Product } from "@/types/productTypes";
+import type { Article } from "@/types/articleTypes";
+import type { FetchProductsData } from "@/types/productTypes";
+import type { FetchArticlesData } from "@/types/articleTypes";
 import { getProducts } from "@/apis/products";
-import { getArticles } from "@/apis/articles";
+import { searchArticles } from "@/apis/articles";
+import { searchProducts } from "@/apis/products";
 const productStore = useProductStore();
 const articleStore = useArticleStore();
-const { productDataList } = storeToRefs(productStore);
-const { articleDataList } = storeToRefs(articleStore);
+const { productDataList, indexProductDataList, specialProductDataList } = storeToRefs(productStore);
+const { articleDataList, indexArticleDataList } = storeToRefs(articleStore);
+
+const { data: getIndexProductData } = await useAsyncData("getIndexProducts", () => {
+  return searchProducts("百香果 醜豆");
+});
+const { data: getSpecialProductData } = await useAsyncData("getSpecialProducts", () => {
+  return searchProducts("精油");
+});
+const { data: getIndexArticleData } = await useAsyncData("getIndexArticles", () => {
+  return searchArticles();
+});
+
 try {
-  await Promise.all([
-    fetchData<Product, FetchProductsData>("getProducts", getProducts, productDataList, "products"),
-    fetchData<Article, FetchArticlesData>("getArticle", getArticles, articleDataList, "articles")
+  const [indexProduct, specialProduct, indexArticle] = await Promise.all([
+    getIndexProductData,
+    getSpecialProductData,
+    getIndexArticleData
   ]);
+
+  if (indexProduct.value?.status && process.server) {
+    indexProductDataList.value = indexProduct.value.data.products;
+  }
+  if (specialProduct.value?.status && process.server) {
+    specialProductDataList.value = specialProduct.value.data.products;
+  }
+  if (indexArticle.value?.status && process.server) {
+    indexArticleDataList.value = indexArticle.value.data.articles;
+  }
 } catch (error) {
   console.error("Error fetching data:", error);
 }
@@ -46,26 +69,26 @@ const buttonBannerConfig = {
 const articleDataConfig = {
   isMainArticle: true
 };
-const specialProductDataList: Product[] = [
-  {
-    category: "精油",
-    content: "澳洲茶樹精油-單瓶裝5ml",
-    description:
-      "被當地原住民視為『自然界最萬能的治療者』— 澳洲茶樹，數百年來在天然療法中佔有一席之地。有防蚊、舒緩、消炎、殺菌等作用。 純粹無添加多餘物質的天然精油，小瓶裝5ml方便隨身攜帶。",
-    id: "-MyQOc_ZlhDQDBJDIEG1",
-    imageUrl:
-      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980175616.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=fZoOoMuXsdEZw4rVAG1rNM2XTpOnTvqY65FzF%2BvWL6v2Xau%2FG%2BfifaetqEX84VIAnvuFdkDKf0KnrxHkdPEBPe2DmaK7aLgGZnB%2BwVe8QO8%2FZ1TWkBTb%2F%2FC39bdyinaa9T9oWJYO68te9SEnb6KVv9YU2HRYeeyLqIc%2B4Dtgig70xNsOtQD9KKcJ7mleMnW0aCYre7afOikzmhZiWKlRE9hlAQMh94FUC9WCafR1Oh0SgEnMxNqoWL5a0MRsvAYSZXDYOIl7MmSIvfpDa5myNMCE2VdmZ0zEWLgzGnnHefgdy4jU673QCcCqVA61ucKJUZVXR%2Fus28AJJTGyCMknOg%3D%3D",
-    imagesUrl: [
-      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980230759.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=qG%2B5r7xTv5XDozEHc6wBFaEwVOYghM%2BIviUt0PS%2BCktLnONArXWcjI1c7ZSFFgZ1qM%2FTbM1kge%2BydBMK8Wpot%2FExSUBffgtkPeVnS9rBHbeEcGVIBLsz2BeNXtJCAfTBwQrcwQ1CrlHB75llUHK5I91fu34%2BYGFE9cAf9i2IvsAxb9XFaJN9Cxna7N8mPRsqqB%2BwTy8eWrKN8ojVoToi4WzbEe%2Fk6uTrSlMALuIf3QWFJcMEMxsSptK%2BCFlKCLbHfr90WkWgFtTuu15A%2BM%2BdqjZNIekIpvLXBuG9aXBwY11jWhgqsxM2Z5USXOo0%2FGuYb4Ab3YMnwp2qw5fS0rDw6w%3D%3D",
-      "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980245544.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=aufcZ33IL4RB5BSE5kgvHRJeYFBd4hvQMbRR9OYv92itFIjHz%2B%2BctwqqsM4WXoX84YUh6%2FdhLhyzn2kha6%2FWwFF%2Bai59wq5sAVHhJsP8LHDQ4CFUcLUafF2u98hnzYqqzoYzapaAe%2FGT%2FTuW6N%2BUNaows%2BpHfDVFdoNbUbDeyW%2Bm8%2BbiEailHe0nelqRSUKf0bvJry9uUpvIsppKdFQZGEolDQCBL11i7NcuUvwKBCdyVOHWbS7uDt4ULhXlwIzGztux9O%2Fng9eV2JPzGzeX1tT3L%2FcTcwKu%2BUthuRyhkx4CJEe%2BO1dyNX3FSoUBiRQt0BNtLnbuhofwDHJZ%2F0WTvA%3D%3D"
-    ],
-    is_enabled: 1,
-    origin_price: 200,
-    price: 200,
-    title: "澳洲茶樹精油-5ml",
-    unit: "瓶"
-  }
-];
+// const specialProductDataList: Product[] = [
+//   {
+//     category: "精油",
+//     content: "澳洲茶樹精油-單瓶裝5ml",
+//     description:
+//       "被當地原住民視為『自然界最萬能的治療者』— 澳洲茶樹，數百年來在天然療法中佔有一席之地。有防蚊、舒緩、消炎、殺菌等作用。 純粹無添加多餘物質的天然精油，小瓶裝5ml方便隨身攜帶。",
+//     id: "-MyQOc_ZlhDQDBJDIEG1",
+//     imageUrl:
+//       "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980175616.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=fZoOoMuXsdEZw4rVAG1rNM2XTpOnTvqY65FzF%2BvWL6v2Xau%2FG%2BfifaetqEX84VIAnvuFdkDKf0KnrxHkdPEBPe2DmaK7aLgGZnB%2BwVe8QO8%2FZ1TWkBTb%2F%2FC39bdyinaa9T9oWJYO68te9SEnb6KVv9YU2HRYeeyLqIc%2B4Dtgig70xNsOtQD9KKcJ7mleMnW0aCYre7afOikzmhZiWKlRE9hlAQMh94FUC9WCafR1Oh0SgEnMxNqoWL5a0MRsvAYSZXDYOIl7MmSIvfpDa5myNMCE2VdmZ0zEWLgzGnnHefgdy4jU673QCcCqVA61ucKJUZVXR%2Fus28AJJTGyCMknOg%3D%3D",
+//     imagesUrl: [
+//       "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980230759.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=qG%2B5r7xTv5XDozEHc6wBFaEwVOYghM%2BIviUt0PS%2BCktLnONArXWcjI1c7ZSFFgZ1qM%2FTbM1kge%2BydBMK8Wpot%2FExSUBffgtkPeVnS9rBHbeEcGVIBLsz2BeNXtJCAfTBwQrcwQ1CrlHB75llUHK5I91fu34%2BYGFE9cAf9i2IvsAxb9XFaJN9Cxna7N8mPRsqqB%2BwTy8eWrKN8ojVoToi4WzbEe%2Fk6uTrSlMALuIf3QWFJcMEMxsSptK%2BCFlKCLbHfr90WkWgFtTuu15A%2BM%2BdqjZNIekIpvLXBuG9aXBwY11jWhgqsxM2Z5USXOo0%2FGuYb4Ab3YMnwp2qw5fS0rDw6w%3D%3D",
+//       "https://storage.googleapis.com/vue-course-api.appspot.com/chun-chia/1659980245544.jpg?GoogleAccessId=firebase-adminsdk-zzty7%40vue-course-api.iam.gserviceaccount.com&Expires=1742169600&Signature=aufcZ33IL4RB5BSE5kgvHRJeYFBd4hvQMbRR9OYv92itFIjHz%2B%2BctwqqsM4WXoX84YUh6%2FdhLhyzn2kha6%2FWwFF%2Bai59wq5sAVHhJsP8LHDQ4CFUcLUafF2u98hnzYqqzoYzapaAe%2FGT%2FTuW6N%2BUNaows%2BpHfDVFdoNbUbDeyW%2Bm8%2BbiEailHe0nelqRSUKf0bvJry9uUpvIsppKdFQZGEolDQCBL11i7NcuUvwKBCdyVOHWbS7uDt4ULhXlwIzGztux9O%2Fng9eV2JPzGzeX1tT3L%2FcTcwKu%2BUthuRyhkx4CJEe%2BO1dyNX3FSoUBiRQt0BNtLnbuhofwDHJZ%2F0WTvA%3D%3D"
+//     ],
+//     is_enabled: 1,
+//     origin_price: 200,
+//     price: 200,
+//     title: "澳洲茶樹精油-5ml",
+//     unit: "瓶"
+//   }
+// ];
 onMounted(() => {});
 
 onUnmounted(() => {});
@@ -91,7 +114,7 @@ onUnmounted(() => {});
     </template>
   </LayoutBanner>
   <div class="container mx-auto max-w-7xl">
-    <LayoutCrossCard :cardProductsDataProps="productDataList"> </LayoutCrossCard>
+    <LayoutCrossCard :cardProductsDataProps="indexProductDataList"> </LayoutCrossCard>
   </div>
   <LayoutBanner :bannerConfigProp="subBannerConfig">
     <template #bannerSlogan>
@@ -115,7 +138,7 @@ onUnmounted(() => {});
   <div class="container mx-auto max-w-7xl">
     <LayoutArticleCard
       class="pt-4"
-      :articleDataProps="articleDataList"
+      :articleDataProps="indexArticleDataList"
       :articleDataConfig="articleDataConfig"
     ></LayoutArticleCard>
   </div>

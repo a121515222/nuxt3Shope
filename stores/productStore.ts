@@ -4,9 +4,13 @@ import { defineStore } from "pinia";
 import type { AdminProduct } from "@/types/adminProductTypes";
 export const useProductStore = defineStore("product", () => {
   const productDataList = ref<AdminProduct[]>([]);
+  const indexProductDataList = ref<AdminProduct[]>([]);
+  const specialProductDataList = ref<AdminProduct[]>([]);
   const productPaginationData = ref<Pagination>();
   return {
     productDataList,
+    indexProductDataList,
+    specialProductDataList,
     productPaginationData
   };
 });

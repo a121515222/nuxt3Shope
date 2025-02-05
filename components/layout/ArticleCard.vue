@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type Article } from "@/types/articleTypes";
+import type { Article } from "@/types/articleTypes";
 interface ArticleCardProps {
   articleDataProps: Article[];
   articleDataConfig: {
@@ -15,17 +15,16 @@ const props = withDefaults(defineProps<ArticleCardProps>(), {
 </script>
 <template>
   <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-    <div v-for="(item, index) in props.articleDataProps" :key="item.id" class="w-full">
+    <div v-for="(item, index) in props.articleDataProps" :key="item._id" class="w-full">
       <div v-if="props.articleDataConfig.isMainArticle ? index <= 3 : index >= 0" class="w-full">
         <div
           class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 dark:text-white bg-gray-200 dark:bg-gray-700"
         >
-          <img
-            class="w-full h-48 object-cover"
+          <ImageWithErrorHandler
             :alt="item.title"
-            :src="item.image"
-            loading="lazy"
-          />
+            :src="item.imageUrl"
+            :class="'w-full h-48 object-cover'"
+          ></ImageWithErrorHandler>
           <div class="p-4 dark:text-white bg-gray-200 dark:bg-gray-700">
             <h3 class="text-2xl font-bold mb-2">{{ item.title }}</h3>
             <p class="line-clamp-2">{{ item.description }}</p>
@@ -35,7 +34,7 @@ const props = withDefaults(defineProps<ArticleCardProps>(), {
           >
             <NuxtLink
               class="btn btn-primary text-primary bg-secondary hover:bg-primary hover:text-secondary px-4 py-2 rounded-lg"
-              :to="`/article/${item.id}`"
+              :to="`/article/${item._id}`"
             >
               詳細資訊
             </NuxtLink>
