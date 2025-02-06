@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import type { AdminProduct } from "@/types/adminProductTypes";
+import type { Product } from "@/types/productTypes";
 const cartStore = useCartStore();
 const { handleAddCart } = cartStore;
 interface ProductCardListProps {
-  productListProp: AdminProduct[];
+  productListProp: Product[];
   productIdProp?: string;
 }
 interface favoritesProduct {
@@ -11,7 +11,7 @@ interface favoritesProduct {
   title: string;
 }
 const props = withDefaults(defineProps<ProductCardListProps>(), {
-  productListProp: (): AdminProduct[] => [],
+  productListProp: (): Product[] => [],
   productIdProp: ""
 });
 const shouldShowLoading = (id: string) => {

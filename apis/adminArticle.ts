@@ -81,14 +81,3 @@ export function deleteUserArticle(id: string) {
     "newClient"
   );
 }
-
-export function getAdminArticles(page: number = 1) {
-  const api_token = getCookie("token");
-  return useBaseFetch<FetchAdminArticle>(`admin/articles?page=${page}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${api_token}`
-    }
-  });
-}

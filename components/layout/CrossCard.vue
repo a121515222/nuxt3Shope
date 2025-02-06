@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import type { AdminProduct } from "@/types/adminProductTypes";
+import type { Product } from "@/types/productTypes";
 const props = defineProps<{
-  cardProductsDataProps: AdminProduct[];
+  cardProductsDataProps: Product[];
 }>();
 </script>
 <template>

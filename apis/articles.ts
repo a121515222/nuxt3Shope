@@ -13,20 +13,3 @@ export function searchArticles(keyWork: string = "", page: number = 1, limit: nu
     "newClient"
   );
 }
-
-export function getArticles() {
-  return useBaseFetch<FetchArticlesData>("articles", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-}
-export function getArticle(id: string) {
-  return useBaseFetch<FetchArticleData>(`article/${id}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-}

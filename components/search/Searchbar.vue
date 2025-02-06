@@ -3,8 +3,8 @@ import { type SearchButtonConfig } from "@/types/searchTypes";
 import { useSearchbar } from "./useSearchbar";
 import AutoComplete from "./AutoComplete.vue";
 import { priceValidatePattern } from "@/utils/validatePattern";
-import type { AdminProduct } from "@/types/adminProductTypes";
-import { type Article } from "@/types/articleTypes";
+import type { Product } from "@/types/productTypes";
+import type { Article } from "@/types/articleTypes";
 interface SearchBarProps<T> {
   autoCompleteListProp: T[];
   searchButtonConfigProp: SearchButtonConfig;
@@ -14,8 +14,8 @@ const { searchInfo, minPrice, maxPrice, favorites, isShowAutoComplete, handleCom
   useSearchbar();
 const searchInput = ref<HTMLInputElement | null>(null);
 // 定義 props 並設置預設值
-const props = withDefaults(defineProps<SearchBarProps<AdminProduct | Article>>(), {
-  autoCompleteListProp: (): (AdminProduct | Article)[] => [],
+const props = withDefaults(defineProps<SearchBarProps<Product | Article>>(), {
+  autoCompleteListProp: (): (Product | Article)[] => [],
   searchButtonConfigProp: () => ({
     priceHighToLow: false,
     priceLowToHigh: false,
@@ -103,7 +103,7 @@ const minPriceRule = (): boolean => {
   }
 };
 
-const filterAutoCompleteList = (list: (AdminProduct | Article)[]): string[] => {
+const filterAutoCompleteList = (list: (Product | Article)[]): string[] => {
   return list
     .filter((list) => {
       const matchInfo =

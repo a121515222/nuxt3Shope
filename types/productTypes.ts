@@ -25,7 +25,7 @@ export interface Product {
 
 export interface FetchProductsData {
   data: {
-    articles: Product[];
+    products: Product[];
     pagination: Pagination;
   };
   status: boolean;

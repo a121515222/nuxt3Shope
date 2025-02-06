@@ -1,6 +1,5 @@
 import { useBaseFetch } from "@/utils/fetch";
-import type { FetchProductsData, FetchProductData } from "~/types/productTypes";
-import type { FetchAdminProduct, FetchAdminProductById } from "@/types/adminProductTypes";
+import type { FetchProductsData, FetchProductData } from "@/types/productTypes";
 export function searchProducts(
   keyWork: string = "",
   page: number = 1,
@@ -8,7 +7,7 @@ export function searchProducts(
   minPrice: number | null = null,
   maxPrice: number | null = null
 ) {
-  return useBaseFetch<FetchAdminProduct>(
+  return useBaseFetch<FetchProductsData>(
     `searchProducts/?search=${keyWork}&page=${page}&limit=${limit}&minPrice=${minPrice}&maxPrice=${maxPrice}`,
     {
       method: "GET",
@@ -21,7 +20,7 @@ export function searchProducts(
 }
 
 export function getProductById(id: string) {
-  return useBaseFetch<FetchAdminProductById>(
+  return useBaseFetch<FetchProductData>(
     `productById/${id}`,
     {
       method: "GET",
@@ -31,21 +30,4 @@ export function getProductById(id: string) {
     },
     "newClient"
   );
-}
-
-export function getProducts() {
-  return useBaseFetch<FetchProductsData>("products/all", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-}
-export function getProduct(id: string) {
-  return useBaseFetch<FetchProductData>(`product/${id}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
 }

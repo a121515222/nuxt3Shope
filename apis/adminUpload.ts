@@ -18,16 +18,3 @@ export function postImageUpload(file: File, userId: string) {
     "newClient"
   );
 }
-
-export function postAdminImageUpload(file: File) {
-  const api_token = getCookie("token");
-  const formData = new FormData();
-  formData.append("file-to-upload", file);
-  return useBaseFetch<AdminUnloadImageResponse>("admin/upload", {
-    method: "POST",
-    headers: {
-      Authorization: `${api_token}`
-    },
-    body: formData
-  });
-}

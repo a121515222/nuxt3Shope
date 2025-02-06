@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { postLogOut, postLogOutNew } from "@/apis/login";
+import { postLogOutNew } from "@/apis/login";
 import { clearCookie } from "@/utils/cookie";
 const headerRef = ref(null);
 const navbarRef = ref<HTMLElement | null>(null);

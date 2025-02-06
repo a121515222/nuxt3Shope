@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { getProductById } from "@/apis/products";
-import type { AdminProduct } from "@/types/adminProductTypes";
+import type { Product } from "@/types/productTypes";
 import { handleImageError } from "@/utils/imageHandler";
 const cartStore = useCartStore();
 const { handleAddCart } = cartStore;
 const route = useRoute();
-const product = ref<AdminProduct>({
+const product = ref<Product>({
   _id: "",
   title: "",
   category: [],
@@ -21,7 +21,11 @@ const product = ref<AdminProduct>({
   discount: 0,
   tag: [],
   productStatus: "outOfStock",
-  num: 0
+  num: 0,
+  sellerInfo: {
+    username: "",
+    averageScore: 0
+  }
 });
 const images = ref<string[]>([]);
 const qty = ref(1);

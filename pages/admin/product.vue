@@ -8,7 +8,7 @@ import {
 } from "@/apis/adminProduct";
 import { productStatusConfig } from "@/utils/config";
 import { handleImageError } from "@/utils/imageHandler";
-import { postAdminImageUpload, postImageUpload } from "@/apis/adminUpload";
+import { postImageUpload } from "@/apis/adminUpload";
 
 const messageBoxStore = useMessageBoxStore();
 const indexStore = useIndexStore();

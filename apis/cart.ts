@@ -14,7 +14,6 @@ export function getCart() {
     "newClient"
   );
 }
-// #todo 等完成product的顯示完成後再測試
 export function postCart(productId: string, sellerId: string, num: number) {
   const api_token = getCookie("authorization");
   return useBaseFetch<FetchCartData>(
