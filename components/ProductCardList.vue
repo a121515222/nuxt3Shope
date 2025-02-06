@@ -191,9 +191,7 @@ onMounted(() => {
               </div>
               <div class="p-3">
                 <h3 class="text-lg font-bold">{{ item.title }}</h3>
-                <p class="line-clamp-2 min-h-[48px]">
-                  {{ removePTag(item.description) }}
-                </p>
+                <div class="line-clamp-2 min-h-[48px]" v-html="item.description"></div>
               </div>
               <div class="border-t-0 px-3 pb-2">
                 <div v-if="item.price === (item.price ?? 0) - (item.discount ?? 0)">
