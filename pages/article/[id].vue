@@ -26,7 +26,7 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div class="container pt-10 mx-auto">
+  <div class="container pt-10 mx-auto max-w-7xl">
     <div
       class="flex flex-col lg:flex-row my-3 bg-gray-200 dark:bg-gray-700 rounded-lg dark:text-white"
     >
@@ -44,7 +44,7 @@ onMounted(async () => {
         <h2 class="font-bold text-2xl mb-2">{{ article.title }}</h2>
         <p class="text-xl mb-2">作者: {{ article.author }}</p>
         <p class="text-xl mb-2">發布時間:<span v-timeFormat="article.articleDate"></span></p>
-        <p class="mb-2" v-html="article.content"></p>
+        <div class="mb-2" v-html="article.content"></div>
       </div>
     </div>
   </div>

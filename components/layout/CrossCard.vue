@@ -5,7 +5,7 @@ const props = defineProps<{
 }>();
 </script>
 <template>
-  <template v-for="(item, index) in props.cardProductsDataProps" :key="item.title + index">
+  <div v-for="(item, index) in props.cardProductsDataProps" :key="item.title + index">
     <div
       class="flex flex-col md:flex-row p-0 overflow-hidden md:max-h-[35vh] md:min-h-[35vh]"
       :class="index % 2 === 0 ? '' : 'md:flex-row-reverse'"
@@ -22,7 +22,7 @@ const props = defineProps<{
         class="w-full md:w-1/2 flex flex-col justify-between p-4 dark:text-white bg-gray-200 dark:bg-gray-700"
       >
         <h3 class="text-2xl font-bold mb-2">{{ item.title }}</h3>
-        <p class="line-clamp-3 mb-4" v-html="item.content"></p>
+        <div class="line-clamp-3 mb-4" v-html="item.content"></div>
         <div v-if="item.discount === 0" class="flex gap-2 mb-4">
           <span>售價:{{ item.price }}元</span>
           <span>/{{ item.unit }}</span>
@@ -40,6 +40,6 @@ const props = defineProps<{
         </NuxtLink>
       </div>
     </div>
-  </template>
+  </div>
 </template>
 <style></style>

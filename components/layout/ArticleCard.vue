@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<ArticleCardProps>(), {
     <div v-for="(item, index) in props.articleDataProps" :key="item._id" class="w-full">
       <div v-if="props.articleDataConfig.isMainArticle ? index <= 3 : index >= 0" class="w-full">
         <div
-          class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105 dark:text-white bg-gray-200 dark:bg-gray-700"
+          class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 dark:text-white bg-gray-200 dark:bg-gray-700"
         >
           <ImageWithErrorHandler
             :alt="item.title"

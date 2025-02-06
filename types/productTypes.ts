@@ -1,26 +1,40 @@
+import type { Pagination } from "@/types/paginationTypes";
+
 export interface Product {
-  category: string;
+  _id: string;
+  userId: string;
+  title: string;
+  category: string[];
   content: string;
   description: string;
-  id: string;
   imageUrl: string;
-  imagesUrl?: string[];
-  is_enabled: number;
-  origin_price: number;
-  price: number;
-  title: string;
+  imagesUrl: string[];
+  price: number | null;
+  discount: number | null;
   unit: string;
-  updatedAt?: string;
-  createdAt?: string;
+  tag: string[];
+  productStatus: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  num: number | null;
+  sellerInfo: {
+    username: string;
+    averageScore: number;
+  };
 }
 
 export interface FetchProductsData {
-  products: Product[];
-  success: boolean;
+  data: {
+    articles: Product[];
+    pagination: Pagination;
+  };
+  status: boolean;
+  message: string;
 }
 export interface FetchProductData {
-  product: Product;
-  success: boolean;
+  data: Product;
+  status: boolean;
+  message: string;
 }
 
 export interface productCartType {

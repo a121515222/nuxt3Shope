@@ -445,9 +445,9 @@ onMounted(async () => {
             </div>
 
             <h3 class="text-lg font-semibold mt-2">商品描述:</h3>
-            <p v-html="productTemp.description"></p>
+            <div v-html="productTemp.description"></div>
             <h3 class="text-lg font-semibold mt-2">商品內容:</h3>
-            <p v-html="productTemp.content"></p>
+            <div v-html="productTemp.content"></div>
             <div class="flex items-center space-x-2">
               <span class="text-xl">{{ productTemp.price }} 元</span>
               <span class="line-through text-gray-500">{{ productTemp.price }}</span>

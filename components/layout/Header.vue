@@ -50,10 +50,6 @@ const navConfig = [
     path: "/articleList"
   },
   {
-    name: "訂單查詢",
-    path: "/orderList"
-  },
-  {
     name: "編輯產品",
     path: "/admin/product"
   },

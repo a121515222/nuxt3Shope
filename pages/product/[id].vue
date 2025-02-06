@@ -87,7 +87,7 @@ onMounted(async () => {
       <div class="w-full lg:w-1/2 flex flex-col justify-between">
         <div class="from-group p-2">
           <h2 class="font-bold text-2xl">{{ product.title }}</h2>
-          <p class="text-lg">{{ removePTag(product.description) }}</p>
+          <div class="text-lg" v-html="product.content"></div>
         </div>
         <div class="from-group pr-2 pb-2">
           <template v-if="product.discount === 0">

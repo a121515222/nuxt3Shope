@@ -264,7 +264,7 @@ onMounted(() => {
                 </span>
               </div>
             </div>
-            <p v-html="productModalData.content"></p>
+            <div v-html="productModalData.content"></div>
             <div
               class="py-2"
               v-if="

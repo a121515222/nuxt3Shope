@@ -1,15 +1,10 @@
 <script lang="ts" setup>
-import type { Product } from "@/types/productTypes";
-import type { Article } from "@/types/articleTypes";
-import type { FetchProductsData } from "@/types/productTypes";
-import type { FetchArticlesData } from "@/types/articleTypes";
-import { getProducts } from "@/apis/products";
 import { searchArticles } from "@/apis/articles";
 import { searchProducts } from "@/apis/products";
 const productStore = useProductStore();
 const articleStore = useArticleStore();
-const { productDataList, indexProductDataList, specialProductDataList } = storeToRefs(productStore);
-const { articleDataList, indexArticleDataList } = storeToRefs(articleStore);
+const { indexProductDataList, specialProductDataList } = storeToRefs(productStore);
+const { indexArticleDataList } = storeToRefs(articleStore);
 
 const { data: getIndexProductData } = await useAsyncData("getIndexProducts", () => {
   return searchProducts("百香果 醜豆");
