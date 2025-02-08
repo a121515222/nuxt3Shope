@@ -6,7 +6,7 @@ import type { UserLogin } from "@/types/loginTypes";
 const indexStore = useIndexStore();
 const messageStore = useMessageBoxStore();
 const { showAlert } = messageStore;
-const { userId, isLogin, headerHeight, windowHeight } = storeToRefs(indexStore);
+const { userId, isLogin, headerHeight, windowHeight, isLoading } = storeToRefs(indexStore);
 const user = ref<UserLogin>({
   account: "",
   password: ""
@@ -17,7 +17,15 @@ const isForgotPassword = ref(false);
 const router = useRouter();
 const handleSendInfo = async () => {
   if (isForgotPassword.value) {
-    await handleResendVerifyMail();
+    try {
+      isLoading.value = true;
+      await handleResendVerifyMail();
+    } catch (error) {
+      isLoading.value = false;
+      await showAlert("發生錯誤", "請稍後再試");
+    } finally {
+      isLoading.value = false;
+    }
   } else {
     await login();
   }
@@ -29,8 +37,10 @@ const handleResendVerifyMail = async () => {
   } else {
     const res = await resentVerifyMail(user.value.account);
     if (res.status) {
+      isLoading.value = false;
       await showAlert("驗證信已寄出", "請至信箱收取驗證信");
     } else {
+      isLoading.value = false;
       await showAlert("發生錯誤", "請稍後再試");
     }
   }

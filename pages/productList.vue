@@ -1,19 +1,34 @@
 <script lang="ts" setup>
 import type { SearchBarEmitInfo } from "@/types/searchBarTypes";
-import { searchProducts } from "@/apis/products";
-
+import type { Product } from "@/types/productTypes";
+import type { Pagination } from "@/types/paginationTypes";
+import { useFetchProducts } from "@/composables/useFetchProduct";
 const indexStore = useIndexStore();
 const { isLoading } = storeToRefs(indexStore);
-const productStore = useProductStore();
-const { productDataList, productPaginationData } = storeToRefs(productStore);
-const { data } = await useAsyncData(`searchProducts`, () => {
-  return searchProducts();
+const productDataList = useState<Product[]>("productDataList", () => []);
+const productPaginationData = useState<Pagination>("productPaginationData", () => {
+  return {
+    currentPage: 1,
+    totalCount: 0,
+    totalPages: 0,
+    limit: 0,
+    hasPrevPage: false,
+    hasNextPage: false
+  };
 });
-if (data.value?.status && process.server) {
-  productDataList.value = data.value.data.products;
-  productPaginationData.value = data.value.data.pagination;
+if (process.server) {
+  const { products, pagination } = await useFetchProducts();
+  productDataList.value = products;
+  productPaginationData.value = pagination;
+} else {
+  // 客戶端邏輯，使用已經從 SSR 中獲取並存儲的資料
+  if (productDataList.value.length === 0) {
+    // 如果頁面切換後資料尚未存在，可以重新請求
+    const { products, pagination } = await useFetchProducts();
+    productDataList.value = products;
+    productPaginationData.value = pagination;
+  }
 }
-
 const searchButtonConfig = {
   priceHighToLow: true,
   priceLowToHigh: true,
@@ -62,15 +77,15 @@ const handleSearch = async (searchData?: SearchBarEmitInfo | null, page: number 
   try {
     isLoading.value = true;
 
-    const res = await searchProducts(
+    const { products, pagination } = await useFetchProducts(
       currentSearchData.value.searchInfo,
       page,
       10,
       currentSearchData.value.minPrice === "" ? null : Number(currentSearchData.value.minPrice),
       currentSearchData.value.maxPrice === "" ? null : Number(currentSearchData.value.maxPrice)
     );
-    productPaginationData.value = res.data.pagination;
-    productDataList.value = res.data.products;
+    productPaginationData.value = pagination;
+    productDataList.value = products;
   } catch (error) {
     console.error(error);
   } finally {

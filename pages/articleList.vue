@@ -1,18 +1,35 @@
 <script lang="ts" setup>
-import type { FetchArticlesData } from "@/types/articleTypes";
+import type { Article } from "@/types/articleTypes";
+import type { Pagination } from "~/types/paginationTypes";
 import type { SearchBarEmitInfo } from "@/types/searchBarTypes";
-import { searchArticles } from "@/apis/articles";
+import { useFetchArticles } from "@/composables/useFetchArticle";
 const indexStore = useIndexStore();
 const { isLoading } = storeToRefs(indexStore);
-const articleStore = useArticleStore();
-const { articleDataList, articlePagination } = storeToRefs(articleStore);
-const { data } = await useAsyncData("searchArticle", () => {
-  return searchArticles();
+const articleDataList = useState<Article[]>("articleDataList", () => []);
+const articlePagination = useState<Pagination>("articlePagination", () => {
+  return {
+    currentPage: 1,
+    totalCount: 0,
+    totalPages: 0,
+    limit: 0,
+    hasPrevPage: false,
+    hasNextPage: false
+  };
 });
-if (data.value?.status && process.server) {
-  articleDataList.value = data.value.data.articles;
-  articlePagination.value = data.value.data.pagination;
+if (process.server) {
+  const { articles, pagination } = await useFetchArticles();
+  articleDataList.value = articles;
+  articlePagination.value = pagination;
+} else {
+  // 客戶端邏輯，使用已經從 SSR 中獲取並存儲的資料
+  if (articleDataList.value.length === 0) {
+    // 如果頁面切換後資料尚未存在，可以重新請求
+    const { articles, pagination } = await useFetchArticles();
+    articleDataList.value = articles;
+    articlePagination.value = pagination;
+  }
 }
+
 const searchButtonConfig = {
   search: true,
   clearSearch: true,
@@ -32,9 +49,12 @@ const handleSearch = async (searchData?: SearchBarEmitInfo | null, page: number 
   }
   try {
     isLoading.value = true;
-    const res = await searchArticles(currentSearchData.value.searchInfo, page);
-    articleDataList.value = res.data.articles;
-    articlePagination.value = res.data.pagination;
+    const { articles, pagination } = await useFetchArticles(
+      currentSearchData.value.searchInfo,
+      page
+    );
+    articleDataList.value = articles;
+    articlePagination.value = pagination;
   } catch (error) {
     console.error(error);
   } finally {

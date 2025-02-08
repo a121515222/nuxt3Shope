@@ -26,8 +26,3 @@ export function useSearchRefs(config: SearchButtonConfig): SearchRefs {
 
   return searchRefs;
 }
-
-// // Usage in your component
-// const props = defineProps<SearchButtonConfig>();
-// const { searchInfo, minPrice, maxPrice, favorites, oldDate, newDate } =
-//   useSearchRefs(props);

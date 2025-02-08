@@ -1,41 +1,41 @@
 <script lang="ts" setup>
-import { searchArticles } from "@/apis/articles";
-import { searchProducts } from "@/apis/products";
-const productStore = useProductStore();
-const articleStore = useArticleStore();
-const { indexProductDataList, specialProductDataList } = storeToRefs(productStore);
-const { indexArticleDataList } = storeToRefs(articleStore);
-
-const { data: getIndexProductData } = await useAsyncData("getIndexProducts", () => {
-  return searchProducts("百香果 醜豆");
-});
-const { data: getSpecialProductData } = await useAsyncData("getSpecialProducts", () => {
-  return searchProducts("精油");
-});
-const { data: getIndexArticleData } = await useAsyncData("getIndexArticles", () => {
-  return searchArticles();
-});
-
-try {
+import type { Product } from "@/types/productTypes";
+import type { Article } from "@/types/articleTypes";
+import { useFetchArticles } from "~/composables/useFetchArticle";
+import { useFetchProducts } from "@/composables/useFetchProduct";
+const indexProductDataList = useState<Product[]>("indexProductDataList", () => []);
+const specialProductDataList = useState<Product[]>("specialProductDataList", () => []);
+const indexArticleDataList = useState<Article[]>("indexArticleDataList", () => []);
+if (process.server) {
+  const { products: getIndexProductData } = await useFetchProducts("百香果 醜豆");
+  const { products: getSpecialProductData } = await useFetchProducts("精油");
+  const { articles } = await useFetchArticles();
   const [indexProduct, specialProduct, indexArticle] = await Promise.all([
     getIndexProductData,
     getSpecialProductData,
-    getIndexArticleData
+    articles
   ]);
-
-  if (indexProduct.value?.status && process.server) {
-    indexProductDataList.value = indexProduct.value.data.products;
+  indexProductDataList.value = indexProduct;
+  specialProductDataList.value = specialProduct;
+  indexArticleDataList.value = indexArticle;
+} else {
+  // 客戶端邏輯，使用已經從 SSR 中獲取並存儲的資料
+  if (indexProductDataList.value.length === 0) {
+    // 如果頁面切換後資料尚未存在，可以重新請求
+    const { products: getIndexProductData } = await useFetchProducts("百香果 醜豆");
+    indexProductDataList.value = getIndexProductData;
   }
-  if (specialProduct.value?.status && process.server) {
-    specialProductDataList.value = specialProduct.value.data.products;
+  if (specialProductDataList.value.length === 0) {
+    // 如果頁面切換後資料尚未存在，可以重新請求
+    const { products: getSpecialProductData } = await useFetchProducts("精油");
+    specialProductDataList.value = getSpecialProductData;
   }
-  if (indexArticle.value?.status && process.server) {
-    indexArticleDataList.value = indexArticle.value.data.articles;
+  if (indexArticleDataList.value.length === 0) {
+    // 如果頁面切換後資料尚未存在，可以重新請求
+    const { articles } = await useFetchArticles();
+    indexArticleDataList.value = articles;
   }
-} catch (error) {
-  console.error("Error fetching data:", error);
 }
-
 const bannerConfig = {
   duration: 6000,
   imagesPath: [

@@ -28,16 +28,19 @@ const handleSendInfo = async () => {
     ? route.params.id[0]
     : route.params.id;
   if (isValid) {
-    isLoading.value = true;
-    const res = await forgetPasswordPost(forgetPasswordInfo.value);
-    if (res.status) {
-      await showAlert("密碼重設成功", "請重新登入");
-      router.push("/login");
-    } else {
-      await showAlert("發生錯誤", "請稍後再試");
-    }
     try {
+      isLoading.value = true;
+      const res = await forgetPasswordPost(forgetPasswordInfo.value);
+      if (res.status) {
+        isLoading.value = false;
+        await showAlert("密碼重設成功", "請重新登入");
+        router.push("/login");
+      } else {
+        isLoading.value = false;
+        await showAlert("發生錯誤", "請稍後再試");
+      }
     } catch (error) {
+      isLoading.value = false;
       await showAlert("發生錯誤", "請稍後再試");
     } finally {
       isLoading.value = false;
@@ -104,9 +107,9 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
                   placeholder="請輸入密碼"
                   autocomplete="current-password"
                   v-model="forgetPasswordInfo.password"
-                  @input="(event) => handleInputStopTextValidate(event, handlePasswordValidate)"
+                  @blur="(event) => handleInputStopTextValidate(event, handlePasswordValidate)"
                 />
-                <PasswordToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
+                <InputToggle @emitToggleShowPassWord="toggleShowPassWord(passwordInputRef)" />
                 <p
                   ref="passwordInputErrorMessageRef"
                   class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
@@ -120,21 +123,21 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
                 >
                 <input
                   type="password"
-                  ref="newPasswordInputRef"
+                  ref="confirmPasswordInputRef"
                   class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 placeholder:dark:text-white dark:bg-gray-700 dark:text-white invalid:border-red-500 invalid:bg-red-50 dark:invalid:bg-red-800 focus:invalid:ring-red-500"
                   placeholder="請輸入密碼"
                   autocomplete="current-password"
                   v-model="forgetPasswordInfo.confirmPassword"
-                  @input="
+                  @blur="
                     (event) => handleInputStopTextValidate(event, handleConfirmPasswordValidate)
                   "
                 />
-                <PasswordToggle
+                <InputToggle
                   @emitToggleShowPassWord="toggleShowPassWord(confirmPasswordInputRef)"
                 />
 
                 <p
-                  ref="newPasswordInputErrorMessageRef"
+                  ref="confirmPasswordInputErrorMessageRef"
                   class="w-full h-1/2 px-4 text-xs lg:text-sm text-red-600 dark:text-red-500 opacity-0 z-0 absolute left-0 bottom-[-36px]"
                 ></p>
               </div>

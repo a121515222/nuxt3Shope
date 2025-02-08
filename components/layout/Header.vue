@@ -5,6 +5,8 @@ const headerRef = ref(null);
 const navbarRef = ref<HTMLElement | null>(null);
 const indexStore = useIndexStore();
 const { userId } = storeToRefs(indexStore);
+const cartStore = useCartStore();
+const { cartDataList } = storeToRefs(cartStore);
 const { addToast } = useToastStore();
 const ariaExpanded = ref(false);
 const router = useRouter();
@@ -33,6 +35,7 @@ const handleLogout = async () => {
   if (res.status) {
     addToast({ type: "success", message: "成功登出" });
     isLogin.value = false;
+    cartDataList.value = [];
     router.push("/login");
   }
 };
