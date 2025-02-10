@@ -3,6 +3,7 @@ import type { BuyerOrder } from "@/types/adminOrderTypes";
 import { paidMethodConfig, orderStatusConfig } from "@/utils/config";
 import { getBuyerOrder, putBuyerOrder, buyerPayOrder, buyerCancelOrder } from "@/apis/adminOrder";
 import { postComment } from "@/apis/commentAPI";
+import { getUserInfo } from "@/apis/userInfo";
 import {
   nameValidatePattern,
   telValidatePattern,
@@ -15,7 +16,18 @@ const orderStore = useOrderStore();
 const { isFinishedPayment } = storeToRefs(orderStore);
 const handleBuyerGetOrderData = async (id: string) => {
   const res = await getBuyerOrder(id);
-  order.value = res.data;
+  if (!res.data.commentInfo.commentId) {
+    order.value = {
+      ...res.data,
+      commentInfo: {
+        comment: "",
+        score: 0,
+        commentId: null
+      }
+    };
+  } else {
+    order.value = res.data;
+  }
   isFinishedPayment.value = order.value.isPaid;
 };
 const messageBoxStore = useMessageBoxStore();
@@ -54,7 +66,7 @@ const order = ref<BuyerOrder>({
   commentInfo: {
     comment: "",
     score: 0,
-    _id: ""
+    commentId: ""
   }
 });
 
@@ -197,6 +209,9 @@ onMounted(async () => {
   await handleBuyerGetOrderData(
     Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
   );
+});
+onBeforeRouteLeave(() => {
+  isFinishedPayment.value = false;
 });
 </script>
 <template>

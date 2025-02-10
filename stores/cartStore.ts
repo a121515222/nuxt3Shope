@@ -58,7 +58,7 @@ export const useCartStore = defineStore("cartStore", () => {
       addToast({
         duration: 3000,
         type: "danger",
-        message: `加入購物車錯誤: ${error}`
+        message: `加入購物車錯誤`
       });
       const errorMessage = (error as Error).toString();
       isLoading.value = false;

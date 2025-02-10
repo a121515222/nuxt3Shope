@@ -6,9 +6,11 @@ import {
   addressValidatePattern
 } from "@/utils/validatePattern";
 import { buyerAddOrder } from "@/apis/adminOrder";
-
+import { getUserInfo } from "@/apis/userInfo";
 const userStore = useUserStore();
 const { userInfo } = storeToRefs(userStore);
+const indexStore = useIndexStore();
+const { isLoading } = storeToRefs(indexStore);
 const route = useRoute();
 const buyerInfo = ref({
   username: "",
@@ -19,11 +21,41 @@ const buyerInfo = ref({
   cartId: route.params.cartId,
   sellerId: route.query.sellerId
 });
-const handleBuyerAsUserInfo = () => {
-  buyerInfo.value.username = userInfo.value.username;
-  buyerInfo.value.tel = userInfo.value.tel;
-  buyerInfo.value.email = userInfo.value.email;
-  buyerInfo.value.address = userInfo.value.address;
+const userId = ref("");
+
+const handleBuyerAsUserInfo = async () => {
+  if (!userInfo.value.username) {
+    if (process.client) {
+      userId.value = localStorage.getItem("userId") ?? "";
+    }
+    if (userId.value) {
+      try {
+        isLoading.value = true;
+        const res = await getUserInfo(userId.value);
+        if (res.status) {
+          const { username, birthday, gender, address, tel, email } = res.data;
+          userInfo.value.address = address;
+          userInfo.value.birthday = new Date(birthday);
+          userInfo.value.email = email;
+          userInfo.value.username = username;
+          userInfo.value.tel = tel;
+          userInfo.value.gender = gender;
+        }
+      } catch (error) {
+        isLoading.value = false;
+        addToast({ type: "danger", message: "取得資料失敗" });
+      } finally {
+        isLoading.value = false;
+      }
+    } else {
+      addToast({ type: "danger", message: "尚未登入" });
+    }
+  } else {
+    buyerInfo.value.username = userInfo.value.username;
+    buyerInfo.value.tel = userInfo.value.tel;
+    buyerInfo.value.email = userInfo.value.email;
+    buyerInfo.value.address = userInfo.value.address;
+  }
 };
 const { addToast } = useToastStore();
 const { nameValidate, emailValidate, telValidate, addressValidate } = useFormValidate();

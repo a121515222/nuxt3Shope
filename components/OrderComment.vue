@@ -6,16 +6,24 @@ const commentData = defineModel<CommentDataType>({
   default: () => ({
     comment: "",
     score: 0,
-    _id: ""
+    commentId: null
   })
 });
 const emit = defineEmits(["sendComment"]);
 const hoverScore = ref(0);
 const isComment = ref(false);
 const isDisableSendCommit = computed(() => {
-  return !commentData.value.comment || commentData.value.score === 0;
+  if (!commentData.value.commentId) {
+    return false;
+  } else {
+    return true;
+  }
 });
 const handleScoreUpdate = (score: number) => {
+  console.log("123", isDisableSendCommit.value);
+  if (isDisableSendCommit.value) {
+    return;
+  }
   // 更新整個 commentData 在defineModel中只更新commentData.value內的屬性不會馬上響應在畫面上
   commentData.value = {
     ...commentData.value,
@@ -34,7 +42,7 @@ const handleSendComment = () => {
 watch(
   commentData,
   (newVal) => {
-    if (newVal._id) {
+    if (newVal.commentId) {
       isComment.value = true;
     } else {
       isComment.value = false;
@@ -61,6 +69,7 @@ watch(
         <svg
           v-if="hoverScore < i && commentData.score < i"
           class="w-6 h-6 text-gray-400 dark:text-gray-600"
+          :class="{ 'hover:cursor-not-allowed': isDisableSendCommit }"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="none"
@@ -75,6 +84,7 @@ watch(
         <svg
           v-if="hoverScore >= i || commentData.score >= i"
           class="w-6 h-6 text-yellow-300"
+          :class="{ 'hover:cursor-not-allowed': isDisableSendCommit }"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
@@ -88,7 +98,9 @@ watch(
     <textarea
       v-model="commentData.comment"
       class="w-full h-24 p-2 border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-2 focus:border-primary focus:ring-primary placeholder-gray-400 dark:placeholder-gray-400 dark:text-white bg-gray-100 dark:bg-gray-700"
+      :class="{ 'hover:cursor-not-allowed': isDisableSendCommit }"
       placeholder="請輸入評論"
+      :disabled="isDisableSendCommit"
       @change="handleComment"
     ></textarea>
     <div class="flex flex-row-reverse">

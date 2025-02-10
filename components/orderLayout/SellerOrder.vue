@@ -85,6 +85,15 @@ onMounted(async () => {
                 }"
                 >{{ getOrderStatusText(item.status) }}</span
               >
+              <span
+                :class="
+                  item.isPaid
+                    ? 'text-green-800 dark:text-green-500'
+                    : 'text-red-700 dark:text-red-500'
+                "
+              >
+                {{ item.isPaid ? "已付款" : "未付款" }}
+              </span>
               <svg
                 data-accordion-icon
                 class="w-3 h-3 shrink-0 transition-transform text-gray-600 dark:text-gray-400"
@@ -176,7 +185,6 @@ onMounted(async () => {
                           <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">
                             <th class="py-2 w-24 text-gray-700 dark:text-gray-300">訂單編號</th>
                             <td class="py-2 text-gray-900 dark:text-white">{{ item._id }}</td>
-                            <td class="py-2 text-gray-700 dark:text-gray-300">修改付款狀態</td>
                           </tr>
                           <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">
                             <th class="py-2 text-gray-700 dark:text-gray-300">下單時間</th>

@@ -40,7 +40,7 @@ export interface BuyerOrder {
   commentInfo: {
     comment: string;
     score: number;
-    _id: string;
+    commentId: string | null;
   };
 }
 

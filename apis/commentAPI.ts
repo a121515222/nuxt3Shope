@@ -1,3 +1,4 @@
+import type { CommentResponseType } from "@/types/commentTypes";
 import { useBaseFetch } from "@/utils/fetch";
 
 interface PostCommentDataType {
@@ -9,7 +10,7 @@ interface PostCommentDataType {
 
 export function postComment(info: PostCommentDataType) {
   const api_token = getCookie("authorization");
-  return useBaseFetch<any>(
+  return useBaseFetch<CommentResponseType>(
     "comment",
     {
       method: "POST",
@@ -18,6 +19,19 @@ export function postComment(info: PostCommentDataType) {
         Authorization: `${api_token}`
       },
       body: JSON.stringify({ ...info })
+    },
+    "newClient"
+  );
+}
+
+export function getComment(sellerId: string, page: number = 1, limit: number = 10) {
+  return useBaseFetch<any>(
+    `buyerGetSellerComment?sellerId=${sellerId}&page${page}&limit=${limit}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
     },
     "newClient"
   );

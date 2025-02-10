@@ -89,15 +89,24 @@ onMounted(async () => {
         </template>
       </div>
       <div class="w-full lg:w-1/2 flex flex-col justify-between">
-        <div class="from-group p-2">
+        <div class="p-2">
           <h2 class="font-bold text-2xl">{{ product.title }}</h2>
           <div class="text-lg" v-html="product.content"></div>
         </div>
-        <div class="from-group pr-2 pb-2">
+        <div class="pr-2 pb-2">
+          <div class="flex justify-end gap-2 pr-2">
+            <NuxtLink
+              class="bg-primary text-secondary py-2 px-4 rounded"
+              :to="`/comment/${product.userId}`"
+            >
+              <span>賣家:{{ product.sellerInfo.username }}</span>
+              <span>評分:({{ product.sellerInfo.averageScore }}/5)</span>
+            </NuxtLink>
+          </div>
           <template v-if="product.discount === 0">
             <div class="flex justify-end gap-2 pr-2">
               <span>售價{{ product.price }}元</span>
-              <span>/{{ product.unit }}</span>
+              <span>{{ product.unit }}</span>
             </div>
           </template>
           <template v-else-if="product.discount ?? 0 > 0">
@@ -106,7 +115,7 @@ onMounted(async () => {
               <span class="text-red-500"
                 >特價{{ (product.price ?? 0) - (product.discount ?? 0) }}元</span
               >
-              <span>/{{ product.unit }}</span>
+              <span>{{ product.unit }}</span>
             </div>
           </template>
           <div class="flex justify-end gap-3">

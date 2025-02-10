@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { Product } from "@/types/productTypes";
 import type { Article } from "@/types/articleTypes";
-import { useFetchArticles } from "~/composables/useFetchArticle";
+import { useFetchArticles } from "@/composables/useFetchArticle";
 import { useFetchProducts } from "@/composables/useFetchProduct";
 const indexProductDataList = useState<Product[]>("indexProductDataList", () => []);
 const specialProductDataList = useState<Product[]>("specialProductDataList", () => []);
