@@ -116,7 +116,7 @@ onUnmounted(() => {
     :class="shouldShowDarkModeBackground()"
     ref="headerRef"
   >
-    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto py-4 px-2">
       <NuxtLink
         class="text-2xl font-bold hover:text-white transition-colors duration-300"
         to="/"

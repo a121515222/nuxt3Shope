@@ -63,7 +63,7 @@ onMounted(async () => {
 <template>
   <div class="container mx-auto max-w-7xl py-8">
     <div
-      class="flex flex-col md:flex-row mx-0 card bg-gray-200 dark:bg-gray-700 rounded-lg dark:text-white"
+      class="flex flex-col md:flex-row mx-0 card bg-gray-200 dark:bg-gray-700 rounded-lg dark:text-white mx-4"
     >
       <div class="w-full lg:w-1/2">
         <template v-if="images.length > 2">

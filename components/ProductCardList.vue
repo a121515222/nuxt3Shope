@@ -230,7 +230,7 @@ onMounted(() => {
       </div>
     </div>
     <div v-else-if="props.productListProp.length === 0">
-      <h2 class="mx-auto">搜尋不到東西</h2>
+      <h2 class="mx-auto dark:text-white">搜尋不到東西</h2>
     </div>
     <Modal
       ref="productModalRef"

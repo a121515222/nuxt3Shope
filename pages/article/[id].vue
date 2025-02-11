@@ -28,7 +28,7 @@ onMounted(async () => {
 <template>
   <div class="container pt-10 mx-auto max-w-7xl">
     <div
-      class="flex flex-col lg:flex-row my-3 bg-gray-200 dark:bg-gray-700 rounded-lg dark:text-white"
+      class="flex flex-col lg:flex-row my-3 bg-gray-200 dark:bg-gray-700 rounded-lg dark:text-white mx-2"
     >
       <div
         class="w-full lg:w-1/2 px-0 rounded-lg overflow-hidden"

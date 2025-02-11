@@ -105,7 +105,7 @@ const handleSearch = async (searchData?: SearchBarEmitInfo | null, page: number 
       @changeMaxPrice="handleMaxPrice"
       @clearSearch="handleCleanSearch"
     ></SearchSearchbar>
-    <div class="container mx-auto max-w-7xl">
+    <div class="container mx-auto max-w-7xl px-2">
       <ProductCardList class="px-2 md:px-0" :productListProp="productDataList"> </ProductCardList>
       <Pagination :pagination="productPaginationData" @changePage="handleChangePage" />
     </div>
