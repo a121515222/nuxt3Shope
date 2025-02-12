@@ -1,4 +1,13 @@
 <script lang="ts" setup>
+useSeoMeta({
+  title: "自重自售-產品列表",
+  description: "上架自家農產品的店商網頁-產品列表(展示用)",
+  ogTitle: "自重自售-產品列表",
+  ogDescription: "上架自家農產品的店商望網頁-產品列表(展示用)",
+  ogUrl: `https://${process.env.NUXT_PUBLIC_FRONTEND_URL}/productList`,
+  ogType: "website",
+  ogLocale: "zh_TW"
+});
 import type { SearchBarEmitInfo } from "@/types/searchBarTypes";
 import type { Product } from "@/types/productTypes";
 import type { Pagination } from "@/types/paginationTypes";
