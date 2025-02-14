@@ -52,6 +52,7 @@ const navConfig = [
     name: "文章列表",
     path: "/articleList"
   },
+
   {
     name: "編輯產品",
     path: "/admin/product"
@@ -68,6 +69,10 @@ const navConfig = [
   {
     name: "訂單管理",
     path: "/admin/order"
+  },
+  {
+    name: "關於本網頁",
+    path: "/about"
   }
 ];
 interface NavList {

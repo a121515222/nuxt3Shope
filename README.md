@@ -1,75 +1,35 @@
-# Nuxt 3 Minimal Starter
+![Nuxt Version](https://img.shields.io/badge/nuxt-v3.13.0-00DC82)
+![Vue Version](https://img.shields.io/badge/vue-latest-4FC08D)
+![Pinia Version](https://img.shields.io/badge/pinia-v2.2.2-FFD859)
+![CKEditor Version](https://img.shields.io/badge/ckeditor5-v43.2.0-0287D0)
+![VCalendar Version](https://img.shields.io/badge/v--calendar-v3.1.2-4992A9)
+![Flowbite Version](https://img.shields.io/badge/flowbite-v2.5.1-4F46E5)
+![TailwindCSS Version](https://img.shields.io/badge/%40nuxtjs%2Ftailwindcss-v6.12.1-38BDF8)
+![VueUse Version](https://img.shields.io/badge/%40vueuse%2Fnuxt-v11.1.0-41B883)
+![ESLint Version](https://img.shields.io/badge/eslint-v9.10.0-4B32C3)
+![Prettier Version](https://img.shields.io/badge/prettier-v3.3.3-F7B93E)
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+# 自種自售
 
-## Setup
+這是一個專門給自家農場品上架的店商網頁，目前僅供展示使用，沒有實際的交易功能，這個網頁是集結了我目前(2025/2)會所有技術，網頁架構是前後端分離，這個是前端的部分。
 
-Make sure to install the dependencies:
+## 專案安裝
 
 ```bash
-# npm
-npm install
-
-# pnpm
 pnpm install
 
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+## 專案啟動
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+pnpm dve
 ```
 
-## Production
+## 本網頁gitHub
 
-Build the application for production:
+[自種自售-前端](https://github.com/a121515222/nuxt3Shope)
 
-```bash
-# npm
-npm run build
+## 後端gitHub
 
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+[自種自售-後端](https://github.com/a121515222/shopBackend)
