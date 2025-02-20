@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-// #todo image 與 imageUrl 變數名稱可以選一個使用
+import type { AdminArticle } from "@/types/adminArticleTypes";
 import {
   getUserArticles,
   getUserArticleById,
@@ -9,7 +9,7 @@ import {
 } from "@/apis/adminArticle";
 import { postImageUpload } from "@/apis/adminUpload";
 import { handleImageError } from "@/utils/imageHandler";
-import type { AdminArticle } from "@/types/adminArticleTypes";
+import { generateArticleContentByGeminiAI } from "@/apis/geminiAIAPI";
 const indexStore = useIndexStore();
 const { isLoading } = storeToRefs(indexStore);
 const { addToast } = useToastStore();
@@ -179,6 +179,34 @@ const paginationData = ref();
 const handleChangePage = async (page: number) => {
   await handleGetAdminArticles(page);
 };
+
+const handProductContentByGemini = async () => {
+  const { title, description, tag, content } = modalData.value;
+  if (!title || !description || !tag || !content) {
+    showAlert("請填寫完整資料", "產品標題、描述、標籤、內容需要有資料才能使用AI生成");
+    return;
+  }
+  try {
+    isLoading.value = true;
+    const res = await generateArticleContentByGeminiAI({
+      title,
+      description,
+      tag,
+      content
+    });
+    if (res.status) {
+      modalData.value.content = res.data;
+    } else {
+      addToast({ type: "danger", message: "生成失敗" });
+    }
+  } catch (error) {
+    isLoading.value = false;
+    addToast({ type: "danger", message: "生成失敗" });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 onMounted(async () => {
   await handleGetAdminArticles();
 });
@@ -442,6 +470,12 @@ onUnmounted(() => {});
         </div>
         <div class="mb-3">
           <label class="block text-gray-700 dark:text-white" for="articleContent">文章內容</label>
+          <button
+            class="bg-primary px-2 py-1 border-rounded text-secondary rounded-lg"
+            @click="handProductContentByGemini"
+          >
+            AI幫我寫
+          </button>
           <TheCkeditor v-model="modalData.content"></TheCkeditor>
         </div>
       </div>

@@ -20,7 +20,6 @@ const isDisableSendCommit = computed(() => {
   }
 });
 const handleScoreUpdate = (score: number) => {
-  console.log("123", isDisableSendCommit.value);
   if (isDisableSendCommit.value) {
     return;
   }

@@ -9,11 +9,11 @@ import {
 import { productStatusConfig } from "@/utils/config";
 import { handleImageError } from "@/utils/imageHandler";
 import { postImageUpload } from "@/apis/adminUpload";
-
+import { generateProductContentByGeminiAI } from "@/apis/geminiAIAPI";
 const messageBoxStore = useMessageBoxStore();
 const indexStore = useIndexStore();
 const { isLoading } = storeToRefs(indexStore);
-const { showConfirm } = messageBoxStore;
+const { showConfirm, showAlert } = messageBoxStore;
 const { addToast } = useToastStore();
 const isAddNewProduct = ref(false);
 const productsList = ref<AdminProduct[]>([]);
@@ -221,6 +221,35 @@ const handleChangePage = async (page: number) => {
   currentPagination.value.page = page;
   await handleGetAdminProducts(page);
 };
+
+const handProductContentByGemini = async () => {
+  const { title, description, tag, content, category } = modalData.value;
+  if (!title || !description || !tag || !content) {
+    showAlert("請填寫完整資料", "產品標題、描述、標籤、內容需要有資料才能使用AI生成");
+    return;
+  }
+  try {
+    isLoading.value = true;
+    const res = await generateProductContentByGeminiAI({
+      title,
+      description,
+      category,
+      tag,
+      content
+    });
+    if (res.status) {
+      modalData.value.content = res.data;
+    } else {
+      addToast({ type: "danger", message: "生成失敗" });
+    }
+  } catch (error) {
+    isLoading.value = false;
+    addToast({ type: "danger", message: "生成失敗" });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 const { validateInput } = useInputValidate();
 
 const priceValidateConfig = {
@@ -694,6 +723,12 @@ onMounted(async () => {
           <label class="block text-gray-700 dark:text-white" for="productDescription"
             >產品內容</label
           >
+          <button
+            class="bg-primary px-2 py-1 border-rounded text-secondary rounded-lg"
+            @click="handProductContentByGemini"
+          >
+            AI幫我寫
+          </button>
           <TheCkeditor v-model="modalData.content"></TheCkeditor>
         </div>
       </div>

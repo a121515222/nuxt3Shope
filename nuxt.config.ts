@@ -34,7 +34,13 @@ export default defineNuxtConfig({
     public: {
       baseApiUrl: "",
       baseApiPath: "",
-      baseApiNew: ""
+      baseApiNew: "",
+      baseApiGeminiUrl: "",
+      frontendUrl: "",
+      geminiKey: ""
+    },
+    private: {
+      geminiKey: ""
     }
   },
   devtools: { enabled: true },
