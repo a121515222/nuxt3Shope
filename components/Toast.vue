@@ -50,6 +50,8 @@ onMounted(() => {
 });
 onUnmounted(() => {
   clearInterval(interval.value);
+  //當關閉使用Toast時清除掉資料
+  toastList.value = [];
 });
 </script>
 <template>

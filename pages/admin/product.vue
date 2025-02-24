@@ -115,7 +115,10 @@ const handleAddProduct = async () => {
     const res = await postUserProduct(modalData.value);
     if (res.status) {
       addToast({ type: "success", message: "新增成功" });
-      await handleGetAdminProducts();
+      if (productsList.value.length === currentPagination.value.limit) {
+        currentPagination.value.page = paginationData.value.totalPages + 1;
+      }
+      await handleGetAdminProducts(currentPagination.value.page);
     } else {
       addToast({ type: "danger", message: "新增失敗" });
     }
@@ -151,7 +154,10 @@ const handleDeleteAdminProduct = async (id: string) => {
     const res = await deleteUserProduct(id);
     if (res.status) {
       addToast({ type: "success", message: "刪除成功" });
-      await handleGetAdminProducts();
+      if (productsList.value.length === 1 && currentPagination.value.page > 1) {
+        currentPagination.value.page -= 1;
+      }
+      await handleGetAdminProducts(currentPagination.value.page);
     } else {
       addToast({ type: "danger", message: "刪除失敗" });
     }
@@ -224,8 +230,8 @@ const handleChangePage = async (page: number) => {
 
 const handProductContentByGemini = async () => {
   const { title, description, tag, content, category } = modalData.value;
-  if (!title || !description || !tag || !content) {
-    showAlert("請填寫完整資料", "產品標題、描述、標籤、內容需要有資料才能使用AI生成");
+  if (!title && !description && !tag && !content) {
+    showAlert("請填寫資料", "產品標題、描述、標籤、內容至少填一項才能使用AI生成");
     return;
   }
   try {
@@ -682,7 +688,7 @@ onMounted(async () => {
             <label class="block text-gray-700 dark:text-white" for="productTag">產品售價</label>
             <input
               class="block inputStyle"
-              type="number"
+              type="text"
               id="productSellPrice"
               placeholder=""
               disabled
@@ -720,15 +726,18 @@ onMounted(async () => {
           </div>
         </div>
         <div class="mb-6">
-          <label class="block text-gray-700 dark:text-white" for="productDescription"
-            >產品內容</label
-          >
-          <button
-            class="bg-primary px-2 py-1 border-rounded text-secondary rounded-lg"
-            @click="handProductContentByGemini"
-          >
-            AI幫我寫
-          </button>
+          <div class="flex justify-between pb-2">
+            <label class="block text-gray-700 dark:text-white" for="productDescription"
+              >產品內容</label
+            >
+            <button
+              class="bg-primary px-2 py-1 border-rounded text-secondary rounded-lg"
+              @click="handProductContentByGemini"
+            >
+              AI幫我寫
+            </button>
+          </div>
+
           <TheCkeditor v-model="modalData.content"></TheCkeditor>
         </div>
       </div>

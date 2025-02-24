@@ -1,16 +1,25 @@
 <script lang="ts" setup>
-const props = defineProps<{
+interface ImageProsData {
   src: string;
   alt?: string;
   className?: string;
-}>();
+  isLazyLoading?: boolean;
+}
+
+const props = withDefaults(defineProps<ImageProsData>(), {
+  alt: "",
+  className: "",
+  isLazyLoading: true
+});
 
 const imgSrc = ref(props.src);
 
 const handleError = () => {
   imgSrc.value = "/defaultImg/image-1@2x.jpg";
 };
-
+const loadingType = computed(() => {
+  return process.client && props.isLazyLoading ? "lazy" : "eager";
+});
 onMounted(() => {
   const img = new Image();
   img.onload = () => {
@@ -34,6 +43,6 @@ watch(
 );
 </script>
 <template>
-  <img :src="imgSrc" :alt="alt" :class="className" @error="handleError" />
+  <img :src="imgSrc" :alt="alt" :class="className" :loading="loadingType" @error="handleError" />
 </template>
 <style></style>

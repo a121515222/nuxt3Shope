@@ -15,7 +15,7 @@ const handleClick = () => {
 <template>
   <div
     v-if="isVisible"
-    class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-90"
   >
     <div class="bg-white p-5 rounded shadow-lg w-96">
       <h2 class="text-lg font-semibold">{{ title }}</h2>

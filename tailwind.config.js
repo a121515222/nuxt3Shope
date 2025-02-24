@@ -36,6 +36,7 @@ module.exports = {
         "9/10": "90%"
       },
       zIndex: {
+        90: "90",
         100: "100"
       },
       boxShadow: {

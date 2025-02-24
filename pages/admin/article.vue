@@ -18,8 +18,8 @@ const messageBoxStore = useMessageBoxStore();
 const { showAlert } = messageBoxStore;
 const datePickerRef = ref<HTMLElement | null>(null);
 const { showDatePicker, hideDatePicker, formateShowDate } = useDatePicker(datePickerRef);
-
-const articles = ref<AdminArticle[]>([]);
+const pageLimit = 10;
+const articleList = ref<AdminArticle[]>([]);
 const isAddNewArticle = ref(false);
 const postId = ref("");
 const modalData = ref<AdminArticle>({
@@ -34,7 +34,7 @@ const modalData = ref<AdminArticle>({
   content: "",
   userId: ""
 });
-
+const currentPagination = ref({ page: 1, limit: 10 });
 const modalRef = ref<{ modalShow: () => void } | null>(null);
 const openModal = async (item: string | AdminArticle = "") => {
   if (modalRef.value) {
@@ -76,7 +76,7 @@ const handleAdminArticleModalData = async () => {
 const handleGetAdminArticles = async (page: number = 1, limit: number = 10) => {
   const res = await getUserArticles(page, limit);
   if (res.status) {
-    articles.value = res.data.articles;
+    articleList.value = res.data.articles;
     paginationData.value = res.data.pagination;
   }
 };
@@ -88,6 +88,9 @@ const handleAddAdminArticle = async () => {
     const res = await postUserArticle(modalData.value);
     if (res.status) {
       addToast({ type: "success", message: "新增成功" });
+      if (articleList.value.length === currentPagination.value.limit) {
+        currentPagination.value.page = paginationData.value.totalPages + 1;
+      }
       await handleGetAdminArticles();
     } else {
       addToast({ type: "danger", message: "新增失敗" });
@@ -120,7 +123,10 @@ const handleDeleteAdminArticle = async (id: string) => {
   const res = await deleteUserArticle(id);
   if (res.status) {
     addToast({ type: "success", message: "刪除成功" });
-    await handleGetAdminArticles();
+    if (articleList.value.length === 1 && currentPagination.value.page > 1) {
+      currentPagination.value.page -= 1;
+    }
+    await handleGetAdminArticles(currentPagination.value.page);
   } else {
     addToast({ type: "danger", message: "刪除失敗" });
   }
@@ -177,6 +183,7 @@ const handleAddTag = () => {
 };
 const paginationData = ref();
 const handleChangePage = async (page: number) => {
+  currentPagination.value.page = page;
   await handleGetAdminArticles(page);
 };
 
@@ -243,7 +250,7 @@ onUnmounted(() => {});
             </thead>
             <tbody>
               <tr
-                v-for="(item, index) in articles"
+                v-for="(item, index) in articleList"
                 :key="item._id + index"
                 class="hover:bg-gray-500 hover:text-white dark:hover:bg-gray-800 text-nowrap"
                 :class="{ 'bg-gray-300 dark:bg-gray-400': index % 2 === 0 }"
@@ -291,7 +298,7 @@ onUnmounted(() => {});
               </tr>
             </tbody>
           </table>
-          <p class="p-1">一共有 {{ articles.length }} 篇文章</p>
+          <p class="p-1">一共有 {{ articleList.length }} 篇文章</p>
         </div>
         <Pagination :pagination="paginationData" @changePage="handleChangePage" />
       </div>
@@ -469,13 +476,16 @@ onUnmounted(() => {});
           </div>
         </div>
         <div class="mb-3">
-          <label class="block text-gray-700 dark:text-white" for="articleContent">文章內容</label>
-          <button
-            class="bg-primary px-2 py-1 border-rounded text-secondary rounded-lg"
-            @click="handProductContentByGemini"
-          >
-            AI幫我寫
-          </button>
+          <div class="flex justify-between pb-2">
+            <label class="block text-gray-700 dark:text-white" for="articleContent">文章內容</label>
+            <button
+              class="bg-primary px-2 py-1 border-rounded text-secondary rounded-lg"
+              @click="handProductContentByGemini"
+            >
+              AI幫我寫
+            </button>
+          </div>
+
           <TheCkeditor v-model="modalData.content"></TheCkeditor>
         </div>
       </div>
