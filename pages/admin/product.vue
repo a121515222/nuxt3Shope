@@ -134,7 +134,6 @@ const handleEditProduct = async () => {
     if (process.client) {
       modalData.value.userId = localStorage.getItem("userId") ?? "";
     }
-
     const res = await putUserProduct(modalData.value);
     if (res.status) {
       addToast({ type: "success", message: "編輯成功" });
@@ -187,26 +186,33 @@ const uploadImg = async () => {
     }
     const file = files[0];
     const userId = localStorage.getItem("userId") ?? "";
-    const res = await postImageUpload(file, userId);
-    if (res.status) {
-      if (!modalData.value.imagesUrl) {
-        modalData.value.imagesUrl = [];
-      }
-      if (res.data.imageUrl) {
-        if (!modalData.value.imageUrl) {
-          modalData.value.imageUrl = res.data.imageUrl;
-        } else {
-          if (!modalData.value.imagesUrl) {
-            modalData.value.imagesUrl = [];
-          }
-          modalData.value.imagesUrl.push(res.data.imageUrl);
+    try {
+      isLoading.value = true;
+      const res = await postImageUpload(file, userId);
+      if (res.status) {
+        if (!modalData.value.imagesUrl) {
+          modalData.value.imagesUrl = [];
         }
-        addToast({ type: "success", message: "上傳成功" });
+        if (res.data.imageUrl) {
+          if (!modalData.value.imageUrl) {
+            modalData.value.imageUrl = res.data.imageUrl;
+          } else {
+            if (!modalData.value.imagesUrl) {
+              modalData.value.imagesUrl = [];
+            }
+            modalData.value.imagesUrl.push(res.data.imageUrl);
+          }
+          addToast({ type: "success", message: "上傳成功" });
+        }
+      } else {
+        addToast({ type: "danger", message: "上傳失敗" });
       }
-    } else {
+    } catch (error) {
       addToast({ type: "danger", message: "上傳失敗" });
+    } finally {
+      uploadFileRef.value.value = "";
+      isLoading.value = false;
     }
-    uploadFileRef.value.value = "";
   }
 };
 const addImg = () => {
