@@ -149,14 +149,20 @@ const uploadImg = async () => {
     }
     const file = files[0];
     const userId = localStorage.getItem("userId") ?? "";
-    const res = await postImageUpload(file, userId);
-    if (res.status) {
-      modalData.value.imageUrl = res.data.imageUrl;
-      addToast({ type: "success", message: "上傳成功" });
-    } else {
-      addToast({ type: "danger", message: "上傳失敗" });
+    try {
+      isLoading.value = true;
+      const res = await postImageUpload(file, userId);
+      if (res.status) {
+        modalData.value.imageUrl = res.data.imageUrl;
+        addToast({ type: "success", message: "上傳成功" });
+      } else {
+        addToast({ type: "danger", message: "上傳失敗" });
+      }
+    } catch (error) {
+    } finally {
+      uploadFileRef.value.value = "";
+      isLoading.value = false;
     }
-    uploadFileRef.value.value = "";
   }
 };
 const deleteImg = () => {
