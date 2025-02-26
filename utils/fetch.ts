@@ -31,7 +31,7 @@ export function useBaseFetch<T>(
         message: error.response._data.message
       });
       // #todo 想想那邊還可以在優化
-      if (error.response._data.message === "驗證錯誤, 請重新登入") {
+      if (error.response._data.message === "驗證失敗") {
         router.push("/login");
       }
     }

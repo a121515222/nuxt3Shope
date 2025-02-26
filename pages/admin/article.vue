@@ -18,7 +18,6 @@ const messageBoxStore = useMessageBoxStore();
 const { showAlert } = messageBoxStore;
 const datePickerRef = ref<HTMLElement | null>(null);
 const { showDatePicker, hideDatePicker, formateShowDate } = useDatePicker(datePickerRef);
-const pageLimit = 10;
 const articleList = ref<AdminArticle[]>([]);
 const isAddNewArticle = ref(false);
 const postId = ref("");
@@ -35,7 +34,7 @@ const modalData = ref<AdminArticle>({
   userId: ""
 });
 const currentPagination = ref({ page: 1, limit: 10 });
-const modalRef = ref<{ modalShow: () => void } | null>(null);
+const modalRef = ref<{ modalShow: () => void; modalHide: () => void } | null>(null);
 const openModal = async (item: string | AdminArticle = "") => {
   if (modalRef.value) {
     modalRef.value.modalShow();
@@ -61,6 +60,11 @@ const openModal = async (item: string | AdminArticle = "") => {
         userId: ""
       };
     }
+  }
+};
+const closeModal = () => {
+  if (modalRef.value) {
+    modalRef.value.modalHide();
   }
 };
 const handleAdminArticleModalData = async () => {
@@ -91,7 +95,7 @@ const handleAddAdminArticle = async () => {
       if (articleList.value.length === currentPagination.value.limit) {
         currentPagination.value.page = paginationData.value.totalPages + 1;
       }
-      await handleGetAdminArticles();
+      await handleGetAdminArticles(currentPagination.value.page);
     } else {
       addToast({ type: "danger", message: "新增失敗" });
     }
@@ -108,7 +112,7 @@ const handleEditAdminArticle = async () => {
     const res = await putUserArticle(modalData.value);
     if (res.status) {
       addToast({ type: "success", message: "編輯成功" });
-      await handleGetAdminArticles();
+      await handleGetAdminArticles(currentPagination.value.page);
     } else {
       addToast({ type: "danger", message: "編輯失敗" });
     }
@@ -135,10 +139,12 @@ const handleDeleteAdminArticle = async (id: string) => {
 const handleModalConfirm = async (id: string) => {
   if (isAddNewArticle.value) {
     await handleAddAdminArticle();
+    closeModal();
   } else {
     await handleEditAdminArticle();
   }
 };
+
 const uploadFileRef = ref<HTMLInputElement | null>(null);
 const uploadImg = async () => {
   if (uploadFileRef.value) {
@@ -195,7 +201,7 @@ const handleChangePage = async (page: number) => {
 
 const handProductContentByGemini = async () => {
   const { title, description, tag, content } = modalData.value;
-  if (!title || !description || !tag || !content) {
+  if (!title && !description && tag.length === 0 && !content) {
     showAlert("請填寫完整資料", "產品標題、描述、標籤、內容需要有資料才能使用AI生成");
     return;
   }
@@ -456,7 +462,7 @@ onUnmounted(() => {});
         <div class="mb-3">
           <label class="block text-gray-700 dark:text-white" for="articleTag">文章標籤</label>
           <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
-            <div v-for="(t, index) in modalData.tag" :key="index + t" class="relative">
+            <div v-for="(t, index) in modalData.tag" :key="index" class="relative">
               <input
                 type="text"
                 id="search-dropdown"

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Article } from "@/types/articleTypes";
 import { getUserArticleById } from "@/apis/adminArticle";
+const router = useRouter();
 const article = ref<Article>({
   author: "",
   content: "",
@@ -45,6 +46,12 @@ onMounted(async () => {
         <p class="text-xl mb-2">作者: {{ article.author }}</p>
         <p class="text-xl mb-2">發布時間:<span v-timeFormat="article.articleDate"></span></p>
         <div class="mb-2" v-html="article.content"></div>
+        <button
+          class="bg-primary rounded-lg text-sm px-2 py-2"
+          @click="router.push('/articleList')"
+        >
+          回文章列表
+        </button>
       </div>
     </div>
   </div>
