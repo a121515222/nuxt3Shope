@@ -4,16 +4,16 @@ export default defineNuxtConfig({
   app: {
     head: {
       viewport: "width=device-width, initial-scale=1",
-      title: "自重自售",
+      title: "自種自售",
       meta: [
         { name: "description", content: "上架自家農產品的店商網頁(展示用)" },
         {
           name: "title",
-          content: "自重自售"
+          content: "自種自售"
         },
         {
           property: "og:title",
-          content: "自重自售"
+          content: "自種自售"
         },
         {
           property: "og:description",
@@ -24,7 +24,14 @@ export default defineNuxtConfig({
           content: `https://${process.env.NUXT_PUBLIC_FRONTEND_URL}`
         },
         { property: "og:type", content: "website" },
-        { property: "og:locale", content: "zh_TW" }
+        { property: "og:locale", content: "zh_TW" },
+        {
+          property: "og:image",
+          content: `https://${process.env.NUXT_PUBLIC_FRONTEND_URL}/og-image.jpg`
+        },
+        { property: "og:image:type", content: "image/jpeg" },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" }
       ],
       link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }]
     }

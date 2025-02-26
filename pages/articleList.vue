@@ -1,12 +1,16 @@
 <script lang="ts" setup>
 useSeoMeta({
-  title: "自重自售-文章列表",
+  title: "自種自售-文章列表",
   description: "上架自家農產品的店商網頁-文章列表(展示用)",
-  ogTitle: "自重自售-文章列表",
+  ogTitle: "自種自售-文章列表",
   ogDescription: "上架自家農產品的店商望網頁-文章列表(展示用)",
   ogUrl: `https://${process.env.NUXT_PUBLIC_FRONTEND_URL}/articleList`,
   ogType: "website",
-  ogLocale: "zh_TW"
+  ogLocale: "zh_TW",
+  ogImage: `https://${process.env.NUXT_PUBLIC_FRONTEND_URL}/og-image.jpg`,
+  ogImageType: "image/jpeg",
+  ogImageWidth: "1200",
+  ogImageHeight: "630"
 });
 import type { Article } from "@/types/articleTypes";
 import type { Pagination } from "~/types/paginationTypes";
