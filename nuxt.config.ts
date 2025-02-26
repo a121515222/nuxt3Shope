@@ -35,7 +35,7 @@ export default defineNuxtConfig({
       baseApiUrl: "",
       baseApiPath: "",
       baseApiNew: "",
-      baseApiGeminiUrl: "",
+      baseApiVersion: "",
       frontendUrl: "",
       baseEnv: ""
     }

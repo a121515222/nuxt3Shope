@@ -7,12 +7,13 @@ export function useBaseFetch<T>(
   const baseUrl = config.public.baseApiUrl;
   const basePath = config.public.baseApiPath;
   const baseApiUrl = config.public.baseApiNew;
+  const baseApiVersion = config.public.baseApiVersion;
   const baseEnv = config.public.baseEnv;
   const { addToast } = useToastStore();
   const clientUrl = `${baseUrl}/api/${basePath}/${url}`;
   const adminUrl = `${baseUrl}/${url}`;
   const checkUrl = `${baseUrl}/api/user/${url}`;
-  const newClientUrl = `${baseEnv === "dev" ? "http://" : "https://"}${baseApiUrl}/${url}`;
+  const newClientUrl = `${baseEnv === "dev" ? "http://" : "https://"}${baseApiUrl}/${baseApiVersion}/${url}`;
   const router = useRouter();
   const urlMap = {
     client: clientUrl,
