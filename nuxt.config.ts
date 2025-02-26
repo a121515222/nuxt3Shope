@@ -37,10 +37,7 @@ export default defineNuxtConfig({
       baseApiNew: "",
       baseApiGeminiUrl: "",
       frontendUrl: "",
-      geminiKey: ""
-    },
-    private: {
-      geminiKey: ""
+      baseEnv: ""
     }
   },
   devtools: { enabled: true },

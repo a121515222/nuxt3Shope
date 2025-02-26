@@ -348,13 +348,10 @@ onUnmounted(() => {});
           />
         </div>
         <div>
-          <img
-            class="w-full h-auto"
-            :src="modalData.imageUrl || '/defaultImg/image-1@2x.jpg'"
+          <ImageWithErrorHandler
+            :class="'w-full h-auto'"
+            :src="modalData.imageUrl"
             :alt="modalData.title + ' picture'"
-            :title="modalData.title"
-            loading="lazy"
-            @error="handleImageError"
           />
         </div>
         <div class="mb-3">
@@ -486,6 +483,16 @@ onUnmounted(() => {});
               新增
             </button>
           </div>
+        </div>
+        <div class="mb-3">
+          <label class="block col-span-1 text-gray-700 dark:text-white" for="articleTitle"
+            >文章描述</label
+          >
+          <input
+            class="block inputStyle"
+            placeholder="文章描述"
+            v-model.trim="modalData.description"
+          />
         </div>
         <div class="mb-3">
           <div class="flex justify-between pb-2">

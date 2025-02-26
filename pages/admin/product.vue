@@ -543,13 +543,10 @@ onMounted(async () => {
           />
         </div>
         <div>
-          <img
-            class="w-full h-auto"
-            :src="modalData.imageUrl || '/defaultImg/image-1@2x.jpg'"
-            @error="handleImageError"
+          <ImageWithErrorHandler
+            :src="modalData.imageUrl"
             :alt="modalData.title + ' picture'"
-            :title="modalData.title"
-            loading="lazy"
+            class="w-full h-auto"
           />
         </div>
         <div class="mb-3">
