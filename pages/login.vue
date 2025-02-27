@@ -13,6 +13,9 @@ const user = ref<UserLogin>({
 });
 const config = useRuntimeConfig();
 const baseApiUrl = config.public.baseApiNew;
+const baseApiVersion = config.public.baseApiVersion;
+const baseEnv = config.public.baseEnv;
+const googleLoginUrl = `${baseEnv === "dev" ? "http://" : "https://"}${baseApiUrl}/${baseApiVersion}/google`;
 const isForgotPassword = ref(false);
 const router = useRouter();
 const handleSendInfo = async () => {
@@ -117,7 +120,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
             <a
               type="button"
               class="bg-primary hover:opacity-80 mr-4 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              :href="`${baseApiUrl}/google`"
+              :href="googleLoginUrl"
               v-if="!isForgotPassword"
             >
               <svg
