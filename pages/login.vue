@@ -17,6 +17,7 @@ const baseApiVersion = config.public.baseApiVersion;
 const baseEnv = config.public.baseEnv;
 const googleLoginUrl = `${baseEnv === "dev" ? "http://" : "https://"}${baseApiUrl}/${baseApiVersion}/google`;
 const isForgotPassword = ref(false);
+const isAgreePrivacyPolicy = ref(false);
 const router = useRouter();
 const handleSendInfo = async () => {
   if (isForgotPassword.value) {
@@ -67,7 +68,11 @@ const shouldHeight = () => {
   return `min-height:${windowHeight.value - headerHeight.value * 2}px`;
 };
 const goToSignIn = () => {
-  router.push("/signIn");
+  if (isAgreePrivacyPolicy.value) {
+    router.push("/signIn");
+  } else {
+    showAlert("請先閱讀隱私政策", "閱讀完後同意隱私政策請勾選同意");
+  }
 };
 const passwordInputRef = ref();
 const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
@@ -156,6 +161,22 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
               {{ isForgotPassword ? "重寄驗證信" : "登入" }}
             </button>
           </div>
+
+          <div class="flex justify-end mb-3 pr-4 items-center">
+            <NuxtLink
+              class="btn bg-primary hover:bg-secondary text-secondary hover:text-primary py-2 px-4 rounded"
+              to="/privacyPolicy"
+              >隱私政策</NuxtLink
+            >
+            <label for="agreePrivacyPolicy">同意隱私政策</label>
+            <input
+              id="agreePrivacyPolicy"
+              class="accent-primary"
+              type="checkbox"
+              v-model="isAgreePrivacyPolicy"
+            />
+          </div>
+
           <div class="flex justify-end mb-3 pr-4 text-primary dark:text-secondary">
             <p
               class="hover:cursor-pointer"

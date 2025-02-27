@@ -73,6 +73,10 @@ const navConfig = [
   {
     name: "關於本網頁",
     path: "/about"
+  },
+  {
+    name: "隱私權政策",
+    path: "/privacyPolicy"
   }
 ];
 interface NavList {

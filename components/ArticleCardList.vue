@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<ArticleCardListProps>(), {
                 </div>
                 <div class="mt-auto flex justify-end">
                   <NuxtLink
-                    class="btn bg-primary hover:bg-blue-600 text-secondary py-2 px-4 rounded"
+                    class="btn bg-primary hover:bg-secondary text-secondary hover:text-primary py-2 px-4 rounded"
                     :to="`/article/${item._id}`"
                   >
                     詳細內容
