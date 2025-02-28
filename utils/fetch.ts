@@ -15,6 +15,8 @@ export function useBaseFetch<T>(
   const checkUrl = `${baseUrl}/api/user/${url}`;
   const newClientUrl = `${baseEnv === "dev" ? "http://" : "https://"}${baseApiUrl}/${baseApiVersion}/${url}`;
   const router = useRouter();
+  const storeIndex = useIndexStore();
+  const { isLogin } = storeToRefs(storeIndex);
   const urlMap = {
     client: clientUrl,
     admin: adminUrl,
@@ -34,6 +36,10 @@ export function useBaseFetch<T>(
       });
       // #todo 想想那邊還可以在優化
       if (error.response._data.message === "驗證失敗") {
+        router.push("/login");
+      }
+      if (error.response._data.message === "token不符") {
+        isLogin.value = false;
         router.push("/login");
       }
     }
