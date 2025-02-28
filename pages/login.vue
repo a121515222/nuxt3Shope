@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import type { UserLogin } from "@/types/loginTypes";
 import { postLoginNew } from "@/apis/login";
 import { resentVerifyMail } from "@/apis/resentVerifyMail";
 import { setCookie } from "@/utils/cookie";
-import type { UserLogin } from "@/types/loginTypes";
 const indexStore = useIndexStore();
 const messageStore = useMessageBoxStore();
 const { showAlert } = messageStore;

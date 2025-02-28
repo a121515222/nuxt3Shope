@@ -68,24 +68,7 @@ export default defineNuxtConfig({
     define: {
       "process.env": process.env
     },
-    plugins: [],
-    server: {
-      proxy: {
-        "/backend/": {
-          target: `${process.env.NUXT_PUBLIC_BASE_ENV === "dev" ? "http://" : "https"}${process.env.NUXT_PUBLIC_BASE_API_NEW}/${process.env.NUXT_PUBLIC_BASE_API_VERSION}`, // 你的後端服務
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/backend/, "")
-        }
-      }
-    }
-  },
-  nitro: {
-    devProxy: {
-      "/backend/": {
-        target: `${process.env.NUXT_PUBLIC_BASE_ENV === "dev" ? "http://" : "https"}${process.env.NUXT_PUBLIC_BASE_API_NEW}/${process.env.NUXT_PUBLIC_BASE_API_VERSION}`, // 你的後端服務
-        changeOrigin: true
-      }
-    }
+    plugins: []
   },
   devServer: {
     https: {

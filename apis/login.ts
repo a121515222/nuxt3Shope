@@ -6,19 +6,6 @@ import {
   type LogOutResponse
 } from "@/types/loginTypes";
 
-export function googleAuth() {
-  return useBaseFetch<UserLoginResponse>(
-    "google",
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    },
-    "newClient"
-  );
-}
-
 export function postLoginNew(data: UserLogin) {
   return useBaseFetch<UserLoginResponse>(
     "logIn",
