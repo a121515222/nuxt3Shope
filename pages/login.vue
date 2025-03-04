@@ -2,7 +2,7 @@
 import type { UserLogin } from "@/types/loginTypes";
 import { postLoginNew } from "@/apis/login";
 import { resentVerifyMail } from "@/apis/resentVerifyMail";
-import { setCookie } from "@/utils/cookie";
+import { setCookie, clearCookie } from "@/utils/cookie";
 const indexStore = useIndexStore();
 const messageStore = useMessageBoxStore();
 const { showAlert } = messageStore;

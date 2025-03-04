@@ -2,6 +2,7 @@
 import Toast from "@/components/Toast.vue";
 import MessageBox from "~/components/MessageBox.vue";
 import { postCheckLoginNew } from "@/apis/login";
+import { clearCookie } from "@/utils/cookie";
 const indexStore = useIndexStore();
 const { windowHeightListener, removeWindowHeightListener } = indexStore;
 const { footerHeight, windowHeight, isDarkMode, headerHeight, isLogin, userId } =
@@ -42,6 +43,8 @@ const handleCheckLogin = async () => {
         userId.value = id;
       } else {
         isLogin.value = false;
+        clearCookie("authorization");
+        localStorage.removeItem("userId");
         router.push("/login");
       }
     }

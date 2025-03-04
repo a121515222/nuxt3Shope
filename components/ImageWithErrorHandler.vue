@@ -17,9 +17,7 @@ const imgSrc = ref(props.src);
 const handleError = () => {
   imgSrc.value = "/defaultImg/image-1@2x.jpg";
 };
-const loadingType = computed(() => {
-  return process.client && props.isLazyLoading ? "lazy" : "eager";
-});
+const loadingType = ref<"eager" | "lazy">("eager");
 onMounted(() => {
   const img = new Image();
   img.onload = () => {
@@ -27,7 +25,9 @@ onMounted(() => {
   };
   img.onerror = handleError;
   img.src = props.src;
+  loadingType.value = props.isLazyLoading ? "lazy" : "eager";
 });
+
 watch(
   () => props.src,
   (newSrc) => {
