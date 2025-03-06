@@ -31,6 +31,7 @@ export interface BuyerOrder {
   buyerInfo: BuyerInfo;
   createdAt: string | number | Date; // 建立時間，例如："2021-09-01T07:00:00.000Z"
   paidDate: string | number | Date | null; // 付款時間，例如："2021-09-01T07:00:00.000Z"
+  receiptDate: string | number | Date | null; // 收貨貨時間，例如："2021-09-01T07:00:00.000Z"
   productList: OrderProduct[];
   totalPrice: number; // 總價，例如：180
   status: keyof typeof orderStatusConfig | ""; // 狀態，
@@ -63,6 +64,7 @@ export interface SellerOrder {
   buyerInfo: BuyerInfo;
   createdAt: string | number | Date; // 建立時間，例如："2021-09-01T07:00:00.000Z"
   paidDate: string | number | Date | null; // 付款時間，例如："2021-09-01T07:00:00.000Z"
+  receiptDate: string | number | Date | null; // 收貨貨時間，例如："2021-09-01T07:00:00.000Z"
   productList: OrderProduct[];
   totalPrice: number; // 總價，例如：180
   status: keyof typeof orderStatusConfig; // 狀態，

@@ -1,7 +1,13 @@
 <script lang="ts" setup>
 import type { BuyerOrder } from "@/types/adminOrderTypes";
 import { paidMethodConfig, orderStatusConfig } from "@/utils/config";
-import { getBuyerOrder, putBuyerOrder, buyerPayOrder, buyerCancelOrder } from "@/apis/adminOrder";
+import {
+  getBuyerOrder,
+  putBuyerOrder,
+  buyerPayOrder,
+  buyerCancelOrder,
+  buyerGotProduct
+} from "@/apis/adminOrder";
 import { postComment } from "@/apis/commentAPI";
 import { getUserInfo } from "@/apis/userInfo";
 import {
@@ -60,6 +66,7 @@ const order = ref<BuyerOrder>({
   sellerId: "",
   createdAt: new Date(),
   paidDate: "",
+  receiptDate: "",
   status: "",
   isPaid: false,
   paidMethod: "",
@@ -187,6 +194,27 @@ const handleBuyerCancelOrder = async (orderId: string) => {
     }
   }
 };
+const handleBuyerGotProduct = async (orderId: string) => {
+  const result = await showConfirm("確定已收到商品嗎?", `確認收貨`);
+  if (result) {
+    try {
+      isLoading.value = true;
+      const res = await buyerGotProduct(orderId);
+      if (res.status) {
+        addToast({ type: "success", message: "確認成功" });
+        await handleBuyerGetOrderData(
+          Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+        );
+      } else {
+        addToast({ type: "danger", message: "確認失敗" });
+      }
+    } catch (error) {
+      addToast({ type: "danger", message: "確認失敗" });
+    } finally {
+      isLoading.value = false;
+    }
+  }
+};
 const getOrderStatusText = (status: keyof typeof orderStatusConfig | "") => {
   if (status === "") {
     return ""; // 如果是空字串，直接返回
@@ -222,7 +250,7 @@ onBeforeRouteLeave(() => {
           已購商品清單
         </h2>
         <div class="overflow-x-auto rounded-lg">
-          <table class="min-w-full table-auto table-fixed">
+          <table class="min-w-full table-fixed">
             <thead class="bg-gray-200 dark:bg-gray-500">
               <tr>
                 <th class="px-4 py-2">品名</th>
@@ -276,16 +304,24 @@ onBeforeRouteLeave(() => {
               v-if="isEditBuyerInfo"
               :disabled="!isAbleSendBuyerInfo"
               type="button"
-              class="bg-secondary hover:opacity-80 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
+              class="bg-secondary hover:opacity-80 text-primary font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
               @click="handleFinishEditBuyerInfo"
             >
               完成修改
+            </button>
+            <button
+              v-if="order.status === 'shipped'"
+              type="button"
+              class="bg-secondary hover:opacity-80 text-primary font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="handleBuyerGotProduct(order._id)"
+            >
+              確認收貨
             </button>
           </div>
         </div>
 
         <div class="overflow-x-auto no-scrollbar">
-          <table class="min-w-full table-auto table-th table-fixed">
+          <table class="min-w-full table-th table-fixed">
             <tbody class="divide-y divide-gray-400 dark:divide-gray-600">
               <tr>
                 <th class="text-left px-4 py-2">姓名</th>
@@ -378,7 +414,8 @@ onBeforeRouteLeave(() => {
                       order.status === 'completed' ||
                       order.status === 'shipped' ||
                       order.status === 'confirmed' ||
-                      order.status === 'inProcessed',
+                      order.status === 'inProcessed' ||
+                      order.status === 'buyerGotProduct',
                     'text-red-700 dark:text-red-500':
                       order.status === 'buyerCancelled' ||
                       order.status === 'sellerCancelled' ||
@@ -390,12 +427,20 @@ onBeforeRouteLeave(() => {
                 </td>
               </tr>
               <tr>
+                <th class="text-left px-4 py-2">下單日期</th>
+                <td class="px-4 py-2" v-timeFormat="order.createdAt"></td>
+              </tr>
+              <tr>
                 <th class="text-left px-4 py-2">付款日期</th>
                 <td class="px-4 py-2" v-timeFormat="order.paidDate"></td>
               </tr>
               <tr>
                 <th class="text-left px-4 py-2">付款方式</th>
                 <td class="px-4 py-2">{{ getPaidMethodText(order.paidMethod) }}</td>
+              </tr>
+              <tr>
+                <th class="text-left px-4 py-2">收貨日期</th>
+                <td class="px-4 py-2" v-timeFormat="order.receiptDate"></td>
               </tr>
               <tr v-if="order.couponInfo.couponId === '' || order.couponInfo.couponId === null">
                 <th class="text-left px-4 py-2">是否使用優惠券</th>

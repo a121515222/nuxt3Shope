@@ -46,4 +46,5 @@ export interface productCartType {
   imageUrl: string;
   productSellPrice: number;
   _id: string;
+  unit: string;
 }

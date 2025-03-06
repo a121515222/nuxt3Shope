@@ -37,6 +37,10 @@ export const orderStatusConfig = {
   confirmed: {
     value: "confirmed",
     showText: "已確認"
+  },
+  buyerGotProduct: {
+    value: "buyerGotProduct",
+    showText: "買家收到"
   }
 };
 

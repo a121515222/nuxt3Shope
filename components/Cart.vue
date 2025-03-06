@@ -295,9 +295,12 @@ onMounted(async () => {
                 <th scope="col">#</th>
                 <th class="hidden sm:table-cell" scope="col"></th>
                 <th scope="col">商品名稱</th>
-                <th class="hidden sm:table-cell" scope="col">總價格</th>
+
                 <th scope="col text-center">數量</th>
                 <th scope="col text-center">單價</th>
+                <th class="hidden sm:table-cell" scope="col">總價格</th>
+                <th class="hidden sm:table-cell" scope="col">單位</th>
+
                 <th scope="col"></th>
               </tr>
             </thead>
@@ -324,9 +327,7 @@ onMounted(async () => {
                     />
                   </td>
                   <td>{{ item.title }}</td>
-                  <td class="hidden sm:table-cell">
-                    {{ item.productSellPrice * item.num }}
-                  </td>
+
                   <td class="" v-if="!isChangeNum || item.productId !== tempProductId">
                     {{ item.num }}
                   </td>
@@ -345,6 +346,12 @@ onMounted(async () => {
                         ? (item.price * item.discount) / 100
                         : item.price
                     }}
+                  </td>
+                  <td class="hidden sm:table-cell">
+                    {{ item.productSellPrice * item.num }}
+                  </td>
+                  <td class="hidden sm:table-cell">
+                    {{ item.unit }}
                   </td>
                   <td class="flex flex-col gap-1">
                     <button

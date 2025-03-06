@@ -13,7 +13,7 @@ function formatAndDisplayDate(
   el: HTMLElement,
   binding: { value: string | Date | null | undefined | number }
 ) {
-  if (binding.value === null) {
+  if (binding.value === null || binding.value === undefined || binding.value === "") {
     el.innerHTML = "";
   } else {
     const time = dayjs(binding.value).format("YYYY-MM-DD");

@@ -79,7 +79,8 @@ onMounted(async () => {
                     item.status === 'completed' ||
                     item.status === 'shipped' ||
                     item.status === 'confirmed' ||
-                    item.status === 'inProcessed',
+                    item.status === 'inProcessed' ||
+                    item.status === 'buyerGotProduct',
                   'text-red-700 dark:text-red-500':
                     item.status === 'buyerCancelled' || item.status === 'sellerCancelled'
                 }"
@@ -210,6 +211,14 @@ onMounted(async () => {
                             <td class="py-2"></td>
                           </tr>
                           <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">
+                            <th class="py-2 text-gray-700 dark:text-gray-300">收貨時間</th>
+                            <td
+                              class="py-2 text-gray-900 dark:text-white"
+                              v-timeFormat="item.receiptDate"
+                            ></td>
+                            <td class="py-2"></td>
+                          </tr>
+                          <tr class="hover:bg-gray-50 dark:hover:bg-gray-500">
                             <th class="py-2 text-gray-700 dark:text-gray-300">訂單狀態</th>
                             <td class="py-2 text-gray-900 dark:text-white">
                               <select
@@ -222,7 +231,10 @@ onMounted(async () => {
                                   v-for="option in orderStatusConfig"
                                   :key="option.value"
                                   :value="option.value"
-                                  :disabled="option.value === 'buyerCancelled'"
+                                  :disabled="
+                                    option.value === 'buyerCancelled' ||
+                                    option.value === 'buyerGotProduct'
+                                  "
                                 >
                                   {{ option.showText }}
                                 </option>
@@ -250,7 +262,7 @@ onMounted(async () => {
                         <table class="min-w-full table-auto">
                           <thead>
                             <tr
-                              class="border-b border-gray-700 bg-gray-200 dark:bg-gray-800 dark:border-gray-100 bg-gray-100 dark:bg-gray-700 dark:text-white"
+                              class="border-b border-gray-700 dark:border-gray-100 bg-gray-100 dark:bg-gray-700 dark:text-white"
                             >
                               <th scope="col" class="px-4 py-2"></th>
                               <th scope="col" class="px-4 py-2 text-left">商品名稱</th>
