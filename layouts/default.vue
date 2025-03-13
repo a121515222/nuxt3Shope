@@ -1,6 +1,6 @@
 <script setup>
 import Toast from "@/components/Toast.vue";
-import MessageBox from "~/components/MessageBox.vue";
+import MessageBox from "@/components/MessageBox.vue";
 import { postCheckLoginNew } from "@/apis/login";
 import { clearCookie } from "@/utils/cookie";
 const indexStore = useIndexStore();
@@ -79,6 +79,7 @@ onUnmounted(() => {
     </div>
     <LayoutFooter></LayoutFooter>
     <Cart></Cart>
+    <Chat></Chat>
   </div>
 </template>
 <style></style>
