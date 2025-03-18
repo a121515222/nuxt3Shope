@@ -20,9 +20,11 @@ export function useInterSectionObserver() {
     }
   };
   const unObserver = () => {
-    if (observer.value && elRef.value) {
-      observer.value.unobserve(elRef.value);
+    if (observer.value) {
+      observer.value.disconnect();
+      observer.value = null;
     }
+    elRef.value = null;
   };
   onUnmounted(() => {
     unObserver();

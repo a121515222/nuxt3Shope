@@ -44,12 +44,7 @@ const router = useRouter();
 const toPayProcess = (cartId: string, sellerId: string) => {
   router.push(`/pay/paymentUserInfoFrom/${cartId}?sellerId=${sellerId}`);
 };
-watch(
-  [isMainBannerIntersection, () => route.path], // 監聽多個來源
-  () => {
-    shouldShowCartButton(); // 在任一來源變化時調用相同的函數
-  }
-);
+
 const cartStore = useCartStore();
 const { cartDataList } = storeToRefs(cartStore);
 const tempProductId = ref("");
@@ -197,6 +192,18 @@ const totalProductCount = computed(() => {
     return acc + cur.productList.length;
   }, 0);
 });
+// watch(
+//   [isMainBannerIntersection, () => route.path], // 監聽多個來源
+//   () => {
+//     shouldShowCartButton(); // 在任一來源變化時調用相同的函數
+//   }
+// );
+watch(
+  () => route.path, // 監聽多個來源
+  () => {
+    shouldShowCartButton(); // 在任一來源變化時調用相同的函數
+  }
+);
 watch(isLogin, async (value) => {
   if (value) {
     await handleGetCart();

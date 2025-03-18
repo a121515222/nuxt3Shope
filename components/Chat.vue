@@ -1,8 +1,16 @@
 <script lang="ts" setup>
 const indexStore = useIndexStore();
 const chatStore = useChatStore();
-const { chatDataList, isShowChat } = storeToRefs(chatStore);
-const { isMainBannerIntersection, isLogin, isLoading } = storeToRefs(indexStore);
+const { chatSomeone, connectBackEnd, nameDecide } = chatStore;
+const {
+  selectedChatId,
+  selectedUserId,
+  chatIdUsersDataMap,
+  cheatMessageData,
+  isShowChat,
+  newMessage
+} = storeToRefs(chatStore);
+const { isMainBannerIntersection, isLogin, isLoading, userId, userName } = storeToRefs(indexStore);
 const messageBoxStore = useMessageBoxStore();
 const { showConfirm } = messageBoxStore;
 const { addToast } = useToastStore();
@@ -26,66 +34,55 @@ const updateChatHeight = () => {
 const chatContainerRef = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 const isScrollable = ref(false);
-const users = ref(["user1", "user2", "user3"]);
-const selectedUser = ref<keyof CheatMessage>("user1");
-interface Message {
-  sender: string;
-  text: string;
-}
 
-interface CheatMessage {
-  [key: string]: Message[];
-}
-
-const cheatMessage = ref<CheatMessage>({
-  user1: [
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" },
-    { sender: "me", text: "hello user1" },
-    { sender: "user1", text: "hey" }
-  ],
-  user2: [
-    { sender: "me", text: "hello user2" },
-    { sender: "user2", text: "hey" }
-  ],
-  user3: [
-    { sender: "me", text: "hello user3" },
-    { sender: "user3", text: "hey" }
-  ]
-});
-const messages = ref({
-  user1: cheatMessage.value,
-  user2: cheatMessage.value,
-  user3: cheatMessage.value
-});
-const newMessage = ref("");
-const sendMessage = () => {
-  if (selectedUser.value) {
-    cheatMessage.value[selectedUser.value].push({ sender: "me", text: "hello user1" });
-  }
-};
-const selectUser = (user: any) => {
-  selectedUser.value = user;
+// const cheatMessageData = ref<CheatMessage>({
+//   user1: [
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" },
+//     { sender: "me", text: "hello user1" },
+//     { sender: "user1", text: "hey" }
+//   ],
+//   user2: [
+//     { sender: "me", text: "hello user2" },
+//     { sender: "user2", text: "hey" }
+//   ],
+//   user3: [
+//     { sender: "me", text: "hello user3" },
+//     { sender: "user3", text: "hey" }
+//   ]
+// });
+// const messages = ref({
+//   user1: cheatMessage.value,
+//   user2: cheatMessage.value,
+//   user3: cheatMessage.value
+// });
+// const sendMessage = () => {
+//   if (selectedUser.value) {
+//     cheatMessage.value[selectedUser.value].push({ sender: "me", text: "hello user1" });
+//   }
+// };
+const selectChatId = (chatId: string) => {
+  selectedChatId.value = chatId;
 };
 const getChatWidth = () => {
   if (chatRef.value) {
@@ -104,7 +101,7 @@ const route = useRoute();
 const shouldShowChatButton = () => {
   if (route.name === "index") {
     isShowChatButton.value = !isMainBannerIntersection.value;
-  } else if (/product(List)?/.test(route.path)) {
+  } else if (/product(List)?/.test(route.path) || /product?/.test(route.path)) {
     isShowChatButton.value = true;
   } else {
     isShowChatButton.value = false;
@@ -130,7 +127,8 @@ const setupObserver = () => {
     console.error("observerTarget (.observer) not found");
   }
 };
-watch(selectedUser, (newVal, oldVal) => {
+
+watch(selectedChatId, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     setupObserver();
   }
@@ -177,11 +175,11 @@ onUnmounted(() => {
         />
       </svg>
     </button>
-    <span
-      v-show="chatDataList.length !== 0"
+    <!-- <span
+      v-show="userChatList.length !== 0"
       class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full bg-red-900 text-red-300"
-      >{{ chatDataList.length }}</span
-    >
+      >{{ userChatList.length }}</span
+    > -->
   </div>
 
   <div
@@ -219,16 +217,16 @@ onUnmounted(() => {
       <div class="grid grid-cols-4 md:grid-cols-5 gap-4 px-3 w-full">
         <div class="col-span-1 flex flex-col gap-2">
           <button
-            v-for="(user, index) in users"
-            :key="user"
+            v-for="[chatId, chatMember] in Object.entries(chatIdUsersDataMap)"
+            :key="chatId"
             class="p-2 rounded hover:bg-secondary hover:text-primary"
             :class="{
-              'bg-secondary text-primary': selectedUser === users[index],
-              'bg-primary text-secondary': selectedUser !== users[index]
+              'bg-secondary text-primary': selectedChatId === chatId,
+              'bg-primary text-secondary': selectedChatId !== chatId
             }"
-            @click="selectUser(users[index])"
+            @click="selectChatId(chatId)"
           >
-            {{ user }}
+            {{ nameDecide(chatMember) }}
           </button>
         </div>
 
@@ -242,7 +240,11 @@ onUnmounted(() => {
             class="flex-1 overflow-y-auto rounded bg-gray-300 dark:bg-gray-600 dark:text-white p-2 w-full no-scrollbar"
             ref="chatContainerRef "
           >
-            <div v-for="(message, index) in cheatMessage[selectedUser]" :key="index" class="mb-2">
+            <div
+              v-for="(message, index) in cheatMessageData[selectedChatId]"
+              :key="index"
+              class="mb-2"
+            >
               <span
                 class="font-bold"
                 :class="{
@@ -269,7 +271,7 @@ onUnmounted(() => {
             />
             <button
               class="p-2 bg-primary hover:bg-secondary text-secondary hover:text-primary rounded"
-              @click="sendMessage"
+              @click="chatSomeone()"
             >
               發送
             </button>

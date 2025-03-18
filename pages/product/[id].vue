@@ -1,7 +1,11 @@
 <script lang="ts" setup>
-import { getProductById } from "@/apis/products";
 import type { Product } from "@/types/productTypes";
+import { getProductById } from "@/apis/products";
 import { handleImageError } from "@/utils/imageHandler";
+const indexStore = useIndexStore();
+const { userId, userName } = storeToRefs(indexStore);
+const chatStore = useChatStore();
+const { isShowChat, chatIdUsersDataMap, selectedChatId } = storeToRefs(chatStore);
 const cartStore = useCartStore();
 const { handleAddCart } = cartStore;
 const route = useRoute();
@@ -36,6 +40,25 @@ const changePicture = (index: number) => {
 const addCart = async (productId: string, sellerId: string, num: number, productTitle: string) => {
   const res = await handleAddCart(productId, sellerId, num, productTitle);
 };
+
+const startChat = (toUserId: string, toUserName: string) => {
+  // 假如沒有這個聊天室就新增一個
+  if (!chatIdUsersDataMap.value[`${toUserId}-${userId.value}`]) {
+    selectedChatId.value = `${userId.value}-${toUserId}`;
+    if (!chatIdUsersDataMap.value[selectedChatId.value]) {
+      chatIdUsersDataMap.value[selectedChatId.value] = {
+        [toUserId]: toUserName,
+        [userId.value]: userName.value
+      };
+    }
+    // 假如有這個聊天室就選擇這個聊天室
+  } else {
+    selectedChatId.value = `${toUserId}-${userId.value}`;
+  }
+
+  isShowChat.value = true;
+};
+
 onMounted(async () => {
   if (!route.params.id) {
     return;
@@ -102,6 +125,12 @@ onMounted(async () => {
               <span>賣家:{{ product.sellerInfo.username }}</span>
               <span>評分:({{ product.sellerInfo.averageScore }}/5)</span>
             </NuxtLink>
+            <button
+              class="py-2 px-4 rounded bg-primary text-secondary"
+              @click="startChat(product.userId, product.sellerInfo.username)"
+            >
+              私訊賣家
+            </button>
           </div>
           <template v-if="product.discount === 0">
             <div class="flex justify-end gap-2 pr-2">
@@ -118,7 +147,7 @@ onMounted(async () => {
               <span>{{ product.unit }}</span>
             </div>
           </template>
-          <div class="flex justify-end gap-3">
+          <div class="flex justify-end gap-3 pr-2">
             <button
               type="button"
               class="btn btn-primary text-nowrap"

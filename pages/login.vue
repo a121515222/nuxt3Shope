@@ -6,7 +6,8 @@ import { setCookie, clearCookie } from "@/utils/cookie";
 const indexStore = useIndexStore();
 const messageStore = useMessageBoxStore();
 const { showAlert } = messageStore;
-const { userId, isLogin, headerHeight, windowHeight, isLoading } = storeToRefs(indexStore);
+const { userId, userName, isLogin, headerHeight, windowHeight, isLoading } =
+  storeToRefs(indexStore);
 const user = ref<UserLogin>({
   account: "",
   password: ""
@@ -57,7 +58,9 @@ const login = async () => {
     const res = await postLoginNew(user.value);
     if (process.client) {
       localStorage.setItem("userId", res.data.userId);
+      localStorage.setItem("userName", res.data.name);
       userId.value = res.data.userId;
+      userName.value = res.data.name;
       setCookie("authorization", res.data.token, 7);
       isLogin.value = true;
       router.push("/admin/userInfo");
@@ -129,7 +132,7 @@ const toggleShowPassWord = (inputRef: null | HTMLInputElement) => {
               v-if="!isForgotPassword"
             >
               <svg
-                class="w-6 h-6 text-gray-800 text-white"
+                class="w-6 h-6 text-white"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
