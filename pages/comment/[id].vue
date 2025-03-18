@@ -58,7 +58,6 @@ onMounted(async () => {
       commentList.value = res.data.comments;
       pagination.value = res.data.pagination;
     }
-    console.log(res);
   }
 });
 </script>

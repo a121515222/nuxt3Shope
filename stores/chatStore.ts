@@ -87,9 +87,6 @@ export const useChatStore = defineStore("chatStore", () => {
         socketData.chatId = selectedChatId.value;
       }
     }
-    console.log("socketDataChatId", socketData.chatId);
-    // 沒有紀錄就初始化，並檢查chatId
-
     $socket.emit("chatSomeone", socketData);
     newMessage.value = "";
   };
@@ -107,10 +104,6 @@ export const useChatStore = defineStore("chatStore", () => {
       console.error("WebSocket 连接未初始化！");
       return;
     }
-
-    $socket.on("connect", () => {
-      console.log("WebSocket 已连接:", $socket.id);
-    });
     // 接收私聊消息
     $socket.on("receiveChat", (msg: any) => {
       const { userId, name, message, toUserId, chatId } = msg;

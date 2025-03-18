@@ -34,53 +34,6 @@ const updateChatHeight = () => {
 const chatContainerRef = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 const isScrollable = ref(false);
-
-// const cheatMessageData = ref<CheatMessage>({
-//   user1: [
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" },
-//     { sender: "me", text: "hello user1" },
-//     { sender: "user1", text: "hey" }
-//   ],
-//   user2: [
-//     { sender: "me", text: "hello user2" },
-//     { sender: "user2", text: "hey" }
-//   ],
-//   user3: [
-//     { sender: "me", text: "hello user3" },
-//     { sender: "user3", text: "hey" }
-//   ]
-// });
-// const messages = ref({
-//   user1: cheatMessage.value,
-//   user2: cheatMessage.value,
-//   user3: cheatMessage.value
-// });
-// const sendMessage = () => {
-//   if (selectedUser.value) {
-//     cheatMessage.value[selectedUser.value].push({ sender: "me", text: "hello user1" });
-//   }
-// };
 const selectChatId = (chatId: string) => {
   selectedChatId.value = chatId;
 };
