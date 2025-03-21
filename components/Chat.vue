@@ -1,22 +1,18 @@
 <script lang="ts" setup>
 const indexStore = useIndexStore();
 const chatStore = useChatStore();
+const { interSectionObserver, isIntersecting, unObserver } = useInterSectionObserver();
 const { chatSomeone, connectBackEnd, nameDecide } = chatStore;
-const {
-  selectedChatId,
-  selectedUserId,
-  chatIdUsersDataMap,
-  cheatMessageData,
-  isShowChat,
-  newMessage
-} = storeToRefs(chatStore);
-const { isMainBannerIntersection, isLogin, isLoading, userId, userName } = storeToRefs(indexStore);
+const { selectedChatId, chatIdUsersDataMap, cheatMessageData, isShowChat, newMessage, isOnline } =
+  storeToRefs(chatStore);
+const { isMainBannerIntersection } = storeToRefs(indexStore);
 const messageBoxStore = useMessageBoxStore();
 const { showConfirm } = messageBoxStore;
 const { addToast } = useToastStore();
 const chatRef = ref<HTMLElement | null>(null);
 const subChatRef = ref<HTMLElement | null>(null);
 const titleRef = ref<HTMLElement | null>(null);
+const interSectionObserverRef = ref<HTMLElement | null>(null);
 const chatHeight = ref(0);
 const chatWidth = ref(0);
 const updateChatHeight = () => {
@@ -31,11 +27,9 @@ const updateChatHeight = () => {
     chatHeight.value = window.innerHeight;
   }
 };
-const chatContainerRef = ref<HTMLElement | null>(null);
-const observer = ref<IntersectionObserver | null>(null);
-const isScrollable = ref(false);
 const selectChatId = (chatId: string) => {
   selectedChatId.value = chatId;
+  console.log("selectedChatId", selectedChatId.value);
 };
 const getChatWidth = () => {
   if (chatRef.value) {
@@ -62,28 +56,9 @@ const shouldShowChatButton = () => {
 };
 
 const router = useRouter();
-const setupObserver = () => {
-  // 如果已有 observer，先斷開連接，避免重複設置
-  if (observer.value) {
-    observer.value.disconnect();
-  }
-  observer.value = new IntersectionObserver(
-    (entries) => {
-      isScrollable.value = !entries[0].isIntersecting;
-    },
-    { threshold: 1.0 }
-  );
-  const observerTarget = document.querySelector(".observer");
-  if (observerTarget) {
-    observer.value.observe(observerTarget);
-  } else {
-    console.error("observerTarget (.observer) not found");
-  }
-};
-
 watch(selectedChatId, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    setupObserver();
+    interSectionObserver(interSectionObserverRef.value);
   }
 });
 onMounted(async () => {
@@ -93,13 +68,10 @@ onMounted(async () => {
     updateChatHeight();
     window.addEventListener("resize", updateChatHeight);
   }
-  setupObserver();
+  interSectionObserver(interSectionObserverRef.value);
 });
 onUnmounted(() => {
   window.removeEventListener("resize", updateChatHeight);
-  if (observer.value) {
-    observer.value.disconnect();
-  }
 });
 </script>
 <template>
@@ -188,7 +160,7 @@ onUnmounted(() => {
           class="col-span-3 md:col-span-4 flex flex-col rounded"
           :style="{ height: `${chatHeight}px` }"
         >
-          <!-- 聊天内容（可滚动区域） -->
+          <!-- 聊天内容（可滾動區域） -->
           <div
             class="flex-1 overflow-y-auto rounded bg-gray-300 dark:bg-gray-600 dark:text-white p-2 w-full no-scrollbar"
             ref="chatContainerRef "
@@ -209,18 +181,19 @@ onUnmounted(() => {
               </span>
               {{ message.text }}
             </div>
-            <div class="observer"></div>
-            <p v-if="isScrollable" class="sticky bottom-0 left-0 text-center w-full bg-third">
-              尚有對話
-            </p>
+            <div ref="interSectionObserverRef" class="observer-test"></div>
+            <div class="sticky bottom-0 left-0 text-center">
+              <!-- <p v-if="!isOnline" class="w-full bg-red-500 text-white">對方不在線上</p> -->
+              <p v-if="!isIntersecting" class="bg-third">尚有對話</p>
+            </div>
           </div>
 
-          <!-- 输入框（始终固定在底部） -->
+          <!-- 輸入消息入框（始终固定在底部） -->
           <div class="flex gap-2 p-2 bg-white dark:bg-gray-800">
             <input
               v-model="newMessage"
               class="flex-grow border p-2 rounded"
-              placeholder="输入消息..."
+              placeholder="輸入消息..."
             />
             <button
               class="p-2 bg-primary hover:bg-secondary text-secondary hover:text-primary rounded"

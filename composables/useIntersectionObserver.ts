@@ -9,6 +9,7 @@ export function useInterSectionObserver() {
       threshold: 0
     }
   ) => {
+    unObserver();
     observer.value = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         isIntersecting.value = entry.isIntersecting;
@@ -29,5 +30,5 @@ export function useInterSectionObserver() {
   onUnmounted(() => {
     unObserver();
   });
-  return { isIntersecting, elRef, observer, interSectionObserver };
+  return { isIntersecting, elRef, observer, interSectionObserver, unObserver };
 }

@@ -24,6 +24,15 @@ interface ChatIdUsersDataMap {
 interface KeyValuePair {
   [key: string]: string;
 }
+interface MsgType {
+  toUserId: string;
+  userId: string;
+  name: string;
+  message: string;
+  chatId: string;
+  error?: string;
+  date?: Date | string;
+}
 export const useChatStore = defineStore("chatStore", () => {
   const indexStore = useIndexStore();
   const { isLogin, userId: indexUserId } = storeToRefs(indexStore);
@@ -50,9 +59,11 @@ export const useChatStore = defineStore("chatStore", () => {
   const chatDataList = ref<ChatDataList[]>([]);
   const newMessage = ref("");
   const isShowChat = ref(false);
-  const chatIdUsersDataMap = ref<ChatIdUsersDataMap>({});
+  const chatIdUsersDataMap = ref<ChatIdUsersDataMap>({
+    "67405af5e85ca5d5551ed8a7": { "5456ASDFASDF": "JACK" }
+  });
   const cheatMessageData = ref<CheatMessage>({});
-
+  const isOnline = ref(true);
   // 發送私聊消息
   const chatSomeone = () => {
     const toUserId = selectedUserId.value;
@@ -105,36 +116,40 @@ export const useChatStore = defineStore("chatStore", () => {
       return;
     }
     // 接收私聊消息
-    $socket.on("receiveChat", (msg: any) => {
-      const { userId, name, message, toUserId, chatId } = msg;
+    $socket.on("receiveChat", (msg: MsgType) => {
+      const { userId, name, message, toUserId, chatId, error } = msg;
       if (!chatIdUsersDataMap.value[chatId]) {
         chatIdUsersDataMap.value[chatId] = {
-          [toUserId]: localStorage.getItem("userName"),
-          [userId]: name
+          [toUserId]: localStorage.getItem("userName") ?? "",
+          [userId]: name ?? ""
         };
       }
       if (!cheatMessageData.value[chatId]) {
         cheatMessageData.value[chatId] = [];
       }
-      cheatMessageData.value[chatId].push({
-        text: message,
-        sender: userId === localStorage.getItem("userId") ? "me" : name
-      });
+      if (message) {
+        cheatMessageData.value[chatId].push({
+          text: message,
+          sender: userId === localStorage.getItem("userId") ? "me" : name
+        });
+      }
+      if (error === "對方不在線上") {
+        isOnline.value = false;
+      }
     });
   };
 
-  watch(isLogin, (value) => {
-    if (value) {
-      connectBackEnd();
-      initWebSocket();
-    }
-    if (!value) {
-      if ($socket) {
-        $socket.disconnect();
-      }
-    }
-  });
-  // 监听 WebSocket 事件
+  // watch(isLogin, (value) => {
+  //   if (value) {
+  //     connectBackEnd();
+  //     initWebSocket();
+  //   }
+  //   if (!value) {
+  //     if ($socket) {
+  //       $socket.disconnect();
+  //     }
+  //   }
+  // });
   onMounted(() => {
     if (isLogin.value) {
       connectBackEnd();
@@ -159,6 +174,7 @@ export const useChatStore = defineStore("chatStore", () => {
     newMessage,
     isShowChat,
     cheatMessageData,
+    isOnline,
     chatSomeone,
     connectBackEnd,
     nameDecide,

@@ -228,7 +228,7 @@ onUnmounted(() => {
                     編輯
                   </button>
                   <button
-                    class="border border-red-500 border-2 px-4 py-2 rounded-lg hover:bg-red-500"
+                    class="border-red-500 border-2 px-4 py-2 rounded-lg hover:bg-red-500"
                     type="button"
                     :disabled="isLoading"
                     :class="{ 'cursor-not-allowed': isLoading }"
