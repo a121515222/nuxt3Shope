@@ -84,6 +84,8 @@ onUnmounted(() => {
   if (intervalId) clearInterval(intervalId);
   // 移除resize事件
   window.removeEventListener("resize", updateScreenHeight);
+  // 還原監聽結果
+  isMainBannerIntersection.value = false;
 });
 </script>
 <template>

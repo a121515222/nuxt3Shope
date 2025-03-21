@@ -67,6 +67,7 @@ const handleCheckLogin = async () => {
 };
 const shouldShowFunctionButtons = () => {
   if (route.name === "index" || route.name === "product-id" || route.name === "productList") {
+    console.log("isMainBannerIntersection", isMainBannerIntersection.value);
     isShowFunctionButtons.value = !isMainBannerIntersection.value;
   } else {
     isShowFunctionButtons.value = false;
