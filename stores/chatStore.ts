@@ -16,9 +16,11 @@ interface CheatMessage {
   [key: string]: MessageType[];
 }
 interface ChatIdUsersDataMap {
-  // chatId: { toUserId:toName, userId:userName }
+  // chatId: { toUserId:toName, userId:userName, isOnline:false }
   [key: string]: {
-    [innerKey: string]: string;
+    participantId: string;
+    participantName: string;
+    isParticipantOnline: boolean;
   };
 }
 interface KeyValuePair {
@@ -60,7 +62,11 @@ export const useChatStore = defineStore("chatStore", () => {
   const newMessage = ref("");
   const isShowChat = ref(false);
   const chatIdUsersDataMap = ref<ChatIdUsersDataMap>({
-    "67405af5e85ca5d5551ed8a7": { "5456ASDFASDF": "JACK" }
+    "67405af5e85ca5d5551ed8a7-56as1df2a3ewf312": {
+      participantId: "561a3sdf1a5w3e",
+      participantName: "Jack",
+      isParticipantOnline: true
+    }
   });
   const cheatMessageData = ref<CheatMessage>({});
   const isOnline = ref(true);
@@ -105,14 +111,21 @@ export const useChatStore = defineStore("chatStore", () => {
   // 连接 WebSocket
   const connectBackEnd = () => {
     if (!$socket) {
-      console.error("WebSocket 连接未初始化！");
+      console.error("WebSocket未初始化！");
       return;
     }
     $socket.connect();
   };
+  const disconnectBackEnd = () => {
+    if (!$socket) {
+      console.error("WebSocket未初始化！");
+      return;
+    }
+    $socket.disconnect();
+  };
   const initWebSocket = () => {
     if (!$socket) {
-      console.error("WebSocket 连接未初始化！");
+      console.error("WebSocket未初始化！");
       return;
     }
     // 接收私聊消息
@@ -120,9 +133,12 @@ export const useChatStore = defineStore("chatStore", () => {
       const { userId, name, message, toUserId, chatId, error } = msg;
       if (!chatIdUsersDataMap.value[chatId]) {
         chatIdUsersDataMap.value[chatId] = {
-          [toUserId]: localStorage.getItem("userName") ?? "",
-          [userId]: name ?? ""
+          participantId: localStorage.getItem("userId") === userId ? userId : toUserId,
+          participantName: name ?? "",
+          isParticipantOnline: true
         };
+      } else {
+        chatIdUsersDataMap.value[chatId].isParticipantOnline = true;
       }
       if (!cheatMessageData.value[chatId]) {
         cheatMessageData.value[chatId] = [];
@@ -134,22 +150,22 @@ export const useChatStore = defineStore("chatStore", () => {
         });
       }
       if (error === "對方不在線上") {
-        isOnline.value = false;
+        chatIdUsersDataMap.value[chatId].isParticipantOnline = false;
       }
     });
   };
-
-  // watch(isLogin, (value) => {
-  //   if (value) {
-  //     connectBackEnd();
-  //     initWebSocket();
-  //   }
-  //   if (!value) {
-  //     if ($socket) {
-  //       $socket.disconnect();
-  //     }
-  //   }
-  // });
+  // 重新整理的時候，重新連接 WebSocket
+  watch(isLogin, (value) => {
+    if (value) {
+      connectBackEnd();
+      initWebSocket();
+    }
+    if (!value) {
+      if ($socket) {
+        $socket.disconnect();
+      }
+    }
+  });
   onMounted(() => {
     if (isLogin.value) {
       connectBackEnd();
@@ -177,6 +193,7 @@ export const useChatStore = defineStore("chatStore", () => {
     isOnline,
     chatSomeone,
     connectBackEnd,
+    disconnectBackEnd,
     nameDecide,
     userIdDecide
   };

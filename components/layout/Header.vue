@@ -7,6 +7,8 @@ const indexStore = useIndexStore();
 const { userId } = storeToRefs(indexStore);
 const cartStore = useCartStore();
 const { cartDataList } = storeToRefs(cartStore);
+const chatStore = useChatStore();
+const { disconnectBackEnd } = chatStore;
 const { addToast } = useToastStore();
 const ariaExpanded = ref(false);
 const router = useRouter();
@@ -196,6 +198,7 @@ onUnmounted(() => {
               @click.prevent="
                 closeNavbar();
                 handleLogout();
+                disconnectBackEnd();
               "
               class="block py-2 px-3 text-center rounded md:bg-transparent md:p-0 hover:cursor-pointer"
               :class="shouldShowDarkModeText()"

@@ -29,7 +29,6 @@ const updateChatHeight = () => {
 };
 const selectChatId = (chatId: string) => {
   selectedChatId.value = chatId;
-  console.log("selectedChatId", selectedChatId.value);
 };
 const getChatWidth = () => {
   if (chatRef.value) {
@@ -142,7 +141,7 @@ onUnmounted(() => {
       <div class="grid grid-cols-4 md:grid-cols-5 gap-4 px-3 w-full">
         <div class="col-span-1 flex flex-col gap-2">
           <button
-            v-for="[chatId, chatMember] in Object.entries(chatIdUsersDataMap)"
+            v-for="[chatId, participantData] in Object.entries(chatIdUsersDataMap)"
             :key="chatId"
             class="p-2 rounded hover:bg-secondary hover:text-primary"
             :class="{
@@ -151,7 +150,7 @@ onUnmounted(() => {
             }"
             @click="selectChatId(chatId)"
           >
-            {{ nameDecide(chatMember) }}
+            {{ participantData.participantName }}
           </button>
         </div>
 
@@ -183,7 +182,12 @@ onUnmounted(() => {
             </div>
             <div ref="interSectionObserverRef" class="observer-test"></div>
             <div class="sticky bottom-0 left-0 text-center">
-              <!-- <p v-if="!isOnline" class="w-full bg-red-500 text-white">對方不在線上</p> -->
+              <p
+                v-if="!chatIdUsersDataMap[selectedChatId]?.isParticipantOnline"
+                class="w-full bg-red-500 text-white"
+              >
+                對方不在線上
+              </p>
               <p v-if="!isIntersecting" class="bg-third">尚有對話</p>
             </div>
           </div>
