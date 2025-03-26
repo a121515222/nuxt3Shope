@@ -6,7 +6,7 @@ export default defineNuxtConfig({
       viewport: "width=device-width, initial-scale=1",
       title: "自種自售",
       meta: [
-        { name: "description", content: "上架自家農產品的店商網頁(展示用)" },
+        { name: "description", content: "上架自家農產品的店商網頁" },
         {
           name: "title",
           content: "自種自售"
@@ -17,7 +17,7 @@ export default defineNuxtConfig({
         },
         {
           property: "og:description",
-          content: "上架自家農產品的店商網頁(展示用)"
+          content: "上架自家農產品的店商網頁"
         },
         {
           property: "og:url",

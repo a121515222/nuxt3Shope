@@ -3,6 +3,15 @@ import type { Product } from "@/types/productTypes";
 import type { Article } from "@/types/articleTypes";
 import { useFetchArticles } from "@/composables/useFetchArticle";
 import { useFetchProducts } from "@/composables/useFetchProduct";
+
+useHead({
+  meta: [
+    {
+      name: "google-site-verification",
+      content: "xw5pwlXnpzn_0Wn6DKOJxOyXg5IKyPsJzuKSut0sL14"
+    }
+  ]
+});
 const indexProductDataList = useState<Product[]>("indexProductDataList", () => []);
 const specialProductDataList = useState<Product[]>("specialProductDataList", () => []);
 const indexArticleDataList = useState<Article[]>("indexArticleDataList", () => []);

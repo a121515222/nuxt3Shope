@@ -16,7 +16,7 @@ interface CheatMessage {
   [key: string]: MessageType[];
 }
 interface ChatIdUsersDataMap {
-  // chatId: { toUserId:toName, userId:userName, isOnline:false }
+  // chatId: { participantId, participantName, isParticipantOnline:false }
   [key: string]: {
     participantId: string;
     participantName: string;
