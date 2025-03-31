@@ -1,11 +1,16 @@
 <script lang="ts" setup>
+import type { ConversationType, ChatIdUsersDataMapType } from "@/types/conversationTypes";
+import type { ChatMessageType } from "@/types/chatMessageTypes";
+import type { MessageType } from "@/stores/chatStore";
+import { getConversationList } from "@/apis/conversationAPI";
+import { getChatMessage } from "@/apis/chatMessageAPI";
 const indexStore = useIndexStore();
 const chatStore = useChatStore();
 const { interSectionObserver, isIntersecting, unObserver } = useInterSectionObserver();
 const { chatSomeone, connectBackEnd, nameDecide } = chatStore;
 const { selectedChatId, chatIdUsersDataMap, cheatMessageData, isShowChat, newMessage, isOnline } =
   storeToRefs(chatStore);
-const { isMainBannerIntersection } = storeToRefs(indexStore);
+const { isMainBannerIntersection, isLogin } = storeToRefs(indexStore);
 const messageBoxStore = useMessageBoxStore();
 const { showConfirm } = messageBoxStore;
 const { addToast } = useToastStore();
@@ -27,8 +32,25 @@ const updateChatHeight = () => {
     chatHeight.value = window.innerHeight;
   }
 };
-const selectChatId = (chatId: string) => {
+const selectChatId = async (chatId: string) => {
   selectedChatId.value = chatId;
+  await getChatMessageData(chatId);
+};
+const getEarlierChat = async () => {
+  const chatId = selectedChatId.value;
+
+  if (chatId) {
+    const timestamp = cheatMessageData.value[chatId]?.messageTimestamp;
+    const chatMessage = await getChatMessage(chatId, timestamp);
+    const { data } = chatMessage;
+
+    const earlierChat = handleChatMessage(data.latestMessages);
+
+    cheatMessageData.value[chatId].message = earlierChat.concat(
+      cheatMessageData.value[chatId].message
+    );
+    cheatMessageData.value[chatId].messageTimestamp = data.messageTimestamp;
+  }
 };
 const getChatWidth = () => {
   if (chatRef.value) {
@@ -36,8 +58,63 @@ const getChatWidth = () => {
   }
   return 0;
 };
-const toggleChat = () => {
+const getConversationListData = async () => {
+  const conversationData = await getConversationList();
+  const { data } = conversationData;
+  const { conversations } = data;
+  if (conversations.length > 0) {
+    const conversationMap = conversations.reduce<ChatIdUsersDataMapType>(
+      (map, { chatId, participantId, participantName, unreadCount, lastMessageTime }) => {
+        map[chatId] = {
+          participantId,
+          participantName,
+          unreadCount,
+          lastMessageTime,
+          isParticipantOnline: true
+        };
+        return map;
+      },
+      {}
+    );
+    chatIdUsersDataMap.value = conversationMap;
+  }
+};
+const getChatMessageData = async (chatId: string) => {
+  // 檢查是否已經有聊天記錄,如果沒有則初始化
+  if (!cheatMessageData.value[selectedChatId.value]?.message) {
+    cheatMessageData.value[selectedChatId.value] = {
+      message: [],
+      messageTimestamp: ""
+    };
+  }
+  const chatMessageData = await getChatMessage(chatId);
+  const { data } = chatMessageData;
+
+  cheatMessageData.value[selectedChatId.value].message = handleChatMessage(data.latestMessages);
+  cheatMessageData.value[selectedChatId.value].messageTimestamp = data.messageTimestamp;
+};
+const handleChatMessage = (chatMessageData: ChatMessageType[]): MessageType[] => {
+  if (!cheatMessageData.value[selectedChatId.value]) {
+    cheatMessageData.value[selectedChatId.value] = {
+      message: [],
+      messageTimestamp: ""
+    };
+  }
+  return chatMessageData.map((data) => {
+    const { isRead = false, message = "", receiverName = "", senderId, timestamp = "" } = data;
+    return {
+      isRead,
+      sender: senderId === indexStore.userId ? "me" : receiverName,
+      text: message,
+      timestamp
+    };
+  });
+};
+const toggleChat = async () => {
   isShowChat.value = !isShowChat.value;
+  if (isShowChat.value && isLogin.value) {
+    await getConversationListData();
+  }
 };
 const chatClose = () => {
   isShowChat.value = false;
@@ -68,6 +145,9 @@ onMounted(async () => {
     window.addEventListener("resize", updateChatHeight);
   }
   interSectionObserver(interSectionObserverRef.value);
+  if (isLogin.value) {
+    await getConversationListData();
+  }
 });
 onUnmounted(() => {
   window.removeEventListener("resize", updateChatHeight);
@@ -164,8 +244,15 @@ onUnmounted(() => {
             class="flex-1 overflow-y-auto rounded bg-gray-300 dark:bg-gray-600 dark:text-white p-2 w-full no-scrollbar"
             ref="chatContainerRef "
           >
+            <p
+              v-if="cheatMessageData[selectedChatId]?.messageTimestamp !== null && selectedChatId"
+              class="bg-secondary hover:cursor-pointer text-center"
+              @click="getEarlierChat"
+            >
+              更早對話
+            </p>
             <div
-              v-for="(message, index) in cheatMessageData[selectedChatId]"
+              v-for="(message, index) in cheatMessageData[selectedChatId]?.message"
               :key="index"
               class="mb-2"
             >
@@ -183,11 +270,12 @@ onUnmounted(() => {
             <div ref="interSectionObserverRef" class="observer-test"></div>
             <div class="sticky bottom-0 left-0 text-center">
               <p
-                v-if="!chatIdUsersDataMap[selectedChatId]?.isParticipantOnline"
+                v-if="!chatIdUsersDataMap[selectedChatId]?.isParticipantOnline && selectedChatId"
                 class="w-full bg-red-500 text-white"
               >
                 對方不在線上
               </p>
+
               <p v-if="!isIntersecting" class="bg-third">尚有對話</p>
             </div>
           </div>

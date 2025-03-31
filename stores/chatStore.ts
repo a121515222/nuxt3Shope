@@ -1,3 +1,4 @@
+import type { ChatIdUsersDataMapType } from "@/types/conversationTypes";
 import { defineStore } from "pinia";
 import { useNuxtApp } from "#app";
 interface ChatDataList {
@@ -7,22 +8,20 @@ interface ChatDataList {
   name: string;
   date?: Date | string;
 }
-interface MessageType {
+export interface MessageType {
   sender: "me" | string;
   text: string;
+  timestamp?: string;
+  isRead?: boolean;
 }
 
 interface CheatMessage {
-  [key: string]: MessageType[];
-}
-interface ChatIdUsersDataMap {
-  // chatId: { participantId, participantName, isParticipantOnline:false }
   [key: string]: {
-    participantId: string;
-    participantName: string;
-    isParticipantOnline: boolean;
-  };
+    message: MessageType[];
+    messageTimestamp: string;
+  }
 }
+
 interface KeyValuePair {
   [key: string]: string;
 }
@@ -61,13 +60,7 @@ export const useChatStore = defineStore("chatStore", () => {
   const chatDataList = ref<ChatDataList[]>([]);
   const newMessage = ref("");
   const isShowChat = ref(false);
-  const chatIdUsersDataMap = ref<ChatIdUsersDataMap>({
-    "67405af5e85ca5d5551ed8a7-56as1df2a3ewf312": {
-      participantId: "561a3sdf1a5w3e",
-      participantName: "Jack",
-      isParticipantOnline: true
-    }
-  });
+  const chatIdUsersDataMap = ref<ChatIdUsersDataMapType>({});
   const cheatMessageData = ref<CheatMessage>({});
   const isOnline = ref(true);
   // 發送私聊消息
@@ -82,7 +75,8 @@ export const useChatStore = defineStore("chatStore", () => {
       chatId?: string;
     } = {};
     if (!cheatMessageData.value[selectedChatId.value] && !cheatMessageData.value[reverseChatId]) {
-      cheatMessageData.value[selectedChatId.value] = [];
+      // 如果沒有這個chatId，就要新增一個
+      cheatMessageData.value[selectedChatId.value] = { message: [], messageTimestamp: "" };
       socketData.message = newMessage.value;
       socketData.userId = localStorage.getItem("userId") ?? "";
       socketData.name = localStorage.getItem("userName") ?? "";
@@ -135,16 +129,19 @@ export const useChatStore = defineStore("chatStore", () => {
         chatIdUsersDataMap.value[chatId] = {
           participantId: localStorage.getItem("userId") === userId ? userId : toUserId,
           participantName: name ?? "",
-          isParticipantOnline: true
+          isParticipantOnline: true,
+          unreadCount: 0,
+          lastMessageTime: new Date().toISOString()
         };
       } else {
         chatIdUsersDataMap.value[chatId].isParticipantOnline = true;
       }
       if (!cheatMessageData.value[chatId]) {
-        cheatMessageData.value[chatId] = [];
+
+        cheatMessageData.value[chatId] = { message: [], messageTimestamp: "" };
       }
       if (message) {
-        cheatMessageData.value[chatId].push({
+        cheatMessageData.value[chatId].message.push({
           text: message,
           sender: userId === localStorage.getItem("userId") ? "me" : name
         });
