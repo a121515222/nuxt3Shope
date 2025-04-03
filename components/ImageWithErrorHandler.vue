@@ -30,8 +30,8 @@ onMounted(() => {
 
 watch(
   () => props.src,
-  (newSrc) => {
-    if (newSrc) {
+  (newSrc, oldScr) => {
+    if (newSrc !== oldScr) {
       const img = new Image();
       img.onload = () => {
         imgSrc.value = newSrc;
