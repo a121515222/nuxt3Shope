@@ -1,1 +1,3 @@
-
+User-agent: *
+Allow: /
+Sitemap: https://nuxt3-shop.chun-chia.name/sitemap.xml
