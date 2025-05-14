@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from "nuxt/config";
+const isDev = process.env.NUXT_PUBLIC_BASE_ENV === 'dev'
 export default defineNuxtConfig({
   app: {
     head: {
@@ -62,7 +63,21 @@ export default defineNuxtConfig({
       }
     ],
     "@nuxtjs/tailwindcss",
-    "@vueuse/nuxt"
+    "@vueuse/nuxt",
+    [
+      '@nuxtjs/sitemap',
+      {
+        siteUrl:isDev? "https://localhost:3000":`https://${process.env.NUXT_PUBLIC_FRONTEND_URL}` , // ← 你的網站網址（必要）
+        trailingSlash: false, // 根據你是否使用結尾斜線調整
+        // routes: async () => {
+        //   // 靜態路由自動處理，你只需處理動態的
+        //   return [
+        //     '/product/abc',
+        //     '/blog/123',
+        //   ];
+        // },
+      }
+    ]
   ],
   vite: {
     define: {

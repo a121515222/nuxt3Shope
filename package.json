@@ -13,6 +13,7 @@
     "@ckeditor/ckeditor5-build-classic": "^43.2.0",
     "@ckeditor/ckeditor5-vue": "^7.2.0",
     "@nuxt/types": "^2.18.1",
+    "@nuxtjs/sitemap": "^7.2.10",
     "@pinia/nuxt": "^0.5.4",
     "@popperjs/core": "^2.11.8",
     "@vue/runtime-core": "^3.5.6",

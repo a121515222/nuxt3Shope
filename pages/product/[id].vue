@@ -49,7 +49,9 @@ const startChat = (toUserId: string, toUserName: string) => {
       chatIdUsersDataMap.value[selectedChatId.value] = {
         participantId: toUserId,
         participantName: toUserName,
-        isParticipantOnline: true
+        isParticipantOnline: true,
+        unreadCount: 0,
+        lastMessageTime: ""
       };
     }
     // 假如有這個聊天室就選擇這個聊天室
